@@ -6,9 +6,8 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-	{ name: "Dashboard", href: "/" },
-	{ name: "Analytics", href: "/analytics" },
-	{ name: "Settings", href: "/settings" },
+	{ name: "Amacén", href: "/" },
+	{ name: "Picking", href: "/#" },
 ];
 
 const Navbar: React.FC = () => {
@@ -28,7 +27,7 @@ const Navbar: React.FC = () => {
 				<div className="hidden md:flex space-x-8">
 					{navItems.map((item) => (
 						<Link key={item.name} href={item.href}>
-							<a className="text-gray-300 hover:text-white">{item.name}</a>
+							{item.name}
 						</Link>
 					))}
 				</div>
@@ -64,9 +63,9 @@ const Navbar: React.FC = () => {
 				<div className="md:hidden">
 					{navItems.map((item) => (
 						<Link key={item.name} href={item.href}>
-							<a className="block py-2 px-4 text-gray-300 hover:bg-gray-700 hover:text-white">
+							<div className="block py-2 px-4 text-gray-300 hover:bg-gray-700 hover:text-white">
 								{item.name}
-							</a>
+							</div>
 						</Link>
 					))}
 					<div className="py-2 px-4">
