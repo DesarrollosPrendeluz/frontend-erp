@@ -1,34 +1,54 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { headers } from 'next/headers';
 
-const useFetchData = (url: string) => {
-  const [data, setData] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+interface UseFetchDataProps<T> {
+  url: string;
+  page: number;
+  limit?: number;
+  initialData?: T[];
+}
+
+interface UseFetchDataResult<T> {
+  data: T[];
+  totalPages: number;
+  isLoading: boolean;
+  error: Error | null;
+}
+
+const useFetchData = <T>({ url, page, limit = 5, initialData = [] }: UseFetchDataProps<T>): UseFetchDataResult<T> => {
+  const [data, setData] = useState<T[]>(initialData);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       const token = document.cookie.split("=")[1]
+      setIsLoading(true);
       try {
         const response = await axios.get(url, {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`
           },
+          params: {
+            page: page,
+            page_size: limit
+          }
         });
-        setData(response.data.results);
-      } catch (err: any) {
-
-        setError(err.message || 'An error occurred');
+        setData(response.data.Results.data);
+        setTotalPages(response.data.Results.recount);
+      } catch (err) {
+        setError(err as Error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [url]);
+  }, [url, page, limit]);
 
-  return { data, loading, error };
+  return { data, totalPages, isLoading, error };
 };
 
 export default useFetchData;
+

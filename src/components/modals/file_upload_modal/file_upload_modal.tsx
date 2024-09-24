@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import BaseModal from '../base_modal'; 
+import BaseModal from '../base_modal';
 interface ModalProps {
   buttonName: string; // Controla si el modal está abierto o cerrado
   actionName: string; // Contenido del modal
@@ -35,8 +35,8 @@ const FileUploadModel: React.FC<ModalProps> = ({ buttonName, actionName, onFileU
 
   return (
     <>
-      <button 
-        className="my-2 py-1 mx-2 focus:outline-none text-black bg-yellow-400 hover:bg-yellow-400 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-2   me-2 mb-2 dark:bg-yellow-400 dark:hover:bg-yellow-400 dark:focus:ring-yellow-900modal-close" 
+      <button
+        className="my-2 py-1 mx-2 focus:outline-none text-black bg-yellow-400 hover:bg-yellow-400 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-2   me-2 mb-2 dark:bg-yellow-400 dark:hover:bg-yellow-400 dark:focus:ring-yellow-900modal-close"
         onClick={openModal}>
         {buttonName}</button>
 
@@ -54,12 +54,12 @@ const FileUploadModel: React.FC<ModalProps> = ({ buttonName, actionName, onFileU
           </label>
         </div>
         <div className='flex justify-end'>
-                <button type="button" 
-                    onClick={handleUploadClick}
-                    className="my-2 py-1 mx-2 focus:outline-none text-black bg-yellow-500 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-2   me-2 mb-2 dark:bg-yellow-400 dark:hover:bg-yellow-500 dark:focus:ring-yellow-900modal-close" >
-                    Subir archivo
-                </button>
-            </div>
+          <button type="button"
+            onClick={handleUploadClick}
+            className="my-2 py-1 mx-2 focus:outline-none text-black bg-yellow-500 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-2   me-2 mb-2 dark:bg-yellow-400 dark:hover:bg-yellow-500 dark:focus:ring-yellow-900modal-close" >
+            Subir archivo
+          </button>
+        </div>
       </BaseModal>
     </>
 

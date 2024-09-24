@@ -1,88 +1,52 @@
 import React, { useState } from "react";
-import Link from "next/link";
+import NextLink from "next/link";
+import { Box, Flex, Link, Button } from "@chakra-ui/react";
 interface NavItem {
 	name: string;
 	href: string;
 }
 
-const navItems: NavItem[] = [
-	{ name: "Amacén", href: "/" },
-	{ name: "Picking", href: "/#" },
-];
 
 const Navbar: React.FC = () => {
-	const [isOpen, setIsOpen] = useState(false);
-
-	const toggleMenu = () => {
-		setIsOpen(!isOpen);
-	};
 
 	return (
-		<nav className="bg-gray-800 p-4">
-			<div className="container mx-auto flex items-center justify-between">
-				<div className="text-white text-xl font-bold">
+		<Box bg="gray.700" px={4} mb={6}>
+			<Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
+				<Box color="white" fontWeight="bold" fontSize="lg">
 					Dashboard
-				</div>
+				</Box>
+				<Flex alignItems={"center"} justifyContent={"center"} flex={1}>
+					<NextLink href="/dashboard/store" passHref>
+						<Box
+							px={4}
+							color="gray.300"
+							fontWeight="bold"
+							_hover={{ color: "gray.100", textDecoration: "underline" }}
+						>
+							Stock
 
-				<div className="hidden md:flex space-x-8">
-					{navItems.map((item) => (
-						<Link key={item.name} href={item.href}>
-							{item.name}
-						</Link>
-					))}
-				</div>
+						</Box>
+					</NextLink>
+					<NextLink href="/orders" passHref>
+						<Box
+							px={4}
+							color="gray.300"
+							fontWeight="bold"
+							_hover={{ color: "gray.100", textDecoration: "underline" }}
+						>
+							Pedidos
 
-				<div className="hidden md:flex items-center space-x-4">
-					<span className="text-gray-300">Admin</span>
-					<div className="relative">
-						<button className="text-white focus:outline-none">
-							<img
-								className="h-8 w-8 rounded-full"
-								src="https://via.placeholder.com/32"
-								alt="User Profile"
-							/>
-						</button>
-					</div>
-				</div>
-
-				<div className="md:hidden">
-					<button onClick={toggleMenu} className="text-gray-300 hover:text-white focus:outline-none">
-						<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth="2"
-								d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16m-7 6h7"}
-							/>
-						</svg>
-					</button>
-				</div>
-			</div>
-
-			{isOpen && (
-				<div className="md:hidden">
-					{navItems.map((item) => (
-						<Link key={item.name} href={item.href}>
-							<div className="block py-2 px-4 text-gray-300 hover:bg-gray-700 hover:text-white">
-								{item.name}
-							</div>
-						</Link>
-					))}
-					<div className="py-2 px-4">
-						<span className="block text-gray-300">Admin</span>
-						<div className="flex items-center mt-2">
-							<img
-								className="h-8 w-8 rounded-full"
-								src="https://via.placeholder.com/32"
-								alt="User Profile"
-							/>
-						</div>
-					</div>
-				</div>
-			)}
-		</nav>
+						</Box>
+					</NextLink>
+				</Flex>
+				<Button ml={4} colorScheme="gray" variant="outline">
+					Sign In
+				</Button>
+			</Flex>
+		</Box>
 	);
 };
+
 
 export default Navbar;
 
