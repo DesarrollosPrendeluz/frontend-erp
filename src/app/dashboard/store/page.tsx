@@ -21,7 +21,7 @@ interface StoreItems {
 }
 
 const Store = () => {
-  var apiUrl = "http://localhost:8080/";
+  const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
   const [currentPage, setCurrentPage] = useState(1);
   const {
     data: items,
@@ -29,7 +29,7 @@ const Store = () => {
     isLoading,
     error,
   } = useFetchData<StoreItems>({
-    url: apiUrl + "store/default",
+    url: `${apiUrl}/store/default`,
     page: currentPage,
     limit: 2,
   });

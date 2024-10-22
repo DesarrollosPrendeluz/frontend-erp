@@ -38,7 +38,7 @@ const divideOrders = (orders: Order[]) => {
 };
 
 const Orders = () => {
-  var apiUrl = "http://localhost:8080/";
+  const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const {
@@ -47,7 +47,7 @@ const Orders = () => {
     isLoading,
     error,
   } = useFetchData<Order>({
-    url: apiUrl + "order",
+    url: `${apiUrl}/order`,
     page: currentPage,
     limit: 10,
   });

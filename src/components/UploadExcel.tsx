@@ -8,6 +8,7 @@ const FileUpload: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState<boolean>(false);
+  const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
 
   // Manejador de cambios cuando se selecciona un archivo
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,7 +35,7 @@ const FileUpload: React.FC = () => {
 
       // Realiza la solicitud POST a la API
       const token = document.cookie.split("=")[1]
-      const response = await axios.post('http://localhost:8080/order/add', formData, {
+      const response = await axios.post(`${apiUrl}/order/add`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`
