@@ -46,8 +46,17 @@ const FileUpload: React.FC = () => {
       console.log('Respuesta de la API:', response.data);
     } catch (error) {
       setIsUploading(false);
-      setUploadError('Error al subir el archivo. Inténtalo de nuevo.');
-      console.error('Error al subir el archivo:', error);
+      
+      if(axios.isAxiosError(error) && error.response){
+        if(error.response.request.status == 401){
+          setUploadError('Error al subir el archivo. El usuario carece de los permisos necesarios.');
+        }else{
+          setUploadError('Error al subir el archivo. Inténtalo de nuevo.');
+        }
+        console.error('Error al subir el archivo:', error);
+
+      }
+
     }
   };
 
