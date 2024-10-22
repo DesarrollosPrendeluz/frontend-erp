@@ -27,7 +27,7 @@ export default function Home() {
         const token: string = response.data.token;
         document.cookie = `erp_token=${token}`;
         setErrorMessage("");
-        router.push("/");
+        router.push("/dashboard");
 
         // Aquí puedes manejar lo que sucede después de un login exitoso
         // Por ejemplo, guardar un token de autenticación, redirigir, etc.
