@@ -7,6 +7,7 @@ interface IncrementProps {
   receivedAmount: number;
   totalAmount: number;
   fetchOrder: () => Promise<void>;
+
 }
 import { Button, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalOverlay, Spinner } from "@chakra-ui/react";
 import axios from "axios";
@@ -18,11 +19,11 @@ const Increment: React.FC<IncrementProps> = ({
   selectedId,
   receivedAmount,
   totalAmount,
-  fetchOrder,
+  fetchOrder
 }) => {
   const [inputValue, setInputValue] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const apiUrl = "http://localhost:8080/";
+  const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
 
   useEffect(() => {
     if (isOpen) {
@@ -40,7 +41,7 @@ const Increment: React.FC<IncrementProps> = ({
       return;
     }
     try {
-      const response = await axios.patch(`${apiUrl}order/orderLines`, {
+      const response = await axios.patch(`${apiUrl}/order/orderLines`, {
         data: [{
           id: selectedId,
           recived_quantity: newReceivedAmount,
@@ -49,7 +50,7 @@ const Increment: React.FC<IncrementProps> = ({
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (response.status === 200) {
+      if (response.status === 202) {
         await fetchOrder();
       }
     } catch (err) {
