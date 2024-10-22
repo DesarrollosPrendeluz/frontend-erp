@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 interface UseFetchDataProps<T> {
   url: string;
@@ -15,7 +15,12 @@ interface UseFetchDataResult<T> {
   error: Error | null;
 }
 
-const useFetchData = <T>({ url, page, limit = 5, initialData = [] }: UseFetchDataProps<T>): UseFetchDataResult<T> => {
+const useFetchData = <T>({
+  url,
+  page,
+  limit = 5,
+  initialData = [],
+}: UseFetchDataProps<T>): UseFetchDataResult<T> => {
   const [data, setData] = useState<T[]>(initialData);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,20 +28,20 @@ const useFetchData = <T>({ url, page, limit = 5, initialData = [] }: UseFetchDat
 
   useEffect(() => {
     const fetchData = async () => {
-      const token = document.cookie.split("=")[1]
+      const token = document.cookie.split("=")[1];
       setIsLoading(true);
       try {
         const response = await axios.get(url, {
           headers: {
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
           params: {
             page: page,
-            page_size: limit
-          }
+            page_size: limit,
+          },
         });
         setData(response.data.Results.data);
-        setTotalPages(response.data.Results.recount);
+        setTotalPages(Math.ceil(response.data.Results.recount / limit));
       } catch (err) {
         setError(err as Error);
       } finally {
@@ -51,4 +56,3 @@ const useFetchData = <T>({ url, page, limit = 5, initialData = [] }: UseFetchDat
 };
 
 export default useFetchData;
-

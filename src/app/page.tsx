@@ -1,11 +1,8 @@
-"use client"
+"use client";
 import { NextPage } from "next";
 
 const Home: NextPage = () => {
-  return (
-    <div className="min-h-screen bg-gray-100">
-    </div>
-  );
+  return <div className="min-h-screen bg-gray-100"></div>;
 };
 
 export default Home;

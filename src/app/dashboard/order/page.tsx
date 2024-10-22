@@ -1,58 +1,88 @@
-"use client"
-import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Box, Heading, List, ListItem, Text } from '@chakra-ui/react';
-import Pagination from '@/components/Pagination';
-import useFetchData from '@/hooks/fetchData';
-import React from 'react'
-import { useState } from 'react'
+"use client";
+import {
+  Box,
+  Heading,
+  Spinner,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+} from "@chakra-ui/react";
+import Pagination from "@/components/Pagination";
+import useFetchData from "@/hooks/fetchData";
+import React from "react";
+import { useState } from "react";
+import EntryOrder from "@/components/orders/EntryOrder";
+import { useRouter } from "next/navigation";
 
-interface OrderItems {
-    OrderCode: string;
-    items: []
+export interface OrderItem {
+  Sku: string;
+  Amount: number;
+  Id: number;
+  RecivedAmount: number;
 }
 
+export interface Order {
+  OrderCode: string;
+  Type: string;
+  Status: string;
+  ItemsOrdered: OrderItem[];
+  TypeID: number;
+}
+const divideOrders = (orders: Order[]) => {
+  const entrada = orders.filter((order) => order.TypeID === 2);
+  const salida = orders.filter((order) => order.TypeID === 1);
+
+  return { entrada, salida };
+};
 
 const Orders = () => {
-    var apiUrl = 'http://localhost:8080/'
-    const [currentPage, setCurrentPage] = useState(1);
-    const { data: orders, totalPages, isLoading, error } = useFetchData<OrderItems>({
-        url: apiUrl + 'order',
-        page: currentPage,
-        limit: 2,
-    });
+  var apiUrl = "http://localhost:8080/";
+  const router = useRouter();
+  const [currentPage, setCurrentPage] = useState(1);
+  const {
+    data: orders,
+    totalPages,
+    isLoading,
+    error,
+  } = useFetchData<Order>({
+    url: apiUrl + "order",
+    page: currentPage,
+    limit: 10,
+  });
+  if (isLoading) {
+    return <Spinner size="xl" />;
+  }
+  const { entrada, salida } = divideOrders(orders);
 
+  return (
+    <Box maxW="1200px" mx="auto" mt={8} p={4}>
+      <Heading>Pedidos</Heading>
+      <Tabs variant={"soft-rounded"}>
+        <TabList>
+          <Tab>Ventas</Tab>
+          <Tab>Compras</Tab>
+        </TabList>
 
-    return (
-        <Box maxW="1200px" mx="auto" mt={8} p={4}>
-            <Heading>Pedidos</Heading>
-            <Accordion allowMultiple>
+        <TabPanels>
+          <TabPanel>
+            <EntryOrder orders={entrada} />
+          </TabPanel>
 
-                {Object.keys(orders).map((order) => (
-                    <AccordionItem key={order}>
-                        <AccordionButton>
-                            <Box flex={1} textAlign={"left"} fontWeight="bold">{order}</Box>
-                            <AccordionIcon />
-                        </AccordionButton>
-                        <AccordionPanel>
-                            <List spacing={3}>
-                                {orders[order].map((item: { Sku: string; Amount: number }) => (
-                                    <ListItem key={item.Sku}>
-                                        <Text>{item.Sku}</Text>
-                                        <Text>{item.Amount}</Text>
-                                    </ListItem>
-                                ))}
-                            </List>
-                        </AccordionPanel>
-                    </AccordionItem>
-                ))}
-            </Accordion>
-            <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={(page) => setCurrentPage(page)}
-            />
+          <TabPanel>
+            <EntryOrder orders={salida} />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
 
-        </Box>
-    );
-}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={(page) => setCurrentPage(page)}
+      />
+    </Box>
+  );
+};
 
-export default Orders
+export default Orders;
