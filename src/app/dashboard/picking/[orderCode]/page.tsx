@@ -39,8 +39,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const order = response.data.Results.data[0];
-      console.log('order')
-      console.log(order)
+
       if (order) {
         setOrder(order);
       }

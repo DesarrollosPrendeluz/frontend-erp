@@ -68,8 +68,6 @@ interface Options{
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value;
-    console.log("id");
-    console.log(orderId)
 
       
         const response =  axios.patch(`${apiUrl}/order`, 
@@ -88,7 +86,7 @@ interface Options{
             }
           }
         ).then(function (response) {
-            console.log(response);
+            //console.log(response);
           })
           .catch(function (error) {
             console.log(error);
