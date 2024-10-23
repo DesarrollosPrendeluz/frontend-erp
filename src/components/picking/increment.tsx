@@ -35,13 +35,18 @@ const Increment: React.FC<IncrementProps> = ({
     if (selectedId === null || inputValue === "") return;
     const token = document.cookie.split("=")[1];
     const inputValueNumber = Number(inputValue)
-    const newReceivedAmount = receivedAmount + inputValueNumber
-    if (newReceivedAmount > totalAmount) {
-      console.error("La cantidad recibida excede el total")
-      return;
+    let newReceivedAmount = 0;
+    let endpoint = ""
+    if(inputValueNumber > 0){
+      newReceivedAmount = inputValueNumber
+      endpoint = "/add"
+    }else{
+      newReceivedAmount = inputValueNumber * -1
+      endpoint = "/remove"
     }
+
     try {
-      const response = await axios.patch(`${apiUrl}/order/orderLines`, {
+      const response = await axios.patch(`${apiUrl}/order/orderLines${endpoint}`, {
         data: [{
           id: selectedId,
           recived_quantity: newReceivedAmount,
