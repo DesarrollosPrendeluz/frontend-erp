@@ -14,9 +14,10 @@ import {
   Thead,
   Tr,
   IconButton,
-  useDisclosure,
+  useDisclosure
 } from "@chakra-ui/react";
 import Increment from "@/components/picking/increment";
+import Select from "@/components/select/select";
 
 const Picking = ({ params }: { params: { orderCode: string } }) => {
   const [order, setOrder] = useState<Order | null>(null);
@@ -38,6 +39,8 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const order = response.data.Results.data[0];
+      console.log('order')
+      console.log(order)
       if (order) {
         setOrder(order);
       }
@@ -84,7 +87,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
     <Box maxW="1200px" mx={"auto"}>
       <h1>Detalles del pedido: {order?.OrderCode}</h1>
       <Text>Tipo: {order?.Type}</Text>
-      <Text>Estado: {order?.Status}</Text>
+      <Select orderId={order?.Id} status={order?.Status} statusId={order?.StatusID}></Select>
 
       <Table variant="simple" mt={4}>
         <Thead>

@@ -24,9 +24,11 @@ export interface OrderItem {
 }
 
 export interface Order {
+  Id:number;
   OrderCode: string;
   Type: string;
   Status: string;
+  StatusID:number;
   ItemsOrdered: OrderItem[];
   TypeID: number;
 }
