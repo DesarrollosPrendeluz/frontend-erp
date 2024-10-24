@@ -14,9 +14,10 @@ import {
   Thead,
   Tr,
   IconButton,
-  useDisclosure,
+  useDisclosure
 } from "@chakra-ui/react";
 import Increment from "@/components/picking/increment";
+import Select from "@/components/select/select";
 
 const Picking = ({ params }: { params: { orderCode: string } }) => {
   const [order, setOrder] = useState<Order | null>(null);
@@ -25,7 +26,8 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [labelData, setLabelData] = useState<OrderLineLabelProps | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const apiUrl = "http://localhost:8080/";
+  const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isLabelOpen, onOpen: onLabelOpen, onClose: onLabelClose } = useDisclosure();
 
@@ -33,10 +35,11 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
   const fetchOrder = async () => {
     const token = document.cookie.split("=")[1];
     try {
-      const response = await axios.get<{ Results: { data: Order[] } }>(`${apiUrl}order?order_code=${params.orderCode}`, {
+      const response = await axios.get<{ Results: { data: Order[] } }>(`${apiUrl}/order?order_code=${params.orderCode}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const order = response.data.Results.data[0];
+
       if (order) {
         setOrder(order);
       }
@@ -63,7 +66,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
     onLabelOpen();
     try {
       const token = document.cookie.split("=")[1];
-      const response = await axios.get(`${apiUrl}order/orderLines/labels?line_id=${id}`, {
+      const response = await axios.get(`${apiUrl}/order/orderLines/labels?line_id=${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
 
@@ -83,7 +86,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
     <Box maxW="1200px" mx={"auto"}>
       <h1>Detalles del pedido: {order?.OrderCode}</h1>
       <Text>Tipo: {order?.Type}</Text>
-      <Text>Estado: {order?.Status}</Text>
+      <Select orderId={order?.Id} status={order?.Status} statusId={order?.StatusID}></Select>
 
       <Table variant="simple" mt={4}>
         <Thead>

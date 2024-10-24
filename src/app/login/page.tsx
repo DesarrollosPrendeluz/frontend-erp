@@ -10,7 +10,6 @@ export default function Home() {
   const router = useRouter(); // Usar el hook useRouter
 
   const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
-  console.log(apiUrl);
 
   // Función para manejar el envío del formulario
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -27,7 +26,7 @@ export default function Home() {
         const token: string = response.data.token;
         document.cookie = `erp_token=${token}`;
         setErrorMessage("");
-        router.push("/");
+        router.push("/dashboard");
 
         // Aquí puedes manejar lo que sucede después de un login exitoso
         // Por ejemplo, guardar un token de autenticación, redirigir, etc.
