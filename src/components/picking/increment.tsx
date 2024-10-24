@@ -1,4 +1,5 @@
 "use client";
+import Cookies from 'js-cookie'
 
 interface IncrementProps {
   isOpen: boolean;
@@ -33,7 +34,7 @@ const Increment: React.FC<IncrementProps> = ({
 
   const incrementReceived = async () => {
     if (selectedId === null || inputValue === "") return;
-    const token = document.cookie.split("=")[1];
+    const token =     Cookies.get("erp_token");
     const inputValueNumber = Number(inputValue)
     let newReceivedAmount = 0;
     let endpoint = ""

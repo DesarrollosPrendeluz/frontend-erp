@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import NextLink from "next/link";
 import { Box, Flex, Link, Button } from "@chakra-ui/react";
 import { useRouter } from "next/router";
+import Cookies from 'js-cookie'
 interface NavItem {
   name: string;
   href: string;

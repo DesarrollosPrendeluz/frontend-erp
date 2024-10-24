@@ -24,7 +24,9 @@ export default function Home() {
 
       if (response.status === 200) {
         const token: string = response.data.token;
+        const id: string = response.data.id;
         document.cookie = `erp_token=${token}`;
+        document.cookie = `user=${id}`;
         setErrorMessage("");
         router.push("/dashboard");
 

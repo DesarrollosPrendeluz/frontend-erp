@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Cookies from 'js-cookie'
 
 
 // Definir el tipo de las opciones
@@ -26,7 +27,7 @@ interface Options{
     const [error, setError] = useState<string | null>(null); // Estado de error
     const [selectedValue, setSelectedValue] = useState<number>(0)// Estado de error
     const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
-    const token = document.cookie.split("=")[1];
+    const token =     Cookies.get("erp_token");
 
 
 

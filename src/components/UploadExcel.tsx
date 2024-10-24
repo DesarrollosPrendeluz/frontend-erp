@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Button, Input, Box, Spinner } from '@chakra-ui/react';
 import { request } from 'http';
+import Cookies from 'js-cookie'
 
 const FileUpload: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -34,7 +35,7 @@ const FileUpload: React.FC = () => {
       setUploadError(null); // Resetea el error antes de la subida
 
       // Realiza la solicitud POST a la API
-      const token = document.cookie.split("=")[1]
+      const token =     Cookies.get("erp_token");
       const response = await axios.post(`${apiUrl}/order/add`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
