@@ -19,8 +19,19 @@ import Pagination from "@/components/Pagination";
 import useFetchData from "@/hooks/fetchData";
 import React from "react";
 import { useState, useEffect } from "react";
+interface Supplier{
+  Name:string;
+  DeliveryTime:number;
+  
+}
+interface SupplierItem{
+  SupplierSku:string;
+  Supplier:Supplier;
+}
+
 interface ItemData{
   Name:string;
+  SupplierItems:SupplierItem[];
 }
 
 interface StoreItems {
@@ -65,6 +76,11 @@ const Store = () => {
   }, [endpoint]); // El hook se activa cuando `endpoint` cambia
 
   return (
+    <>
+    <Box maxW="1200px" mx="auto" mt={8} p={4}>
+
+      
+    </Box>
 
     <Box maxW="1200px" mx="auto" mt={8} p={4}>
       <Tabs variant={"soft-rounded"}>
@@ -79,9 +95,21 @@ const Store = () => {
       <Table>
         <Thead>
           <Tr>
-            <Th> Artículo</Th>
-            <Th> Sku</Th>
-            <Th> Amount</Th>
+          {endpoint === `${apiUrl}/store/default` ? (
+              <>
+                <Th>Artículo</Th>
+                <Th>Sku</Th>
+                <Th>Amount</Th>
+              </>
+            ) : (
+              <>
+                <Th>Artículo</Th>
+                <Th>Sku</Th>
+                <Th>Proveedor</Th>
+                <Th>Amount</Th>
+              </>
+            )}
+
           </Tr>
         </Thead>
         <Tbody>
@@ -91,11 +119,13 @@ const Store = () => {
               <Td>{item.Itemname}</Td> 
               <Td>{item.SKU}</Td>
               <Td>{item.Amount}</Td>
+
             </Tr>
             ):(
               <Tr key={item.SKU_Parent}> 
                 <Td>{item.Item?.Name || ''}</Td>  
                 <Td>{item.SKU_Parent}</Td> 
+                <Td>{item.Item?.SupplierItems[0].Supplier.Name || ''}</Td>  
                 <Td>{item.Amount}</Td>
               </Tr>
 
@@ -109,6 +139,7 @@ const Store = () => {
         onPageChange={(page) => setCurrentPage(page)}
       />
     </Box>
+    </>
   );
 };
 
