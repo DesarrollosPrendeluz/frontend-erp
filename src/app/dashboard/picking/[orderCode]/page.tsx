@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { AddIcon, InfoIcon } from "@chakra-ui/icons";
+import { AddIcon, InfoIcon, LockIcon } from "@chakra-ui/icons";
 import axios from "axios";
 import { Order, OrderItem } from "../../order/page";
 import OrderLineLabel, { OrderLineLabelProps } from "@/components/barcode/barcode";
@@ -18,6 +18,7 @@ import {
 } from "@chakra-ui/react";
 import Increment from "@/components/picking/increment";
 import Select from "@/components/select/select";
+import Cookies from 'js-cookie'
 
 const Picking = ({ params }: { params: { orderCode: string } }) => {
   const [order, setOrder] = useState<Order | null>(null);
@@ -33,7 +34,10 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
 
 
   const fetchOrder = async () => {
-    const token = document.cookie.split("=")[1];
+    const token =     Cookies.get("erp_token");
+    const userId =     Cookies.get("user");
+
+     
     try {
       const response = await axios.get<{ Results: { data: Order[] } }>(`${apiUrl}/order?order_code=${params.orderCode}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -62,10 +66,41 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
     onOpen();
   };
 
+  const assignUser = async (id: number) => {
+
+    try {
+      let tokenReq =     Cookies.get("erp_token");
+      let userIdReq =     Cookies.get("user");
+      let responseReq = await axios.post(`${apiUrl}/order/orderLines/asignation`, {
+        Assignations: [
+          {
+            line_id: id,
+            user_id: parseInt(userIdReq??"0", 10),
+          }
+        ],
+      }, 
+      {
+        headers: { 
+          Authorization: `Bearer ${tokenReq}` 
+        },
+      });
+
+      if (responseReq.status === 202) {
+        await fetchOrder();
+      }
+     
+
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleLabelModal = async (id: number) => {
     onLabelOpen();
     try {
-      const token = document.cookie.split("=")[1];
+      const token =     Cookies.get("erp_token");
       const response = await axios.get(`${apiUrl}/order/orderLines/labels?line_id=${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
@@ -114,6 +149,12 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
                   aria-label="Incrementar"
                   icon={<AddIcon />}
                   onClick={() => handleIncrementModal(item.Id, item.Amount, item.RecivedAmount)}
+                  marginRight={2}
+                />
+                <IconButton
+                  aria-label="Asignar"
+                  icon={<LockIcon />}
+                  onClick={() => assignUser(item.Id)}
                 />
               </Td>
               <Td>
