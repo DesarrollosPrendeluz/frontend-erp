@@ -93,10 +93,12 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
           <Tr>
             <Th>SKU</Th>
             <Th>Cantidad</Th>
-            <Th>ID</Th>
+            {/* <Th>ID</Th> */}
             <Th>Cantidad Recibida</Th>
+            <Th>Usuario</Th>
             <Th>Acciones</Th>
             <Th>Etiqueta</Th>
+            
           </Tr>
         </Thead>
         <Tbody>
@@ -104,8 +106,9 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
             <Tr key={item.Id}>
               <Td>{item.Sku}</Td>
               <Td>{item.Amount}</Td>
-              <Td>{item.Id}</Td>
+              {/* <Td>{item.Id}</Td> */}
               <Td>{item.RecivedAmount}</Td>
+              <Td>{item.AssignedUser.user_name}</Td>
               <Td>
                 <IconButton
                   aria-label="Incrementar"
@@ -121,6 +124,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
                 />
 
               </Td>
+              
             </Tr>
           ))}
         </Tbody>

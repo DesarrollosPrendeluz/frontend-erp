@@ -15,12 +15,19 @@ import React from "react";
 import { useState } from "react";
 import EntryOrder from "@/components/orders/EntryOrder";
 import { useRouter } from "next/navigation";
+interface AssignedUser{
+  assignation_id: number;
+  user_id: number;
+  user_name: string;
+
+}
 
 export interface OrderItem {
   Sku: string;
   Amount: number;
   Id: number;
   RecivedAmount: number;
+  AssignedUser: AssignedUser;
 }
 
 export interface Order {
