@@ -21,29 +21,9 @@ import AddOrderModal from "@/components/orders/AddOrderModal";
 import useFetchData from "@/hooks/fetchData";
 import React from "react";
 import { useState, useEffect } from "react";
+import StoreItems from "@/types/stores/StoreItem";
 
-interface Supplier{
-  Name:string;
-  DeliveryTime:number;
-}
 
-interface SupplierItem{
-  SupplierSku:string;
-  Supplier:Supplier;
-}
-
-interface ItemData{
-  Name:string;
-  SupplierItems:SupplierItem[];
-}
-
-interface StoreItems {
-  Itemname: string;
-  SKU: string;
-  Amount: string;
-  Item: ItemData;
-  SKU_Parent:string;
-}
 
 const Store = () => {
   const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
