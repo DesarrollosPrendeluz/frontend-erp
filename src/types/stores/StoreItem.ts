@@ -18,6 +18,7 @@ interface Supplier{
     Itemname: string;
     SKU: string;
     Amount: string;
+    PendingAmount: string;
     Item: ItemData;
     SKU_Parent:string;
   }

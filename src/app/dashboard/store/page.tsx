@@ -82,14 +82,15 @@ const Store = () => {
               <>
                 <Th>Artículo</Th>
                 <Th>Sku</Th>
-                <Th>Amount</Th>
+                <Th>Stock</Th>
               </>
             ) : (
               <>
                 <Th>Artículo</Th>
                 <Th>Sku</Th>
                 <Th>Proveedor</Th>
-                <Th>Amount</Th>
+                <Th>Stock</Th>
+                <Th>Pendiente de recepeción</Th>
               </>
             )}
 
@@ -105,11 +106,13 @@ const Store = () => {
 
             </Tr>
             ):(
+
               <Tr key={item.SKU_Parent}> 
                 <Td>{item.Item?.Name || ''}</Td>  
                 <Td>{item.SKU_Parent}</Td> 
                 <Td>{item.Item?.SupplierItems[0].Supplier.Name || ''}</Td>  
                 <Td>{item.Amount}</Td>
+                <Td>{item.PendingAmount}</Td>
               </Tr>
 
             )

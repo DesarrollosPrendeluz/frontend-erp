@@ -29,24 +29,30 @@ const AddOrderModal: React.FC<BasicModalProps> = ({  isOpen, onClose }) => {
     }
   );
 
-  axios.get(`${apiUrl}/supplier`, {
-    headers: {
-      Authorization: `Bearer ${token}`, // Enviar el token en los headers
-    },
-  }).then(function (response) {
-    let res = response.data.Results.data
-
-
-    if(response.status == 200){
-        const datum: Suppliers = res.map((supplier: any) => ({
-            Id: supplier.ID,    // Cambia 'id' según el campo de la respuesta
-            Name: supplier.Name // Cambia 'name' según el campo de la respuesta
-          }));
-          setSuppliersValue(datum)
-          console.log(datum)
-  }}).catch(function (error) {
-    console.log(error);
-  });
+  useEffect(() => {
+    if (isOpen) {
+      axios
+        .get(`${apiUrl}/supplier`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          if (response.status === 200) {
+            const res = response.data.Results.data;
+            const datum: Suppliers = res.map((supplier: any) => ({
+              Id: supplier.ID,
+              Name: supplier.Name,
+            }));
+            setSuppliersValue(datum);
+            console.log(datum);
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  }, [isOpen]); // Depend on `isOpen` so it runs only when the modal opens
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = parseInt(event.target.value,10);
@@ -79,7 +85,9 @@ const AddOrderModal: React.FC<BasicModalProps> = ({  isOpen, onClose }) => {
         }
       ]
     };
-    let responseReq =  axios.post(`${apiUrl}/order/orderLines/asignation`, body,
+    console.log("body request");
+    console.log(body);
+    let responseReq =  axios.post(`${apiUrl}/order/addByRequest`, body,
     {
       headers: { 
         Authorization: `Bearer ${token}` 
@@ -108,6 +116,7 @@ const AddOrderModal: React.FC<BasicModalProps> = ({  isOpen, onClose }) => {
             <div  className="w-full my-2">
               <select        id="framework-select" value={selectedValue} onChange={handleChange}>
               {
+                //FIXME: funciona pero da error semántico
                 suppliersItems && suppliersItems.map((supplier) => (
                   <option value={supplier.Id}>{supplier.Name}</option>
                 ))
@@ -120,7 +129,8 @@ const AddOrderModal: React.FC<BasicModalProps> = ({  isOpen, onClose }) => {
           <Tr>
             <Th>Sku</Th>
             <Th>Proveedor</Th>
-            <Th>Amount</Th>
+            <Th>Stock</Th>
+            <Th>Stock pendiente</Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -130,6 +140,7 @@ const AddOrderModal: React.FC<BasicModalProps> = ({  isOpen, onClose }) => {
                     <Td>{item.SKU_Parent}</Td> 
                     <Td>{item.Item?.SupplierItems[0].Supplier.Name || ''}</Td>  
                     <Td>{item.Amount}</Td>
+                    <Td>{item.PendingAmount}</Td>
                 </Tr>
                 ))
             }
