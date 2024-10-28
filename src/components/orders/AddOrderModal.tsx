@@ -15,7 +15,7 @@ interface BasicModalProps {
 
 const AddOrderModal: React.FC<BasicModalProps> = ({  isOpen, onClose }) => {
   const [input, setInputValue] = useState<string>("");
-  const [suppliersItems, setSuppliersValue] = useState<Suppliers>([]);
+  const [suppliersItems, setSuppliersValue] = useState<Suppliers>();
   const token =     Cookies.get("erp_token");
   const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
   const [endpoint, setEndpointValue] = useState<string>(`${apiUrl}/stock_deficit?store_id=1`);
@@ -85,8 +85,7 @@ const AddOrderModal: React.FC<BasicModalProps> = ({  isOpen, onClose }) => {
         }
       ]
     };
-    console.log("body request");
-    console.log(body);
+
     let responseReq =  axios.post(`${apiUrl}/order/addByRequest`, body,
     {
       headers: { 
@@ -114,15 +113,17 @@ const AddOrderModal: React.FC<BasicModalProps> = ({  isOpen, onClose }) => {
             <Button backgroundColor={'#F2C12E'}  onClick={()=>{setInputValue("suppliers")}}> Por proveedores </Button>
             </div>
             <div  className="w-full my-2">
-              <select        id="framework-select" value={selectedValue} onChange={handleChange}>
-              {
-                //FIXME: funciona pero da error semántico
-                suppliersItems && suppliersItems.map((supplier) => (
-                  <option value={supplier.Id}>{supplier.Name}</option>
-                ))
-              }
+            {input === "suppliers" && (
+                <select        id="framework-select" value={selectedValue} onChange={handleChange}>
+                {
+                  //FIXME: funciona pero da error semántico
+                  suppliersItems && suppliersItems.map((supplier) => (
+                    <option value={supplier.Id}>{supplier.Name}</option>
+                  ))
+                }
 
-              </select>
+                </select>
+                )}
             </div>
             <Table>
         <Thead>
