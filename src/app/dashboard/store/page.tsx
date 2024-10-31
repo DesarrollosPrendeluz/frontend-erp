@@ -35,7 +35,7 @@ const Store = () => {
   const {data: items, totalPages, isLoading, error} = useFetchData<StoreItems>(
     {
     url: endpoint,
-    page: currentPage,
+    page: (currentPage-1),
     limit: 2,
     }
   );
