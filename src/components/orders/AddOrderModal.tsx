@@ -16,16 +16,17 @@ interface BasicModalProps {
 const AddOrderModal: React.FC<BasicModalProps> = ({  isOpen, onClose }) => {
   const [input, setInputValue] = useState<string>("");
   const [suppliersItems, setSuppliersValue] = useState<Suppliers>();
+  const [filterItems, setFilterItemsValue] = useState<StoreItems>();
   const token =     Cookies.get("erp_token");
   const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
   const [endpoint, setEndpointValue] = useState<string>(`${apiUrl}/stock_deficit?store_id=1`);
   const [selectedValue, setSelectedValue] = useState<number>(0)// Estado de error
 
-  const {data: items, totalPages, isLoading, error} = useFetchData< StoreItems>(
+  let {data: items, totalPages, isLoading, error} = useFetchData< StoreItems>(
     {
     url: endpoint,
     page: 0,
-    limit: 2,
+    limit: 1000,
     }
   );
 
@@ -54,6 +55,8 @@ const AddOrderModal: React.FC<BasicModalProps> = ({  isOpen, onClose }) => {
     }
   }, [isOpen]); // Depend on `isOpen` so it runs only when the modal opens
 
+
+
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = parseInt(event.target.value,10);
     setEndpointValue(`${apiUrl}/stock_deficit?store_id=1&supplier=${value}`)
@@ -67,13 +70,16 @@ const AddOrderModal: React.FC<BasicModalProps> = ({  isOpen, onClose }) => {
   const handleConfirm = () => {
     // Aquí puedes manejar la lógica de confirmación (ej. enviar datos)
     //console.log("Valor ingresado:", inputValue);
-    const datum: object = items.map((item: any) => ({
-        item_id: item.Item.ID,
-        quantity: item.Amount,
-        recived_quantity: 0,
-        client_id: 1,
-        store_id: 1
-    }));
+    const datum: object = items
+      .filter((item: any) => item.Amount != 0) // Filtra los elementos con Amount distinto de 0
+      .map((item: any) => ({
+          item_id: item.Item.ID,
+          quantity: item.Amount,
+          recived_quantity: 0,
+          client_id: 1,
+          store_id: 1
+      }));
+
     let body = {
       data: [
         {
@@ -95,10 +101,6 @@ const AddOrderModal: React.FC<BasicModalProps> = ({  isOpen, onClose }) => {
 
     onClose(); // Cierra el modal después de confirmar
   };
-
-  useEffect(() => {
-    console.log("El valor del input ha cambiado:", input);
-  }, [input]); // Dependencia: se ejecuta cuando `input` cambia
 
   return (
     <Modal  isOpen={isOpen} onClose={onClose} isCentered >
@@ -136,7 +138,9 @@ const AddOrderModal: React.FC<BasicModalProps> = ({  isOpen, onClose }) => {
         </Thead>
         <Tbody>
             {
-                items.map((item) => (
+                items.
+                filter((item) => item.Amount != "0").
+                map((item) => (
                 <Tr key={item.SKU_Parent}> 
                     <Td>{item.SKU_Parent}</Td> 
                     <Td>{item.Item?.SupplierItems[0].Supplier.Name || ''}</Td>  
