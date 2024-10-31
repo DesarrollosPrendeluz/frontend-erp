@@ -57,7 +57,7 @@ const Orders = () => {
     error,
   } = useFetchData<Order>({
     url: `${apiUrl}/order`,
-    page: currentPage,
+    page: (currentPage -1),
     limit: 10,
   });
   if (isLoading) {
