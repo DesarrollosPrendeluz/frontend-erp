@@ -1,4 +1,5 @@
 "use client";
+import Cookies from 'js-cookie'
 
 interface IncrementProps {
   isOpen: boolean;
@@ -7,6 +8,7 @@ interface IncrementProps {
   receivedAmount: number;
   totalAmount: number;
   fetchOrder: () => Promise<void>;
+
 }
 import { Button, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalOverlay, Spinner } from "@chakra-ui/react";
 import axios from "axios";
@@ -18,11 +20,11 @@ const Increment: React.FC<IncrementProps> = ({
   selectedId,
   receivedAmount,
   totalAmount,
-  fetchOrder,
+  fetchOrder
 }) => {
   const [inputValue, setInputValue] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const apiUrl = "http://localhost:8080/";
+  const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
 
   useEffect(() => {
     if (isOpen) {
@@ -32,15 +34,20 @@ const Increment: React.FC<IncrementProps> = ({
 
   const incrementReceived = async () => {
     if (selectedId === null || inputValue === "") return;
-    const token = document.cookie.split("=")[1];
+    const token =     Cookies.get("erp_token");
     const inputValueNumber = Number(inputValue)
-    const newReceivedAmount = receivedAmount + inputValueNumber
-    if (newReceivedAmount > totalAmount) {
-      console.error("La cantidad recibida excede el total")
-      return;
+    let newReceivedAmount = 0;
+    let endpoint = ""
+    if(inputValueNumber > 0){
+      newReceivedAmount = inputValueNumber
+      endpoint = "/add"
+    }else{
+      newReceivedAmount = inputValueNumber * -1
+      endpoint = "/remove"
     }
+
     try {
-      const response = await axios.patch(`${apiUrl}order/orderLines`, {
+      const response = await axios.patch(`${apiUrl}/order/orderLines${endpoint}`, {
         data: [{
           id: selectedId,
           recived_quantity: newReceivedAmount,
@@ -49,7 +56,7 @@ const Increment: React.FC<IncrementProps> = ({
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (response.status === 200) {
+      if (response.status === 202) {
         await fetchOrder();
       }
     } catch (err) {

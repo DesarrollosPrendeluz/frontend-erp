@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import Cookies from 'js-cookie'
 
 interface UseFetchDataProps<T> {
   url: string;
@@ -28,7 +29,7 @@ const useFetchData = <T>({
 
   useEffect(() => {
     const fetchData = async () => {
-      const token = document.cookie.split("=")[1];
+      const token =     Cookies.get("erp_token");
       setIsLoading(true);
       try {
         const response = await axios.get(url, {

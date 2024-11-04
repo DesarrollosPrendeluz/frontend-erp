@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Button, Input, Box, Spinner } from '@chakra-ui/react';
 import { request } from 'http';
+import Cookies from 'js-cookie'
 
 const FileUpload: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState<boolean>(false);
+  const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
 
   // Manejador de cambios cuando se selecciona un archivo
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,8 +35,8 @@ const FileUpload: React.FC = () => {
       setUploadError(null); // Resetea el error antes de la subida
 
       // Realiza la solicitud POST a la API
-      const token = document.cookie.split("=")[1]
-      const response = await axios.post('http://localhost:8080/order/add', formData, {
+      const token =     Cookies.get("erp_token");
+      const response = await axios.post(`${apiUrl}/order/add`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`
@@ -46,8 +48,17 @@ const FileUpload: React.FC = () => {
       console.log('Respuesta de la API:', response.data);
     } catch (error) {
       setIsUploading(false);
-      setUploadError('Error al subir el archivo. Inténtalo de nuevo.');
-      console.error('Error al subir el archivo:', error);
+      
+      if(axios.isAxiosError(error) && error.response){
+        if(error.response.request.status == 401){
+          setUploadError('Error al subir el archivo. El usuario carece de los permisos necesarios.');
+        }else{
+          setUploadError('Error al subir el archivo. Inténtalo de nuevo.');
+        }
+        console.error('Error al subir el archivo:', error);
+
+      }
+
     }
   };
 

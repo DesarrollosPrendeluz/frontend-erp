@@ -15,18 +15,27 @@ import React from "react";
 import { useState } from "react";
 import EntryOrder from "@/components/orders/EntryOrder";
 import { useRouter } from "next/navigation";
+interface AssignedUser{
+  assignation_id: number;
+  user_id: number;
+  user_name: string;
+
+}
 
 export interface OrderItem {
   Sku: string;
   Amount: number;
   Id: number;
   RecivedAmount: number;
+  AssignedUser: AssignedUser;
 }
 
 export interface Order {
+  Id:number;
   OrderCode: string;
   Type: string;
   Status: string;
+  StatusID:number;
   ItemsOrdered: OrderItem[];
   TypeID: number;
 }
@@ -38,7 +47,7 @@ const divideOrders = (orders: Order[]) => {
 };
 
 const Orders = () => {
-  var apiUrl = "http://localhost:8080/";
+  const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const {
@@ -47,8 +56,8 @@ const Orders = () => {
     isLoading,
     error,
   } = useFetchData<Order>({
-    url: apiUrl + "order",
-    page: currentPage,
+    url: `${apiUrl}/order`,
+    page: (currentPage -1),
     limit: 10,
   });
   if (isLoading) {
