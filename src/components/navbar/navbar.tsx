@@ -24,7 +24,7 @@ const Navbar: React.FC = () => {
       <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
         <NextLink href="/dashboard" passHref>
           <Box color="white" fontWeight="bold" fontSize="lg">
-              Dashboard
+              Menu
           </Box>
         </NextLink>
 
