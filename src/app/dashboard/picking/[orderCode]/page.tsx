@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { AddIcon, InfoIcon, LockIcon } from "@chakra-ui/icons";
+import { SlPrinter } from "react-icons/sl";
 import axios from "axios";
 import { Order, OrderItem } from "../../order/page";
 import OrderLineLabel, { OrderLineLabelProps } from "@/components/barcode/barcode";
@@ -14,11 +15,13 @@ import {
   Thead,
   Tr,
   IconButton,
-  useDisclosure
+  useDisclosure,
+  Input
 } from "@chakra-ui/react";
 import Increment from "@/components/picking/increment";
 import Select from "@/components/select/select";
 import Cookies from 'js-cookie'
+import ZebraPrinterManager, { ZebraPrinter } from '@/components/printer/ZebraPrinter';
 
 const Picking = ({ params }: { params: { orderCode: string } }) => {
   const [order, setOrder] = useState<Order | null>(null);
@@ -27,11 +30,15 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [labelData, setLabelData] = useState<OrderLineLabelProps | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [numCopies, setNumCopies] = useState<number>(1);
+
+
   const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isLabelOpen, onOpen: onLabelOpen, onClose: onLabelClose } = useDisclosure();
 
+  const [selectedPrinter, setSelectedPrinter] = useState<ZebraPrinter | null>(null);
 
   const fetchOrder = async () => {
     const token = Cookies.get("erp_token");
@@ -116,12 +123,48 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
       setLoading(false)
     }
   }
+  const handleZebra = async (id: number) => {
+    const token = Cookies.get("erp_token");
+    const response = await axios.get(`${apiUrl}/order/orderLines/labels?line_id=${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    if (response.status === 200) {
+      const { brand, brandAddress, brandEmail, ean, asin } = response.data.Results.data
+      let zpl = '';
+      for (let i = 0; i < numCopies; i++) {
+        zpl += `
+        ^XA
+        ^CI28
+        ^FO20,12^A0,20,20^FDMarca: ${brand}^FS
+        ^FO20,42^A0,20,20^FDDirección: ${brandAddress}^FS
+        ^FO20,72^A0,20,20^FDE-Mail: ${brandEmail}^FS
+        ^FO20,95^BY2^BCN,90,Y,N,N^FD${ean}^FS
+        ^XZ
+     
+      `;
+      }
+      if (selectedPrinter && typeof selectedPrinter.send === 'function') {
+        selectedPrinter.send(zpl, () => console.log("Ok"), (error: any) => console.error("Error de impresion"))
+      }
+
+    }
+  }
 
   return (
     <Box maxW="1200px" mx={"auto"}>
       <h1>Detalles del pedido: {order?.OrderCode}</h1>
       <Text>Tipo: {order?.Type}</Text>
       <Select orderId={order?.Id} status={order?.Status} statusId={order?.StatusID}></Select>
+      <ZebraPrinterManager onPrinterReady={(printer: ZebraPrinter) => setSelectedPrinter(printer)} />
+      <Input
+        type="number"
+        value={numCopies}
+        onChange={(e) => setNumCopies(Math.max(1, Number(e.target.value) || 1))}
+        min={1}
+        width="100px"
+        marginLeft={4}
+        placeholder="Copias"
+      />
       <Table variant="simple" mt={4}>
         <Thead>
           <Tr>
@@ -158,6 +201,14 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
               </Td>
               <Td>
                 <IconButton
+                  aria-label="Print"
+                  icon={<SlPrinter />}
+                  onClick={() => handleZebra(item.Id)}
+                  marginRight={2}
+                />
+
+
+                <IconButton
                   aria-label="Imprimir"
                   icon={<InfoIcon />}
                   onClick={() => handleLabelModal(item.Id)}
@@ -179,7 +230,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
         fetchOrder={fetchOrder}
       />
       {labelData && <OrderLineLabel label={labelData.label} isOpen={isLabelOpen} onClose={onLabelClose} />}
-    </Box>
+    </Box >
   );
 };
 
