@@ -34,10 +34,10 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
 
 
   const fetchOrder = async () => {
-    const token =     Cookies.get("erp_token");
-    const userId =     Cookies.get("user");
+    const token = Cookies.get("erp_token");
+    const userId = Cookies.get("user");
 
-     
+
     try {
       const response = await axios.get<{ Results: { data: Order[] } }>(`${apiUrl}/order?order_code=${params.orderCode}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -69,26 +69,26 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
   const assignUser = async (id: number) => {
 
     try {
-      let tokenReq =     Cookies.get("erp_token");
-      let userIdReq =     Cookies.get("user");
+      let tokenReq = Cookies.get("erp_token");
+      let userIdReq = Cookies.get("user");
       let responseReq = await axios.post(`${apiUrl}/order/orderLines/asignation`, {
         Assignations: [
           {
             line_id: id,
-            user_id: parseInt(userIdReq??"0", 10),
+            user_id: parseInt(userIdReq ?? "0", 10),
           }
         ],
-      }, 
-      {
-        headers: { 
-          Authorization: `Bearer ${tokenReq}` 
-        },
-      });
+      },
+        {
+          headers: {
+            Authorization: `Bearer ${tokenReq}`
+          },
+        });
 
       if (responseReq.status === 202) {
         await fetchOrder();
       }
-     
+
 
     } catch (error) {
       console.error(error)
@@ -100,7 +100,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
   const handleLabelModal = async (id: number) => {
     onLabelOpen();
     try {
-      const token =     Cookies.get("erp_token");
+      const token = Cookies.get("erp_token");
       const response = await axios.get(`${apiUrl}/order/orderLines/labels?line_id=${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
@@ -122,7 +122,6 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
       <h1>Detalles del pedido: {order?.OrderCode}</h1>
       <Text>Tipo: {order?.Type}</Text>
       <Select orderId={order?.Id} status={order?.Status} statusId={order?.StatusID}></Select>
-
       <Table variant="simple" mt={4}>
         <Thead>
           <Tr>
@@ -133,7 +132,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
             <Th>Usuario</Th>
             <Th>Acciones</Th>
             <Th>Etiqueta</Th>
-            
+
           </Tr>
         </Thead>
         <Tbody>
@@ -165,7 +164,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
                 />
 
               </Td>
-              
+
             </Tr>
           ))}
         </Tbody>
