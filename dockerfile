@@ -3,12 +3,15 @@ FROM node:latest
 
 # Establece el directorio de trabajo en /app
 WORKDIR /app
-
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 # Copia el package.json y package-lock.json para instalar dependencias
 COPY . .
 
+
 # Instala las dependencias
 RUN npm install
+RUN npm audit fix
+
 
 # Copia el resto de la aplicación
 
