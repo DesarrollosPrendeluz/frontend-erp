@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import JsBarcode from 'jsbarcode';
 import { Box, Button, Center, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Text } from '@chakra-ui/react';
-import { jsPDF } from 'jspdf';
+import ZebraPrinterManager, { ZebraPrinter } from '@/components/printer/ZebraPrinter';
 
-import ZebraPrinterManager,{ ZebraPrinter } from '../printer/ZebraPrinter';
 
 export interface OrderLineLabelProps {
   label: {
@@ -21,7 +20,6 @@ export interface OrderLineLabelProps {
 const OrderLineLabel: React.FC<OrderLineLabelProps> = ({ label, isOpen, onClose }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const barcodeRef = useRef<HTMLCanvasElement>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [selectedPrinter, setSelectedPrinter] = useState<ZebraPrinter | null>(null);
 
 
@@ -50,61 +48,20 @@ const OrderLineLabel: React.FC<OrderLineLabelProps> = ({ label, isOpen, onClose 
 
 
   const handleZebra = () => {
-    if (selectedPrinter) {
+    if (selectedPrinter && typeof selectedPrinter.send === 'function') {
       const zpl = `
         ^XA
-        ^FO50,50^A0,25,25^FDMarca: ${label.brand}^FS
-        ^FO50,80^A0,25,25^FDDirección: ${label.brandAddress}^FS
-        ^FO50,110^A0,25,25^FDE-Mail: ${label.brandEmail}^FS
-        ^FO50,140^A0,25,25^FDASIN: ${label.asin}^FS
-        ^FO50,180^BY3^BCN,100,Y,N,N^FD${label.ean}^FS
+        ^CI28
+        ^FO20,10^A0,20,20^FDMarca: ${label.brand}^FS
+        ^FO20,40^A0,20,20^FDDirección: ${label.brandAddress}^FS
+        ^FO20,70^A0,20,20^FDE-Mail: ${label.brandEmail}^FS
+        ^FO20,100^BY2^BCN,90,Y,N,N^FD${label.ean}^FS
         ^XZ
       `;
-      selectedPrinter.connection.send(zpl,
+      selectedPrinter.send(zpl,
         () => console.log("Impresión exitosa"),
         (error: any) => console.error("Error de impresión:", error)
       );
-    }
-  };
-
-
-
-
-
-  const handlePrint = () => {
-    if (barcodeRef.current) {
-      const pdf = new jsPDF('p', 'mm', 'a5'); // Creamos un PDF en tamaño A5
-      const zpl = `
-      ^XA
-      ^FO50,50^A0,25,25^FDMarca: ${label.brand}^FS
-      ^FO50,80^A0,25,25^FDDirección: ${label.brandAddress}^FS
-      ^FO50,110^A0,25,25^FDE-Mail: ${label.brandEmail}^FS
-      ^FO50,140^A0,25,25^FDASIN: ${label.asin}^FS
-      ^FO50,180^BY3^BCN,100,Y,N,N^FD${label.ean}^FS
-      ^XZ
-    `;
-      // Añadimos el contenido textual
-      pdf.setFontSize(14);
-      pdf.text(label.brand, 10, 20);
-      pdf.setFontSize(10);
-      pdf.text(`Dirección: ${label.brandAddress}`, 10, 30);
-      pdf.text(`E-Mail: ${label.brandEmail}`, 10, 40);
-      pdf.text(`ASIN: ${label.asin}`, 10, 50);
-
-      const barcodeImage = barcodeRef.current.toDataURL("image/png");
-      pdf.addImage(barcodeImage, 'PNG', 10, 60, 100, 30);
-
-      pdf.autoPrint();
-
-      const pdfBlob = pdf.output('blob');
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-
-      if (iframeRef.current) {
-        iframeRef.current.src = pdfUrl;
-        iframeRef.current.onload = () => {
-          iframeRef.current?.contentWindow?.print();
-        };
-      }
     }
   };
 
@@ -127,7 +84,7 @@ const OrderLineLabel: React.FC<OrderLineLabelProps> = ({ label, isOpen, onClose 
                 <canvas ref={barcodeRef} />
               )}
             </Center>
-            <Text fontSize="sm" mt={2}>ASIN: {"Prueba"}</Text>
+            <Text fontSize="sm" mt={2}>ASIN: {label.asin}</Text>
           </Box>
 
           <Center mt={4}>
@@ -135,8 +92,6 @@ const OrderLineLabel: React.FC<OrderLineLabelProps> = ({ label, isOpen, onClose 
           </Center>
         </ModalBody>
       </ModalContent>
-
-      <iframe ref={iframeRef} style={{ display: 'none' }} title="pdf-iframe" />
     </Modal>
   );
 };

@@ -6,6 +6,7 @@ export interface ZebraPrinter {
   connection: any;
   deviceType: string;
   uid: string;
+  send?: (zpl: string, onSuccess: () => void, onError: (error: any) => void) => void;
 }
 
 interface ZebraPrinterManagerProps {
@@ -15,7 +16,7 @@ interface ZebraPrinterManagerProps {
 const ZebraPrinterManager: React.FC<ZebraPrinterManagerProps> = ({ onPrinterReady }) => {
   const [printers, setPrinters] = useState<ZebraPrinter[]>([]);
   const [selectedPrinter, setSelectedPrinter] = useState<ZebraPrinter | null>(null);
-
+  const [isPrinterInitialized, setIsPrinterInitialized] = useState(false);
   useEffect(() => {
     const loadBrowserPrint = () => {
       const script = document.createElement("script");
@@ -32,11 +33,12 @@ const ZebraPrinterManager: React.FC<ZebraPrinterManagerProps> = ({ onPrinterRead
       if ((window as any).BrowserPrint) {
         (window as any).BrowserPrint.getLocalDevices(
           (devices: any) => {
-            const zebraPrinters = devices.filter((device: any) => device.deviceType === 'printer');
+            const zebraPrinters = devices["printer"];
             setPrinters(zebraPrinters);
             if (zebraPrinters.length > 0) {
               setSelectedPrinter(zebraPrinters[0]);
               onPrinterReady(zebraPrinters[0]);
+              setIsPrinterInitialized(true);
             }
           },
           (error: any) => console.error("Error al obtener impresoras:", error)
@@ -45,7 +47,7 @@ const ZebraPrinterManager: React.FC<ZebraPrinterManagerProps> = ({ onPrinterRead
     };
 
     loadBrowserPrint();
-  }, [onPrinterReady]);
+  }, [isPrinterInitialized]);
 
   const handlePrinterSelect = (uid: string) => {
     const printer = printers.find((printer) => printer.uid === uid);
