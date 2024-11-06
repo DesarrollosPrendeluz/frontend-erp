@@ -14,7 +14,8 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
-  useDisclosure 
+  useDisclosure,
+  useBreakpointValue
 } from "@chakra-ui/react";
 import Pagination from "@/components/Pagination";
 import AddOrderModal from "@/components/orders/AddOrderModal";
@@ -31,6 +32,7 @@ const Store = () => {
   const [title, setTitleValue] = useState<string>("Stock");
   const [currentPage, setCurrentPage] = useState(1);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const isVisible = useBreakpointValue({ base: true, md: false });
 
   const {data: items, totalPages, isLoading, error} = useFetchData<StoreItems>(
     {
@@ -54,8 +56,9 @@ const Store = () => {
 
 
   return (
+
     <>
-    {endpoint !== `${apiUrl}/store/default` && (
+    {endpoint !== `${apiUrl}/store/default`&& window.innerWidth > 500 && (
       <Box maxW="1200px" mx="auto" mt={1} p={4}>
         <Tabs variant={"soft-rounded"}>
           <TabList>
@@ -99,8 +102,9 @@ const Store = () => {
         <Tbody>
           {items.map((item) => (
             endpoint === `${apiUrl}/store/default` ?(
-            <Tr key={item.SKU}>
-              <Td>{item.Itemname}</Td> 
+            <Tr key={item.SKU} >
+              {/* FIXME: revisar estos estilos */}
+              <td className="line-clamp-1" >{item.Itemname}</td> 
               <Td>{item.SKU}</Td>
               <Td>{item.Amount}</Td>
 
@@ -108,7 +112,8 @@ const Store = () => {
             ):(
 
               <Tr key={item.SKU_Parent}> 
-                <Td>{item.Item?.Name || ''}</Td>  
+                {/* FIXME: revisar estos estilos */}
+                <td className="line-clamp-1" >{item.Item?.Name || ''}</td>  
                 <Td>{item.SKU_Parent}</Td> 
                 <Td>{item.Item?.SupplierItems[0].Supplier.Name || ''}</Td>  
                 <Td>{item.Amount}</Td>

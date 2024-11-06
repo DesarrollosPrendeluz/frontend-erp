@@ -44,8 +44,8 @@ export default function Home() {
     }
   };
   return (
-    <main className="flex w-full min-h-screen flex-col items-center justify-between p-24">
-      <section className="bg-gray-50 dark:bg-gray-900 rounded-lg  ">
+    <main className="flex w-full min-h-screen flex-col items-center justify-between">
+      <section className="bg-gray-50 dark:bg-gray-900 rounded-lg min-h-screen w-full ">
         <div className="flex flex-col items-center justify-center px-6 py-8 bg-gray-50 rounded-lg">
           <a
             href="#"

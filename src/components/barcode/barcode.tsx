@@ -3,7 +3,7 @@ import JsBarcode from 'jsbarcode';
 import { Box, Button, Center, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Text } from '@chakra-ui/react';
 import { jsPDF } from 'jspdf';
 
-import { ZebraPrinterManager, ZebraPrinter } from '../printer/ZebraPrinter';
+import ZebraPrinterManager,{ ZebraPrinter } from '../printer/ZebraPrinter';
 
 export interface OrderLineLabelProps {
   label: {

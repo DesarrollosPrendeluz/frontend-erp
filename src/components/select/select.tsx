@@ -54,7 +54,7 @@ interface Options{
                   // Guardar las opciones en el estado
                 setOptions(datum);
                 //FIXME:asi funciona pero da error en el ide 
-                setSelectedValue(statusId)
+                setSelectedValue(statusId?? 1)
             }
 
           } catch (err) {
