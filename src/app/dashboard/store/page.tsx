@@ -46,10 +46,12 @@ const Store = () => {
     if(number == 1){
       setEndpointValue(`${apiUrl}/stock_deficit?store_id=1`)
       setTitleValue('Stock Deficit')
+      setCurrentPage(1)
 
     }else{
       setEndpointValue(`${apiUrl}/store/default`)
       setTitleValue('Stock')
+      setCurrentPage(1)
     }
 
   }
