@@ -38,7 +38,7 @@ const Store = () => {
     {
     url: endpoint,
     page: (currentPage-1),
-    limit: 2,
+    limit: 20,
     }
   );
 
