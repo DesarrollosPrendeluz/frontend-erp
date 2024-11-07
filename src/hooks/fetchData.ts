@@ -7,6 +7,7 @@ interface UseFetchDataProps<T> {
   page: number;
   limit?: number;
   initialData?: T[];
+  params?: Record<string, any>; 
 }
 
 interface UseFetchDataResult<T> {
@@ -21,6 +22,7 @@ const useFetchData = <T>({
   page,
   limit = 5,
   initialData = [],
+  params = {}
 }: UseFetchDataProps<T>): UseFetchDataResult<T> => {
   const [data, setData] = useState<T[]>(initialData);
   const [totalPages, setTotalPages] = useState(1);
@@ -32,14 +34,14 @@ const useFetchData = <T>({
       const token =     Cookies.get("erp_token");
       setIsLoading(true);
       try {
+        params.page = page
+        params.page_size = limit
+
         const response = await axios.get(url, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          params: {
-            page: page,
-            page_size: limit,
-          },
+          params: params,
         });
         setData(response.data.Results.data);
         setTotalPages(Math.ceil(response.data.Results.recount / limit));
@@ -51,7 +53,7 @@ const useFetchData = <T>({
     };
 
     fetchData();
-  }, [url, page, limit]);
+  }, [url, page, limit, params]);
 
   return { data, totalPages, isLoading, error };
 };
