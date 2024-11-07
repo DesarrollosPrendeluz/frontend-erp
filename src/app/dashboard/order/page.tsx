@@ -39,16 +39,12 @@ export interface Order {
   ItemsOrdered: OrderItem[];
   TypeID: number;
 }
-const divideOrders = (orders: Order[]) => {
-  const entrada = orders.filter((order) => order.TypeID === 2);
-  const salida = orders.filter((order) => order.TypeID === 1);
 
-  return { entrada, salida };
-};
 
 const Orders = () => {
   const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
   const router = useRouter();
+  const [params, setParamsValue] = useState<Record<string, any>>({"type_id":1});
   const [currentPage, setCurrentPage] = useState(1);
   const {
     data: orders,
@@ -57,34 +53,43 @@ const Orders = () => {
     error,
   } = useFetchData<Order>({
     url: `${apiUrl}/order`,
-    page: (currentPage -1),
-    limit: 10,
+    page: (currentPage ),
+    limit: 20,
+    params:params
   });
-  if (isLoading) {
-    return <Spinner size="xl" />;
+
+  const changeType = (number: number ) =>{
+    if(number == 1){
+      setParamsValue({"type_id":2})
+      setCurrentPage(1)
+    }else{
+      setParamsValue({"type_id":1})
+      setCurrentPage(1)
+    }
+
   }
-  const { entrada, salida } = divideOrders(orders);
 
   return (
     <Box maxW="1200px" mx="auto" mt={8} p={4}>
       <Heading>Pedidos</Heading>
       <Tabs variant={"soft-rounded"}>
         <TabList>
-          <Tab>Ventas</Tab>
-          <Tab>Compras</Tab>
+          <Tab onClick={() => changeType(0)}>Entrada</Tab>
+          <Tab onClick={() => changeType(1)}>Salida</Tab>
         </TabList>
-
-        <TabPanels>
-          <TabPanel>
-            <EntryOrder orders={entrada} />
-          </TabPanel>
-
-          <TabPanel>
-            <EntryOrder orders={salida} />
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
-
+        {isLoading ? (
+        <Spinner marginTop={10} size="xl" />
+        ) : (
+          <TabPanels>
+            <TabPanel>
+              <EntryOrder orders={orders} />
+            </TabPanel>
+            <TabPanel>
+              <EntryOrder orders={orders} />
+            </TabPanel>
+          </TabPanels>
+        )}
+        </Tabs>
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
