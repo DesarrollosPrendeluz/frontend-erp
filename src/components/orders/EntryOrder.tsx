@@ -11,41 +11,15 @@ import {
   Th,
   Thead,
   Tr,
-  Progress,
   Button,
 } from "@chakra-ui/react";
 import React from "react";
+import ProgressBar from "@/components/progressbar/ProgressBar";
 
 interface ProgressBarProps {
   items: OrderItem[];
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ items }) => {
-  var completed = 0, total = 0;
-  items.map(
-    (item) => {
-      total += item.Amount;
-      completed += item.RecivedAmount;
-
-    }
-  )
-  const percentage = (completed / total) * 100
-  return (
-    <Box position={"relative"} width={"100%"} textAlign={"center"}>
-      <Progress value={percentage} size={"lg"} borderRadius={"md"} colorScheme="green" />
-      <Text position="absolute"
-        width="100%"
-        fontWeight="Bold"
-        colorScheme="black"
-        top="50%"
-        left="50%"
-        transform="translate(-50%, -50%)">
-        {`${completed}/${total}`}
-      </Text>
-
-    </Box>
-  )
-}
 const EntryOrder: React.FC<{ orders: Order[] }> = ({ orders }) => {
   const router = useRouter();
 

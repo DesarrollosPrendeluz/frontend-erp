@@ -13,7 +13,6 @@ const Navbar: React.FC = () => {
   const handleLogout = (): void => {
     // Eliminar la cookie erp_token
     document.cookie = "erp_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    
     // Asegurarse de que router solo se usa en el cliente
     window.location.href = "/login";
 
@@ -24,7 +23,7 @@ const Navbar: React.FC = () => {
       <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
         <NextLink href="/dashboard" passHref>
           <Box color="white" fontWeight="bold" fontSize="lg">
-              Menu
+            Menu
           </Box>
         </NextLink>
 
@@ -50,7 +49,7 @@ const Navbar: React.FC = () => {
             </Box>
           </NextLink>
         </Flex>
-        <Button ml={4} colorScheme="yellow" variant="outline"  onClick={handleLogout}>
+        <Button ml={4} colorScheme="yellow" variant="outline" onClick={handleLogout}>
           Salir
         </Button>
       </Flex>

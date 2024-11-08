@@ -15,7 +15,7 @@ import React from "react";
 import { useState } from "react";
 import EntryOrder from "@/components/orders/EntryOrder";
 import { useRouter } from "next/navigation";
-interface AssignedUser{
+interface AssignedUser {
   assignation_id: number;
   user_id: number;
   user_name: string;
@@ -31,11 +31,11 @@ export interface OrderItem {
 }
 
 export interface Order {
-  Id:number;
+  Id: number;
   OrderCode: string;
   Type: string;
   Status: string;
-  StatusID:number;
+  StatusID: number;
   ItemsOrdered: OrderItem[];
   TypeID: number;
 }
@@ -57,7 +57,7 @@ const Orders = () => {
     error,
   } = useFetchData<Order>({
     url: `${apiUrl}/order`,
-    page: (currentPage -1),
+    page: (currentPage - 1),
     limit: 10,
   });
   if (isLoading) {
