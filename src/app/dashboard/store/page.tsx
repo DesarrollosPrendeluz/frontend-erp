@@ -38,18 +38,20 @@ const Store = () => {
     {
     url: endpoint,
     page: (currentPage-1),
-    limit: 2,
+    limit: 20,
     }
   );
 
-  const changeType = () =>{
-    if(endpoint === `${apiUrl}/store/default`){
+  const changeType = (number: number ) =>{
+    if(number == 1){
       setEndpointValue(`${apiUrl}/stock_deficit?store_id=1`)
       setTitleValue('Stock Deficit')
+      setCurrentPage(1)
 
     }else{
       setEndpointValue(`${apiUrl}/store/default`)
       setTitleValue('Stock')
+      setCurrentPage(1)
     }
 
   }
@@ -71,8 +73,8 @@ const Store = () => {
     <Box maxW="1200px" mx="auto" mt={8} p={4}>
       <Tabs variant={"soft-rounded"}>
         <TabList>
-          <Tab onClick={changeType}>Stock</Tab>
-          <Tab onClick={changeType}>Stock Deficit</Tab>
+          <Tab onClick={() => changeType(0)}>Stock</Tab>
+          <Tab onClick={() => changeType(1)}>Stock Deficit</Tab>
         </TabList>
       </Tabs>
 

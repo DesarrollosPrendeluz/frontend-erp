@@ -29,7 +29,7 @@ const EntryOrder: React.FC<{ orders: Order[] }> = ({ orders }) => {
 
   return (
     <Box>
-      <Heading>Ordenes de Entrada</Heading>
+      
       <Table variant={"simple"}>
         <Thead>
           <Tr>
