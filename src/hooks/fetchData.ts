@@ -7,7 +7,7 @@ interface UseFetchDataProps<T> {
   page: number;
   limit?: number;
   initialData?: T[];
-  params?: Record<string, any>; 
+  params?: Record<string, any>;
 }
 
 interface UseFetchDataResult<T> {
@@ -31,7 +31,7 @@ const useFetchData = <T>({
 
   useEffect(() => {
     const fetchData = async () => {
-      const token =     Cookies.get("erp_token");
+      const token = Cookies.get("erp_token");
       setIsLoading(true);
       try {
         params.page = page
@@ -53,7 +53,7 @@ const useFetchData = <T>({
     };
 
     fetchData();
-  }, [url, page, limit, params]);
+  }, [url, page, limit, JSON.stringify(params)]);
 
   return { data, totalPages, isLoading, error };
 };
