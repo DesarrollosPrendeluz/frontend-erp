@@ -41,23 +41,31 @@ const EntryOrder: React.FC<{ orders: Order[] }> = ({ orders }) => {
           </Tr>
         </Thead>
         <Tbody>
-          {orders.map((order) => (
-
-            <Tr key={order.OrderCode}>
-              <Td>
-                <Button onClick={() => goToPickingPage(order.OrderCode)}>
-                  Picking
-                </Button>
-              </Td>
-              <Td>
-                {order.OrderCode}
-              </Td>
-              <Td>{order.Status}</Td>
-              <Td>{order.Type}</Td>
-              <Td> <ProgressBar items={order.ItemsOrdered} />
-              </Td>
-            </Tr>
-          ))}
+        {Array.isArray(orders) && orders.length > 0 ? (
+  orders.map((order) => (
+    order.ItemsOrdered && Array.isArray(order.ItemsOrdered) && order.ItemsOrdered.length > 0 ? (
+      <Tr key={order.OrderCode}>
+        <Td>
+          <Button onClick={() => goToPickingPage(order.OrderCode)}>
+            Picking
+          </Button>
+        </Td>
+        <Td>
+          {order.OrderCode}
+        </Td>
+        <Td>{order.Status}</Td>
+        <Td>{order.Type}</Td>
+        <Td>
+          <ProgressBar items={order.ItemsOrdered ?? []} />
+        </Td>
+      </Tr>
+    ) : null
+  ))
+) : (
+  <Tr>
+    <Td colSpan={5}>No orders available</Td>
+  </Tr>
+)}
         </Tbody>
       </Table>
     </Box >
