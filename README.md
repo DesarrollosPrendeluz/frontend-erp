@@ -33,6 +33,8 @@ Revisar la ruta hacia la que hace las peticiones el en o en este caso el archivo
 ```bash
   docker login
   docker pull ...
+  
 ```
+*En plesk vincular al puerto 3333*
 Hay que vincular mediante el docker proxy con el dominio que se desee usar.
     
