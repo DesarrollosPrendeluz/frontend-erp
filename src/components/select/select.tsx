@@ -8,6 +8,7 @@ interface SelectOption {
     orderId: number|undefined;
     status: string|undefined;
     statusId: number|undefined;
+    father: boolean;
 }
 
 interface Option{
@@ -20,7 +21,7 @@ interface Options{
 
 
   
-  const Select: React.FC<SelectOption> = ({orderId, status, statusId}) => {
+  const Select: React.FC<SelectOption> = ({orderId, status, statusId, father}) => {
 
     const [options, setOptions] = useState<Option[]>([]); // Estado para almacenar las opciones  const [selectedValue, setSelectedValue] = useState<string>(""); // Estado para la selección
     const [loading, setLoading] = useState<boolean>(false); // Estado de carga
@@ -29,49 +30,49 @@ interface Options{
     const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
     const token =     Cookies.get("erp_token");
 
-
-
+    father ? console.log("padre"): console.log("hijo")
+    console.log(statusId)
     // Realizar la petición para obtener los datos cuando el componente se monte
     useEffect(() => {
+      if (orderId !== undefined && statusId !== undefined) {
         const fetchData = async () => {
           setLoading(true);
           setError(null);
           try {
             const response = await axios.get(`${apiUrl}/order/status`, {
               headers: {
-                Authorization: `Bearer ${token}`, // Enviar el token en los headers
+                Authorization: `Bearer ${token}`,
               },
             });
-
-            let res = response.data.Results.data
-
-            if(response.status == 200){
-                const datum: Option[] = res.map((item: any) => ({
-                    id: item.ID,    // Cambia 'id' según el campo de la respuesta
-                    name: item.Name // Cambia 'name' según el campo de la respuesta
-                  }));
-          
-                  // Guardar las opciones en el estado
-                setOptions(datum);
-                //FIXME:asi funciona pero da error en el ide 
-                setSelectedValue(statusId?? 1)
+  
+            if (response.status === 200) {
+              const datum: Option[] = response.data.Results.data.map((item: any) => ({
+                id: item.ID,
+                name: item.Name,
+              }));
+  
+              setOptions(datum);
+              setSelectedValue(statusId ?? 1);
             }
-
           } catch (err) {
             setError("Error al cargar los datos");
           } finally {
             setLoading(false);
           }
         };
-    
+  
         fetchData();
-      }, [token, apiUrl]);
+      }
+    }, [orderId, statusId, token, apiUrl]);
+    
+
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value;
+    let endpoint = father ? "/fatherOrder" :"/order";
 
       
-        const response =  axios.patch(`${apiUrl}/order`, 
+        const response =  axios.patch(`${apiUrl}${endpoint}`, 
             {
             data: [
               {
@@ -102,7 +103,7 @@ interface Options{
 
   return (
     <div>
-      <label htmlFor="framework-select">Status:</label>
+      
       <select
         id="framework-select"
         value={selectedValue}
