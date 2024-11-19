@@ -44,7 +44,7 @@ export interface Order {
 const Orders = () => {
   const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
   const router = useRouter();
-  const [params, setParamsValue] = useState<Record<string, any>>({"type_id":1});
+  const [params, setParamsValue] = useState<Record<string, any>>({ "type_id": 1 });
   const [currentPage, setCurrentPage] = useState(1);
   const {
     data: orders,
@@ -53,17 +53,17 @@ const Orders = () => {
     error,
   } = useFetchData<Order>({
     url: `${apiUrl}/order`,
-    page: (currentPage-1 ),
+    page: (currentPage - 1),
     limit: 20,
-    params:params
+    params: params
   });
 
-  const changeType = (number: number ) =>{
-    if(number == 1){
-      setParamsValue({"type_id":2})
+  const changeType = (number: number) => {
+    if (number == 1) {
+      setParamsValue({ "type_id": 2 })
       setCurrentPage(1)
-    }else{
-      setParamsValue({"type_id":1})
+    } else {
+      setParamsValue({ "type_id": 1 })
       setCurrentPage(1)
     }
 
@@ -71,14 +71,14 @@ const Orders = () => {
 
   return (
     <Box maxW="1200px" mx="auto" mt={8} p={4}>
-      <Heading>Pedidos</Heading>
+      <Heading size={"lg"}>Pedidos</Heading>
       <Tabs variant={"soft-rounded"}>
         <TabList>
           <Tab onClick={() => changeType(0)}>Entrada</Tab>
           <Tab onClick={() => changeType(1)}>Salida</Tab>
         </TabList>
         {isLoading ? (
-        <Spinner marginTop={10} size="xl" />
+          <Spinner marginTop={10} size="xl" />
         ) : (
           <TabPanels>
             <TabPanel>
@@ -89,7 +89,7 @@ const Orders = () => {
             </TabPanel>
           </TabPanels>
         )}
-        </Tabs>
+      </Tabs>
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
