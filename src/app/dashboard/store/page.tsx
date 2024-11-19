@@ -34,21 +34,21 @@ const Store = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const isVisible = useBreakpointValue({ base: true, md: false });
 
-  const {data: items, totalPages, isLoading, error} = useFetchData<StoreItems>(
+  const { data: items, totalPages, isLoading, error } = useFetchData<StoreItems>(
     {
-    url: endpoint,
-    page: (currentPage-1),
-    limit: 20,
+      url: endpoint,
+      page: (currentPage - 1),
+      limit: 20,
     }
   );
 
-  const changeType = (number: number ) =>{
-    if(number == 1){
+  const changeType = (number: number) => {
+    if (number == 1) { /* TODO more descriptive if*/
       setEndpointValue(`${apiUrl}/stock_deficit?store_id=1`)
       setTitleValue('Stock Deficit')
       setCurrentPage(1)
 
-    }else{
+    } else {
       setEndpointValue(`${apiUrl}/store/default`)
       setTitleValue('Stock')
       setCurrentPage(1)
@@ -60,79 +60,79 @@ const Store = () => {
   return (
 
     <>
-    {endpoint !== `${apiUrl}/store/default`&& window.innerWidth > 500 && (
-      <Box maxW="1200px" mx="auto" mt={1} p={4}>
+      {endpoint !== `${apiUrl}/store/default` && window.innerWidth > 500 && (
+        <Box maxW="1200px" mx="auto" mt={1} p={4}>
+          <Tabs variant={"soft-rounded"}>
+            <TabList>
+              <Button backgroundColor={'#F2C12E'} onClick={onOpen}> Crear pedido </Button>
+            </TabList>
+          </Tabs>
+        </Box>
+      )}
+
+      <Box maxW="1200px" mx="auto" mt={8} p={4}>
         <Tabs variant={"soft-rounded"}>
           <TabList>
-            <Button backgroundColor={'#F2C12E'} onClick={onOpen}> Crear pedido </Button>
+            <Tab onClick={() => changeType(0)}>Stock</Tab>
+            <Tab onClick={() => changeType(1)}>Stock Deficit</Tab>
           </TabList>
         </Tabs>
-      </Box>
-    )}
 
-    <Box maxW="1200px" mx="auto" mt={8} p={4}>
-      <Tabs variant={"soft-rounded"}>
-        <TabList>
-          <Tab onClick={() => changeType(0)}>Stock</Tab>
-          <Tab onClick={() => changeType(1)}>Stock Deficit</Tab>
-        </TabList>
-      </Tabs>
+        <Heading>{title} </Heading>
 
-      <Heading>{title} </Heading>
-
-      <Table>
-        <Thead>
-          <Tr>
-          {endpoint === `${apiUrl}/store/default` ? (
-              <>
-                <Th>Artículo</Th>
-                <Th>Sku</Th>
-                <Th>Stock</Th>
-              </>
-            ) : (
-              <>
-                <Th>Artículo</Th>
-                <Th>Sku</Th>
-                <Th>Proveedor</Th>
-                <Th>Stock</Th>
-                <Th>Pendiente de recepeción</Th>
-              </>
-            )}
-
-          </Tr>
-        </Thead>
-        <Tbody>
-          {items.map((item) => (
-            endpoint === `${apiUrl}/store/default` ?(
-            <Tr key={item.SKU} >
-              {/* FIXME: revisar estos estilos */}
-              <td className="line-clamp-1" >{item.Itemname}</td> 
-              <Td>{item.SKU}</Td>
-              <Td>{item.Amount}</Td>
+        <Table>
+          <Thead>
+            <Tr>
+              {endpoint === `${apiUrl}/store/default` ? (
+                <>
+                  <Th>Artículo</Th>
+                  <Th>Sku</Th>
+                  <Th>Stock</Th>
+                </>
+              ) : (
+                <>
+                  <Th>Artículo</Th>
+                  <Th>Sku</Th>
+                  <Th>Proveedor</Th>
+                  <Th>Stock</Th>
+                  <Th>Pendiente de recepeción</Th>
+                </>
+              )}
 
             </Tr>
-            ):(
+          </Thead>
+          <Tbody>
+            {items.map((item) => (
+              endpoint === `${apiUrl}/store/default` ? (
+                <Tr key={item.SKU} >
+                  {/* FIXME: revisar estos estilos */}
+                  <td className="line-clamp-1" >{item.Itemname}</td>
+                  <Td>{item.SKU}</Td>
+                  <Td>{item.Amount}</Td>
 
-              <Tr key={item.SKU_Parent}> 
-                {/* FIXME: revisar estos estilos */}
-                <td className="line-clamp-1" >{item.Item?.Name || ''}</td>  
-                <Td>{item.SKU_Parent}</Td> 
-                <Td>{item.Item?.SupplierItems[0].Supplier.Name || ''}</Td>  
-                <Td>{item.Amount}</Td>
-                <Td>{item.PendingAmount}</Td>
-              </Tr>
+                </Tr>
+              ) : (
 
-            )
-          ))}
-        </Tbody>
-      </Table>
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={(page) => setCurrentPage(page)}
-      />
-    </Box>
-    <AddOrderModal isOpen={isOpen}  onClose={onClose} />
+                <Tr key={item.SKU_Parent}>
+                  {/* FIXME: revisar estos estilos */}
+                  <td className="line-clamp-1" >{item.Item?.Name || ''}</td>
+                  <Td>{item.SKU_Parent}</Td>
+                  <Td>{item.Item?.SupplierItems[0].Supplier.Name || ''}</Td>
+                  <Td>{item.Amount}</Td>
+                  <Td>{item.PendingAmount}</Td>
+                </Tr>
+
+              )
+            ))}
+          </Tbody>
+        </Table>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      </Box>
+      <AddOrderModal isOpen={isOpen} onClose={onClose} />
     </>
   );
 };
