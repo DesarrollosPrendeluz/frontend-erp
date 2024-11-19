@@ -4,8 +4,7 @@ import React, { useEffect, useState } from "react";
 import { AddIcon, InfoIcon, LockIcon } from "@chakra-ui/icons";
 import { SlPrinter } from "react-icons/sl";
 import axios from "axios";
-import { Order, OrderItem } from "../../order/page";
-import FatherOrder from "@/types/fatherOrders/FatherOrders";
+import {FatherOrder} from "@/types/fatherOrders/FatherOrders";
 import OrderLine from "@/types/orders/Lines";
 import OrderLineLabel, { OrderLineLabelProps } from "@/components/barcode/barcode";
 import {
@@ -17,19 +16,17 @@ import {
   Th,
   Thead,
   Tr,
+  Button,
   IconButton,
   useDisclosure,
   Input,
   Heading,
   Flex,
   Stack,
-  InputGroup,
-  InputRightElement,
-
   VStack,
   useToast,
 } from "@chakra-ui/react";
-import { SearchIcon } from '@chakra-ui/icons';
+import OrderModal from "@/components/picking/OrderModal";
 import Increment from "@/components/picking/increment";
 import Select from "@/components/select/select";
 import Cookies from 'js-cookie'
@@ -58,6 +55,10 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isLabelOpen, onOpen: onLabelOpen, onClose: onLabelClose } = useDisclosure();
+  const { isOpen:isOrderOpne, onOpen:onOrderOpen, onClose:onOrderClose } = useDisclosure();
+  // const { isOpen2, onOpen2, onClose2 } = useDisclosure();
+  //const { isOpen: isLabelOpen2, onOpen: onLabelOpen2, onClose: onLabelClose2 } = useDisclosure();
+
 
   const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
 
@@ -75,11 +76,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
       });
 
       const fatherOrderWithLines = response.data.Results.data;
-      console.log("whatt")
-
-      console.log(fatherOrderWithLines)
       if (fatherOrderWithLines) {
-        console.log("entra")
         setOrder(fatherOrderWithLines);
         
         console.log(order)
@@ -182,10 +179,15 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
   return (
     <Box maxW="1200px" mx="auto" p={4}>
       <Heading size="lg" mb={4} textAlign="center">Detalles del pedido padre: {order?.FatherOrder.code}</Heading>
-      <Stack spacing={4} mb={4} direction={{ base: "column", md: "row" }}
-        align="center" justify="space-between">
+      <Stack spacing={4} mb={4} direction={{ base: "column", md: "row" }} align="center" justify="space-between">
         <Text fontSize={{ base: "sm", md: "md" }}>Tipo: {order?.FatherOrder.type}</Text>
-        <Select orderId={order?.FatherOrder.id} status={order?.FatherOrder.status} statusId={order?.FatherOrder.status_id} />
+        <Flex flexDirection={"row"} >Status: <Select orderId={order?.FatherOrder.id} status={order?.FatherOrder.status} statusId={order?.FatherOrder.status_id} father={true} /> </Flex>
+        <Button backgroundColor={"#FACC15"} onClick={onOrderOpen}>Órdenes de compra</Button>
+
+      </Stack>
+
+      
+      <Stack spacing={4} mb={4} direction={{ base: "column", md: "row" }}        align="center" justify="space-between">
         <ZebraPrinterManager onPrinterReady={(printer: ZebraPrinter) => setSelectedPrinter(printer)} />
         <Input
           type="number"
@@ -265,6 +267,14 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
           </VStack>
         ))}
       </Box>
+
+      <OrderModal         
+        isOpen={isOrderOpne}
+        onClose={onOrderClose}
+        orders={order?.FatherOrder.Childs ?? []}
+        />
+
+        
 
       <Increment
         isOpen={isOpen}

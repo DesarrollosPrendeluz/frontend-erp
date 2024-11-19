@@ -1,4 +1,4 @@
-interface ChildOrder {
+export interface ChildOrder {
     id: number;            // Identificador único
     code: string;          // Código del registro
     status_id: number;     // ID del estado
@@ -12,7 +12,7 @@ interface ChildOrder {
 
 
 
-export default interface FatherOrder {
+export  interface FatherOrder {
     id: number; // Identificador único
     code: string; // Código del registro
     status_id: number; // ID del estado
