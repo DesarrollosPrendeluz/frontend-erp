@@ -252,9 +252,22 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
       <Box display={{ base: "block", md: "none" }} mt={4}>
         {order?.Lines.map(( line) => (
           <VStack key={line.id} borderWidth="1px" borderRadius="lg" p={4} mb={2}>
-            <Text fontSize="sm">SKU: {line.main_sku}</Text>
-            <Text fontSize="sm">Cantidad: <ProgressBar total={line.quantity} completed={line.recived_quantity}/></Text>
-            <Text fontSize="sm">Usuario: {line.AssignedUser.user_name}</Text>
+             <Flex width={"100%"} justify="space-between" align="center">
+              <Text width={"40%"} align="left" fontSize="sm"><b>SKU</b><br/> {line.main_sku}</Text>
+              <Text width={"55%"} align="left" fontSize="sm"><b>EAN</b><br/> {line.ean}</Text>
+             </Flex>
+             <Flex width={"100%"} justify="space-between">
+              <Text width={"40%"} align="left" fontSize="sm"><b>Proveedor</b><br/> {line.supplier}</Text>
+              <Text width={"55%"} align="left" fontSize="sm"><b>Codigo</b><br/> {line.supplier_reference}</Text>
+             </Flex>
+             <Flex width={"100%"} justify="space-between">
+             <Text width={"40%"} align="left" fontSize="sm"><b>Usuario</b><br/> {line.AssignedUser.user_name}</Text>
+             <Text width={"55%"} align="left" fontSize="sm"><b>Ubicación</b><br/> {line.locations}</Text>
+
+             </Flex>
+            
+
+            <Text width={"100%"} fontSize="sm"> <ProgressBar total={line.quantity} completed={line.recived_quantity}/></Text>
             <Flex gap={2} justify="center">
               <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.quantity, line.recived_quantity)} size="lg" />
               <IconButton aria-label="Asignar" icon={<LockIcon />} onClick={() => assignUser(line.id)} size="lg" />
