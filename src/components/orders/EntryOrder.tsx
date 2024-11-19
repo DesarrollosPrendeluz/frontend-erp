@@ -13,13 +13,14 @@ import {
   Th,
   Thead,
   Tr,
+  Flex,
   Button,
   Stack,
 } from "@chakra-ui/react";
 import React from "react";
 import ProgressBar from "@/components/progressbar/ProgressBar";
 import ResponsiveView from "../ResponsiveLayout";
-import FatherOrder from "@/types/fatherOrders/FatherOrders";
+import {FatherOrder} from "@/types/fatherOrders/FatherOrders";
 
 
 
@@ -34,12 +35,15 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders })
     <Stack spacing={4} mt={4} px={4}>
       {fatherOrders.map((fatherOrder) => (
         <Box key={fatherOrder.code} p={4} borderWidth="1px" borderRadius="lg" shadow="sm">
-          <Text fontWeight="bold">Orden de Compra: {fatherOrder.code}</Text>
-          <Text>Estado: {fatherOrder.status}</Text>
-          <Text>Tipo: {fatherOrder.type}</Text>
-          <Button size="sm" onClick={() => console.log(`Go to Picking ${fatherOrder.code}`)}>
+          <Text textAlign={"center"}> <b>Orden:</b><br/> {fatherOrder.code}</Text>
+          <Text textAlign={"center"} ><b>Estado:</b><br/> {fatherOrder.status}</Text>
+          <Text textAlign={"center"}><b>Tipo:</b><br/> {fatherOrder.type}</Text>
+          <Flex justify="center" marginTop={3}>          
+            <Button size="sm" onClick={() => console.log(`Go to Picking ${fatherOrder.code}`)}>
             Picking
-          </Button>
+            </Button>
+          </Flex>
+
         </Box>
       ))}
     </Stack>

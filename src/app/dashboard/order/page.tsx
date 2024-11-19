@@ -15,7 +15,7 @@ import React from "react";
 import { useState } from "react";
 import EntryOrder from "@/components/orders/EntryOrder";
 import { useRouter } from "next/navigation";
-import FatherOrder from "@/types/fatherOrders/FatherOrders";
+import {FatherOrder} from "@/types/fatherOrders/FatherOrders";
 interface AssignedUser {
   assignation_id: number;
   user_id: number;
