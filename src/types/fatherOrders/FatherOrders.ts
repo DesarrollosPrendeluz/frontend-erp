@@ -1,3 +1,17 @@
+interface ChildOrder {
+    id: number;            // Identificador único
+    code: string;          // Código del registro
+    status_id: number;     // ID del estado
+    status: string;        // Descripción del estado
+    quantity: number;      // Cantidad total
+    recived_quantity: number; // Cantidad recibida
+}
+
+
+
+
+
+
 export default interface FatherOrder {
     id: number; // Identificador único
     code: string; // Código del registro
@@ -7,4 +21,6 @@ export default interface FatherOrder {
     type: string; // Descripción del tipo
     total_stock: number; // Cantidad total de stock
     pending_stock: number; // Cantidad de stock pendiente
+    Childs : ChildOrder[]
+   
 }

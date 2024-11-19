@@ -5,6 +5,8 @@ import { AddIcon, InfoIcon, LockIcon } from "@chakra-ui/icons";
 import { SlPrinter } from "react-icons/sl";
 import axios from "axios";
 import { Order, OrderItem } from "../../order/page";
+import FatherOrder from "@/types/fatherOrders/FatherOrders";
+import OrderLine from "@/types/orders/Lines";
 import OrderLineLabel, { OrderLineLabelProps } from "@/components/barcode/barcode";
 import {
   Box,
@@ -30,33 +32,49 @@ import Cookies from 'js-cookie'
 import ZebraPrinterManager, { ZebraPrinter } from '@/components/printer/ZebraPrinter';
 import ProgressBar from "@/components/progressbar/ProgressBar";
 
+interface response {
+  FatherOrder: FatherOrder; // ID de asignación
+  Lines: OrderLine[];
+  recount: number;        // ID del usuario
+}
+
 const Picking = ({ params }: { params: { orderCode: string } }) => {
-  const [order, setOrder] = useState<Order | null>(null);
+  const [order, setOrder] = useState<response | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [receivedAmount, setReceivedAmount] = useState<number>(0);
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [labelData, setLabelData] = useState<OrderLineLabelProps | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [numCopies, setNumCopies] = useState<string>("");
-
-  const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
+  const [selectedPrinter, setSelectedPrinter] = useState<ZebraPrinter | null>(null);
+  const [isPrinting, setIsPrinting] = useState<boolean>(false);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isLabelOpen, onOpen: onLabelOpen, onClose: onLabelClose } = useDisclosure();
 
-  const [selectedPrinter, setSelectedPrinter] = useState<ZebraPrinter | null>(null);
-  const [isPrinting, setIsPrinting] = useState<boolean>(false);
+  const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
+
+
+
+
   const toast = useToast(); // Inicializa useToast
   const fetchOrder = async () => {
     const token = Cookies.get("erp_token");
 
     try {
-      const response = await axios.get<{ Results: { data: Order[] } }>(`${apiUrl}/order?order_code=${params.orderCode}`, {
+      console.log(`${apiUrl}/fatherOrder/orderLines?father_order_code=${params.orderCode}`);
+      const response = await axios.get<{ Results: { data: response } }>(`${apiUrl}/fatherOrder/orderLines?father_order_code=${params.orderCode}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const order = response.data.Results.data[0];
-      if (order) {
-        setOrder(order);
+
+      const fatherOrderWithLines = response.data.Results.data;
+      console.log("whatt")
+
+      console.log(fatherOrderWithLines)
+      if (fatherOrderWithLines) {
+        setOrder(fatherOrderWithLines);
+        console.log("orders")
+        console.log(order)
       }
     } catch (error) {
       console.error("Error cargando pedido:", error);
@@ -155,11 +173,11 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
 
   return (
     <Box maxW="1200px" mx="auto" p={4}>
-      <Heading size="lg" mb={4} textAlign="center">Detalles del pedido: {order?.OrderCode}</Heading>
+      <Heading size="lg" mb={4} textAlign="center">Detalles del pedido padre: {order?.FatherOrder.code}</Heading>
       <Stack spacing={4} mb={4} direction={{ base: "column", md: "row" }}
         align="center" justify="space-between">
-        <Text fontSize={{ base: "sm", md: "md" }}>Tipo: {order?.Type}</Text>
-        <Select orderId={order?.Id} status={order?.Status} statusId={order?.StatusID} />
+        <Text fontSize={{ base: "sm", md: "md" }}>Tipo: {order?.FatherOrder.type}</Text>
+        <Select orderId={order?.FatherOrder.id} status={order?.FatherOrder.status} statusId={order?.FatherOrder.status_id} />
         <ZebraPrinterManager onPrinterReady={(printer: ZebraPrinter) => setSelectedPrinter(printer)} />
         <Input
           type="number"
@@ -179,28 +197,38 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
           <Thead bg="gray.100">
             <Tr>
               <Th>SKU</Th>
+              <Th>Ean</Th>
+              <Th>Nombre</Th>
+              <Th>Proveedor</Th>
+              <Th>Ref Prov</Th>
               <Th>Cantidad</Th>
-              <Th>Usuario</Th>
+              <Th>Responsable</Th>
+              <Th>Ubicaciones</Th>
               <Th>Acciones</Th>
               <Th>Etiqueta</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {order?.ItemsOrdered.map((item: OrderItem) => (
-              <Tr key={item.Id}>
-                <Td>{item.Sku}</Td>
-                <Td><ProgressBar items={[item]} /></Td>
-                <Td>{item.AssignedUser.user_name}</Td>
+            {order?.Lines.map((line:OrderLine) => (
+              <Tr key={line.id}>
+                <Td>{line.main_sku}</Td>
+                <Td>{line.ean}</Td>
+                <Td>{line.name.substring(0, 25) + ' ...'}</Td>
+                <Td>{line.supplier}</Td>
+                <Td>{line.supplier_reference}</Td>
+                <Td><ProgressBar total={line.quantity} completed={line.recived_quantity} /></Td>
+                <Td>{line.AssignedUser.user_name}</Td>
+                <Td>{line.locations}</Td>
                 <Td>
                   <Flex gap={2}>
-                    <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(item.Id, item.Amount, item.RecivedAmount)} size="sm" />
-                    <IconButton aria-label="Asignar" icon={<LockIcon />} onClick={() => assignUser(item.Id)} size="sm" />
+                    <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.quantity, line.recived_quantity)} size="sm" />
+                    <IconButton aria-label="Asignar" icon={<LockIcon />} onClick={() => assignUser(line.id)} size="sm" />
                   </Flex>
                 </Td>
                 <Td>
                   <Flex gap={2}>
-                    <IconButton aria-label="Imprimir" icon={<SlPrinter />} onClick={() => handleZebra(item.Id)} size="sm" />
-                    <IconButton aria-label="Información" icon={<InfoIcon />} onClick={() => handleLabelModal(item.Id)} size="sm" />
+                    <IconButton aria-label="Imprimir" icon={<SlPrinter />} onClick={() => handleZebra(line.id)} size="sm" />
+                    <IconButton aria-label="Información" icon={<InfoIcon />} onClick={() => handleLabelModal(line.id)} size="sm" />
                   </Flex>
                 </Td>
               </Tr>
@@ -211,18 +239,18 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
 
       {/* Mobil view*/}
       <Box display={{ base: "block", md: "none" }} mt={4}>
-        {order?.ItemsOrdered.map((item: OrderItem) => (
-          <VStack key={item.Id} borderWidth="1px" borderRadius="lg" p={4} mb={2}>
-            <Text fontSize="sm">SKU: {item.Sku}</Text>
-            <Text fontSize="sm">Cantidad: <ProgressBar items={[item]} /></Text>
-            <Text fontSize="sm">Usuario: {item.AssignedUser.user_name}</Text>
+        {order?.Lines.map(( line) => (
+          <VStack key={line.id} borderWidth="1px" borderRadius="lg" p={4} mb={2}>
+            <Text fontSize="sm">SKU: {line.main_sku}</Text>
+            <Text fontSize="sm">Cantidad: <ProgressBar total={line.quantity} completed={line.recived_quantity}/></Text>
+            <Text fontSize="sm">Usuario: {line.AssignedUser.user_name}</Text>
             <Flex gap={2} justify="center">
-              <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(item.Id, item.Amount, item.RecivedAmount)} size="lg" />
-              <IconButton aria-label="Asignar" icon={<LockIcon />} onClick={() => assignUser(item.Id)} size="lg" />
+              <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.quantity, line.recived_quantity)} size="lg" />
+              <IconButton aria-label="Asignar" icon={<LockIcon />} onClick={() => assignUser(line.id)} size="lg" />
             </Flex>
             <Flex gap={2} >
-              <IconButton aria-label="Imprimir" icon={<SlPrinter />} onClick={() => handleZebra(item.Id)} size="lg" />
-              <IconButton aria-label="Información" icon={<InfoIcon />} onClick={() => handleLabelModal(item.Id)} size="lg" />
+              <IconButton aria-label="Imprimir" icon={<SlPrinter />} onClick={() => handleZebra(line.id)} size="lg" />
+              <IconButton aria-label="Información" icon={<InfoIcon />} onClick={() => handleLabelModal(line.id)} size="lg" />
 
             </Flex>
           </VStack>
