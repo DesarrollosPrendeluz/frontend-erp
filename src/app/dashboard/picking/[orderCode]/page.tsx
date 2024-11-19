@@ -23,13 +23,19 @@ import {
   Heading,
   Flex,
   Stack,
+  InputGroup,
+  InputRightElement,
+
   VStack,
   useToast,
 } from "@chakra-ui/react";
+import { SearchIcon } from '@chakra-ui/icons';
 import Increment from "@/components/picking/increment";
 import Select from "@/components/select/select";
 import Cookies from 'js-cookie'
 import ZebraPrinterManager, { ZebraPrinter } from '@/components/printer/ZebraPrinter';
+import SearchBar from "@/components/searchbar/SearchBar";
+
 import ProgressBar from "@/components/progressbar/ProgressBar";
 
 interface response {
@@ -48,6 +54,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
   const [numCopies, setNumCopies] = useState<string>("");
   const [selectedPrinter, setSelectedPrinter] = useState<ZebraPrinter | null>(null);
   const [isPrinting, setIsPrinting] = useState<boolean>(false);
+  const [query, setQuery] = useState<string>("");
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isLabelOpen, onOpen: onLabelOpen, onClose: onLabelClose } = useDisclosure();
@@ -62,8 +69,8 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
     const token = Cookies.get("erp_token");
 
     try {
-      console.log(`${apiUrl}/fatherOrder/orderLines?father_order_code=${params.orderCode}`);
-      const response = await axios.get<{ Results: { data: response } }>(`${apiUrl}/fatherOrder/orderLines?father_order_code=${params.orderCode}`, {
+      console.log(`${apiUrl}/fatherOrder/orderLines?father_order_code=${params.orderCode}${query}`);
+      const response = await axios.get<{ Results: { data: response } }>(`${apiUrl}/fatherOrder/orderLines?father_order_code=${params.orderCode}${query}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -72,8 +79,9 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
 
       console.log(fatherOrderWithLines)
       if (fatherOrderWithLines) {
+        console.log("entra")
         setOrder(fatherOrderWithLines);
-        console.log("orders")
+        
         console.log(order)
       }
     } catch (error) {
@@ -85,7 +93,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
 
   useEffect(() => {
     fetchOrder();
-  }, [params.orderCode]);
+  }, [params.orderCode, query]);
 
   const handleIncrementModal = (id: number, total: number, received: number) => {
     setReceivedAmount(received);
@@ -190,6 +198,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
           textAlign="center"
         />
       </Stack>
+      <SearchBar searchParams={["ean", "ref_prov"]} searchValue={query} setSearchValue={setQuery} />
 
       {/*Desktop view*/}
       <Box display={{ base: "none", md: "block" }} overflowX="auto">
