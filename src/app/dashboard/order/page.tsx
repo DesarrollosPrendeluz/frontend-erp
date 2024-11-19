@@ -15,6 +15,7 @@ import React from "react";
 import { useState } from "react";
 import EntryOrder from "@/components/orders/EntryOrder";
 import { useRouter } from "next/navigation";
+import FatherOrder from "@/types/fatherOrders/FatherOrders";
 interface AssignedUser {
   assignation_id: number;
   user_id: number;
@@ -47,12 +48,12 @@ const Orders = () => {
   const [params, setParamsValue] = useState<Record<string, any>>({ "type_id": 1 });
   const [currentPage, setCurrentPage] = useState(1);
   const {
-    data: orders,
+    data: fatherOrders,
     totalPages,
     isLoading,
     error,
-  } = useFetchData<Order>({
-    url: `${apiUrl}/order`,
+  } = useFetchData<FatherOrder>({
+    url: `${apiUrl}/fatherOrder`,
     page: (currentPage - 1),
     limit: 20,
     params: params
@@ -82,10 +83,10 @@ const Orders = () => {
         ) : (
           <TabPanels>
             <TabPanel>
-              <EntryOrder orders={orders} />
+              <EntryOrder fatherOrders={fatherOrders} />
             </TabPanel>
             <TabPanel>
-              <EntryOrder orders={orders} />
+              <EntryOrder fatherOrders={fatherOrders} />
             </TabPanel>
           </TabPanels>
         )}

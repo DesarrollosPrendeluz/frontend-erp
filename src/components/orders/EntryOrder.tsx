@@ -19,9 +19,11 @@ import {
 import React from "react";
 import ProgressBar from "@/components/progressbar/ProgressBar";
 import ResponsiveView from "../ResponsiveLayout";
+import FatherOrder from "@/types/fatherOrders/FatherOrders";
 
 
-const EntryOrder: React.FC<{ orders: Order[] }> = ({ orders }) => {
+
+const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders }) => {
   const router = useRouter();
 
   const goToPickingPage = (orderCode: string) => {
@@ -30,12 +32,12 @@ const EntryOrder: React.FC<{ orders: Order[] }> = ({ orders }) => {
 
   const mobileView = (
     <Stack spacing={4} mt={4} px={4}>
-      {orders.map((order) => (
-        <Box key={order.OrderCode} p={4} borderWidth="1px" borderRadius="lg" shadow="sm">
-          <Text fontWeight="bold">Orden de Compra: {order.OrderCode}</Text>
-          <Text>Estado: {order.Status}</Text>
-          <Text>Tipo: {order.Type}</Text>
-          <Button size="sm" onClick={() => console.log(`Go to Picking ${order.OrderCode}`)}>
+      {fatherOrders.map((fatherOrder) => (
+        <Box key={fatherOrder.code} p={4} borderWidth="1px" borderRadius="lg" shadow="sm">
+          <Text fontWeight="bold">Orden de Compra: {fatherOrder.code}</Text>
+          <Text>Estado: {fatherOrder.status}</Text>
+          <Text>Tipo: {fatherOrder.type}</Text>
+          <Button size="sm" onClick={() => console.log(`Go to Picking ${fatherOrder.code}`)}>
             Picking
           </Button>
         </Box>
@@ -55,23 +57,23 @@ const EntryOrder: React.FC<{ orders: Order[] }> = ({ orders }) => {
         </Tr>
       </Thead>
       <Tbody>
-        {Array.isArray(orders) && orders.length > 0 ? (
-          orders.map((order) => (
-            order.ItemsOrdered && Array.isArray(order.ItemsOrdered) && order.ItemsOrdered.length > 0 ? (
-              <Tr key={order.OrderCode}>
+        {Array.isArray(fatherOrders) && fatherOrders.length > 0 ? (
+          fatherOrders.map((fatherOrder) => (
+            
+              <Tr key={fatherOrder.code}>
                 <Td>
-                  <Button onClick={() => goToPickingPage(order.OrderCode)}>
+                  <Button onClick={() => goToPickingPage(fatherOrder.code)}>
                     Picking
                   </Button>
                 </Td>
-                <Td>{order.OrderCode}</Td>
-                <Td>{order.Status}</Td>
-                <Td>{order.Type}</Td>
+                <Td>{fatherOrder.code}</Td>
+                <Td>{fatherOrder.status}</Td>
+                <Td>{fatherOrder.type}</Td>
                 <Td>
-                  <ProgressBar items={order.ItemsOrdered ?? []} />
+                  <ProgressBar total={fatherOrder.total_stock} completed={fatherOrder.pending_stock} />
                 </Td>
               </Tr>
-            ) : null
+         
           ))
         ) : (
           <Tr>
