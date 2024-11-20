@@ -17,14 +17,13 @@ const SearchBar: React.FC<SearchBarProps> = ({ searchValue, setSearchValue, sear
         query = query +"&"+element+"="+value
         
     });
-    console.log("query params");
-    console.log(query);
+
     setSearchValue(query)
     // Aquí puedes añadir lógica adicional si es necesario
   };
 
   return (
-    <InputGroup margin="auto" mt="20px">
+    <InputGroup   margin="auto" mt="2px">
       <Input
         placeholder={`Buscar por ${searchParams.join(", ")}`} // Muestra los parámetros en el placeholder
         //value={searchValue}

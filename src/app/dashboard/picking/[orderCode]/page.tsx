@@ -200,10 +200,13 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
           textAlign="center"
         />
       </Stack>
-      <SearchBar searchParams={["ean", "ref_prov"]} searchValue={query} setSearchValue={setQuery} />
 
+     
       {/*Desktop view*/}
       <Box display={{ base: "none", md: "block" }} overflowX="auto">
+      <Stack my={4}     sx={{ position: 'sticky', top: '1px', zIndex: 1000, backgroundColor: 'white' }}>
+        <SearchBar searchParams={["ean", "ref_prov"]} searchValue={query} setSearchValue={setQuery} />
+      </Stack>
         <Table variant="simple" size="sm" mt={4}>
           <Thead bg="gray.100">
             <Tr>
@@ -249,7 +252,11 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
       </Box>
 
       {/* Mobil view*/}
-      <Box display={{ base: "block", md: "none" }} mt={4}>
+      <Box 
+     overflow={"none"} display={{ base: "block", md: "none" }} mt={4}>
+      <Stack my={1}     sx={{ position: 'fixed', bottom:0, zIndex: 1000, backgroundColor: 'white' }}>
+        <SearchBar searchParams={["ean", "ref_prov"]} searchValue={query} setSearchValue={setQuery} />
+      </Stack>
         {order?.Lines.map(( line) => (
           <VStack key={line.id} borderWidth="1px" borderRadius="lg" p={4} mb={2}>
              <Flex width={"100%"} justify="space-between" align="center">
