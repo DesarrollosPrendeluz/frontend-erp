@@ -30,7 +30,7 @@ const OrderModal: React.FC<BasicModalProps> = ({  isOpen, onClose, orders }) => 
         <ModalBody>
             <Table>
                 <Thead>
-                <Tr>
+                <Tr key={"head-order-modal-table"}>
                     <Th>Codigo</Th>
                     <Th>Status</Th>
                     <Th>Cantidad</Th>
@@ -38,7 +38,7 @@ const OrderModal: React.FC<BasicModalProps> = ({  isOpen, onClose, orders }) => 
                 </Thead>
                 <Tbody>
                 {orders.map((order:ChildOrder) => (
-                    <Tr>
+                    <Tr key={order.code+"-"+order.id}>
                         <Td>{order.code}</Td>
                         <Td><Select orderId={order.id} status={order.status} statusId={order.status_id} father={false}/></Td>
                         <Td><ProgressBar total={order.quantity} completed={order.recived_quantity} /></Td>

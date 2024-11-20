@@ -272,7 +272,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
         <SearchBar searchParams={["ean", "ref_prov"]} searchValue={query} setSearchValue={setQuery} />
       </Stack>
         {order?.Lines.map(( line) => (
-          <VStack key={line.id} borderWidth="1px" borderRadius="lg" p={4} mb={2}>
+          <VStack key={line.id+"-"+line.ean} borderWidth="1px" borderRadius="lg" p={4} mb={2}>
              <Flex width={"100%"} justify="space-between" align="center">
               <Text width={"40%"} align="left" fontSize="sm"><b>SKU</b><br/> {line.main_sku}</Text>
               <Text width={"55%"} align="left" fontSize="sm"><b>EAN</b><br/> {line.ean}</Text>
