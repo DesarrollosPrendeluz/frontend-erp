@@ -106,17 +106,14 @@ interface Options{
         id="framework-select"
         value={selectedValue}
         onChange={handleChange}
+        defaultValue={statusId}
       >
         {options.map((option) => (
-            option.id === statusId ? (
-                <option key={option.id} value={option.id} selected>
-                {option.name}
-                </option>
-            ) : (
-                <option key={option.id} value={option.id}>
-                {option.name}
-                </option>
-            )
+
+          <option key={option.id} value={option.id}>
+          {option.name}
+          </option>
+            
         ))}
 
 
