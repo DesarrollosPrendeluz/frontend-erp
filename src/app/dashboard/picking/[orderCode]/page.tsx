@@ -93,7 +93,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
       if (fatherOrderWithLines) {
         setOrder(fatherOrderWithLines);
         let pages = response.data.Results.recount/10
-        pages > 1 ? setTotalPages(pages) : setTotalPages(1)
+        pages > 1 ? setTotalPages(Math.ceil(pages)) : setTotalPages(1)
       }
     } catch (error) {
       console.error("Error cargando pedido:", error);
