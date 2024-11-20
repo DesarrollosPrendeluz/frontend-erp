@@ -6,17 +6,7 @@ interface ProgressBarProps {
 }
 
 const ProgressBar: React.FC<ProgressBarProps> = ({ total, completed }) => {
-//   var completed = 0, total = 0;
-//   if (items && Array.isArray(items)  && items.length > 0) {
 
-//   items.map(
-//     (item) => {
-//       total += item?.Amount ?? 0;
-//       completed += item?.RecivedAmount ?? 0;
-
-//     }
-//   )
-// }
   const percentage = (completed / total) * 100
   return (
     <Box position={"relative"} width={"100%"} textAlign={"center"}>
