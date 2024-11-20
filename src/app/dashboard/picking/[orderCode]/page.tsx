@@ -191,7 +191,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
 
 
   return (
-    <Box maxW="1200px" mx="auto" p={4}>
+    <Box maxW="1400px" mx="auto" p={4}>
       <Heading size="lg" mb={4} textAlign="center">Detalles del pedido padre: {order?.FatherOrder.code}</Heading>
       <Stack spacing={4} mb={4} direction={{ base: "column", md: "row" }} align="center" justify="space-between">
         <Text fontSize={{ base: "sm", md: "md" }}>Tipo: {order?.FatherOrder.type}</Text>
@@ -288,7 +288,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
              </Flex>
             
 
-            <Text width={"100%"} fontSize="sm"> <ProgressBar total={line.quantity} completed={line.recived_quantity}/></Text>
+            <Flex width={"100%"} fontSize="sm"> <ProgressBar total={line.quantity} completed={line.recived_quantity}/></Flex>
             <Flex gap={2} justify="center">
               <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.quantity, line.recived_quantity)} size="lg" />
               <IconButton aria-label="Asignar" icon={<LockIcon />} onClick={() => assignUser(line.id)} size="lg" />
