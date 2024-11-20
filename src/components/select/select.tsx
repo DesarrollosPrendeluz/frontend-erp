@@ -30,8 +30,6 @@ interface Options{
     const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
     const token =     Cookies.get("erp_token");
 
-    father ? console.log("padre"): console.log("hijo")
-    console.log(statusId)
     // Realizar la petición para obtener los datos cuando el componente se monte
     useEffect(() => {
       if (orderId !== undefined && statusId !== undefined) {

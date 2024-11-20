@@ -4,6 +4,9 @@ import React, { useEffect, useState } from "react";
 import { AddIcon, InfoIcon, LockIcon } from "@chakra-ui/icons";
 import { SlPrinter } from "react-icons/sl";
 import axios from "axios";
+import Pagination from "@/components/Pagination";
+import useFetchData from "@/hooks/fetchData";
+
 import {FatherOrder} from "@/types/fatherOrders/FatherOrders";
 import OrderLine from "@/types/orders/Lines";
 import OrderLineLabel, { OrderLineLabelProps } from "@/components/barcode/barcode";
@@ -52,6 +55,8 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
   const [selectedPrinter, setSelectedPrinter] = useState<ZebraPrinter | null>(null);
   const [isPrinting, setIsPrinting] = useState<boolean>(false);
   const [query, setQuery] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isLabelOpen, onOpen: onLabelOpen, onClose: onLabelClose } = useDisclosure();
@@ -69,17 +74,26 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
   const fetchOrder = async () => {
     const token = Cookies.get("erp_token");
 
-    try {
-      console.log(`${apiUrl}/fatherOrder/orderLines?father_order_code=${params.orderCode}${query}`);
-      const response = await axios.get<{ Results: { data: response } }>(`${apiUrl}/fatherOrder/orderLines?father_order_code=${params.orderCode}${query}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
 
-      const fatherOrderWithLines = response.data.Results.data;
+    try {
+      
+      const response = await axios.get<{ Results: 
+        {
+        recount: number; 
+        data: response 
+        } 
+      }>(`${apiUrl}/fatherOrder/orderLines?page=${currentPage-1}&page_size=10&father_order_code=${params.orderCode}${query}`, 
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      let fatherOrderWithLines = response.data.Results.data;
+     
       if (fatherOrderWithLines) {
         setOrder(fatherOrderWithLines);
-        
-        console.log(order)
+        let pages = response.data.Results.recount/10
+        pages > 1 ? setTotalPages(pages) : setTotalPages(1)
       }
     } catch (error) {
       console.error("Error cargando pedido:", error);
@@ -90,7 +104,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
 
   useEffect(() => {
     fetchOrder();
-  }, [params.orderCode, query]);
+  }, [params.orderCode, query, currentPage]);
 
   const handleIncrementModal = (id: number, total: number, received: number) => {
     setReceivedAmount(received);
@@ -287,6 +301,11 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
           </VStack>
         ))}
       </Box>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={(page) => setCurrentPage(page)}
+      />
 
       <OrderModal         
         isOpen={isOrderOpne}

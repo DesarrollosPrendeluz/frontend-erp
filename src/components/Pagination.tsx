@@ -30,9 +30,7 @@ const Pagination: React.FC<PaginationProps> = ({
       setCurrentPage(pag)
     };
     initializeComponent();
-    console.log("se ejecuta");
-    console.log("Nº de paginas "+totalPages);
-    console.log("Nº de paginas procesado "+totalPagesByCurrent);
+    
     
   }, [totalPages, currentPage]); // El array vacío asegura que esto se ejecute solo una vez al montar
   return (
