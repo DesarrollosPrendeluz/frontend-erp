@@ -34,7 +34,7 @@ const Pagination: React.FC<PaginationProps> = ({
     
   }, [totalPages, currentPage]); // El array vacío asegura que esto se ejecute solo una vez al montar
   return (
-    <HStack justifyContent="center" spacing={2} mt={4}>
+    <HStack justifyContent="center" spacing={2} my={5} mt={4}>
       <Button
         onClick={() =>{setLastIndex(currentPage); handlePageChange(currentPage - 1)}}
         disabled={currentPage === 1}
