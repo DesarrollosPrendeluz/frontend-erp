@@ -59,21 +59,19 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders })
       <Tbody>
         {Array.isArray(fatherOrders) && fatherOrders.length > 0 ? (
           fatherOrders.map((fatherOrder) => (
-            
-              <Tr key={fatherOrder.code}>
-                <Td>
-                  <Button onClick={() => goToPickingPage(fatherOrder.code)}>
-                    Picking
-                  </Button>
-                </Td>
-                <Td>{fatherOrder.code}</Td>
-                <Td>{fatherOrder.status}</Td>
-                <Td>{fatherOrder.type}</Td>
-                <Td>
-                  <ProgressBar total={fatherOrder.total_stock} completed={fatherOrder.pending_stock} />
-                </Td>
-              </Tr>
-         
+            <Tr key={fatherOrder.code}>
+              <Td>
+                <Button onClick={() => goToPickingPage(fatherOrder.code)}>
+                  Picking
+                </Button>
+              </Td>
+              <Td>{fatherOrder.code}</Td>
+              <Td>{fatherOrder.status}</Td>
+              <Td>{fatherOrder.type}</Td>
+              <Td>
+                <ProgressBar total={fatherOrder.total_stock} completed={fatherOrder.pending_stock} />
+              </Td>
+            </Tr>
           ))
         ) : (
           <Tr>
