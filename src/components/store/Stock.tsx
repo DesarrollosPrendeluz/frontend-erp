@@ -115,19 +115,6 @@ const Stock = () => {
             Stock:
           </Text>
           <Text>{item.Amount}</Text>
-
-          <Divider my={2} />
-          <Text fontWeight="bold" fontSize="lg" mb={2}>
-            Proveedor:
-          </Text>
-          <Text>
-            {item.Item?.SupplierItems[0]?.Supplier?.Name || "No disponible"}
-          </Text>
-          <Divider my={2} />
-          <Text fontWeight="bold" fontSize="lg" mb={2}>
-            Pendiente de Recepción:
-          </Text>
-          <Text>{item.PendingAmount}</Text>
         </Box>
       ))}
     </Stack>
