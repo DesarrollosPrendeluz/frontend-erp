@@ -67,7 +67,7 @@ const StockDeficit = () => {
                     textOverflow: "ellipsis",
                     maxWidth: "300px"
                   }}>
-                    {item.Itemname}
+                    {item.Item.Name}
                   </span>
                 </Tooltip>
               </Td>
