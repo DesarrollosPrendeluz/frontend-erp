@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import {
   Box,
   Text,
-  Heading,
   Table,
   Tbody,
   Td,
@@ -20,7 +19,7 @@ import {
 import React from "react";
 import ProgressBar from "@/components/progressbar/ProgressBar";
 import ResponsiveView from "../ResponsiveLayout";
-import {FatherOrder} from "@/types/fatherOrders/FatherOrders";
+import { FatherOrder } from "@/types/fatherOrders/FatherOrders";
 
 
 
@@ -35,21 +34,22 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders })
     <Stack spacing={4} mt={4} px={4}>
       {fatherOrders.map((fatherOrder) => (
         <Box key={fatherOrder.code} p={4} borderWidth="1px" borderRadius="lg" shadow="sm">
-          <Text textAlign={"center"}> <b>Orden:</b><br/> {fatherOrder.code}</Text>
-          <Text textAlign={"center"} ><b>Estado:</b><br/> {fatherOrder.status}</Text>
-          <Text textAlign={"center"}><b>Tipo:</b><br/> {fatherOrder.type}</Text>
-          <Flex width={"100%"} justify="center" marginTop={3}>          
+          <Text textAlign={"center"}> <b>Orden:</b><br /> {fatherOrder.code}</Text>
+          <Text textAlign={"center"} ><b>Estado:</b><br /> {fatherOrder.status}</Text>
+          <Text textAlign={"center"}><b>Tipo:</b><br /> {fatherOrder.type}</Text>
+          <Flex width={"100%"} justify="center" marginTop={3}>
             <ProgressBar total={fatherOrder.total_stock} completed={fatherOrder.pending_stock} />
           </Flex>
-          <Flex justify="center" marginTop={3}>          
-            <Button size="sm" onClick={() => console.log(`Go to Picking ${fatherOrder.code}`)}>
-            Picking
+          <Flex justify="center" marginTop={3}>
+            <Button size="sm" onClick={() => goToPickingPage(fatherOrder.code)}>
+              Picking
             </Button>
           </Flex>
 
         </Box>
-      ))}
-    </Stack>
+      ))
+      }
+    </Stack >
   );
 
   const desktopView = (<Box display={{ base: "none", md: "block" }} overflowX={"auto"}>
