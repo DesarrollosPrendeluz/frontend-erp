@@ -68,7 +68,7 @@ const StockDeficit = () => {
                 </Tooltip>
               </Td>
               <Td>{item.SKU_Parent}</Td>
-              <Td>{item.Item.SupplierItems[0].Supplier.Name}</Td>
+              <Td>{item.Item?.SupplierItems[0]?.Supplier?.Name || "No disponible"}</Td>
               <Td>{item.Amount}</Td>
               <Td>{item.PendingAmount}</Td>
 
