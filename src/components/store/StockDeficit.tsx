@@ -39,7 +39,7 @@ const StockDeficit = () => {
   const desktopView = (
 
     <Box maxW="1200px" mx="auto" mt={8} p={4}>
-      <AddOrderModal isOpen={isOpen} onClose={onClose} />
+      
 
       <Heading>{TITLE} </Heading>
       <Button backgroundColor={'#F2C12E'} onClick={onOpen}> Crear pedido </Button>
@@ -86,6 +86,7 @@ const StockDeficit = () => {
         totalPages={totalPages}
         onPageChange={(page) => setCurrentPage(page)}
       />
+      
 
       <AddOrderModal isOpen={isOpen} onClose={onClose} />
     </Box>
