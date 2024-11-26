@@ -15,6 +15,7 @@ import {
   useDisclosure,
   Stack,
   Divider,
+  Button,
   Tooltip
 } from "@chakra-ui/react";
 import { useState } from "react";
@@ -38,8 +39,11 @@ const StockDeficit = () => {
   const desktopView = (
 
     <Box maxW="1200px" mx="auto" mt={8} p={4}>
+      <AddOrderModal isOpen={isOpen} onClose={onClose} />
 
       <Heading>{TITLE} </Heading>
+      <Button backgroundColor={'#F2C12E'} onClick={onOpen}> Crear pedido </Button>
+
 
       <Table>
         <Thead>

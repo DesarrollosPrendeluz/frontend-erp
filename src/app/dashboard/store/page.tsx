@@ -19,12 +19,10 @@ import StockDeficit from "@/components/store/StockDeficit";
 
 const Store = () => {
   const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const isVisible = useBreakpointValue({ base: true, md: false });
 
   return (
     <Box>
-      <Button backgroundColor={'#F2C12E'} onClick={onOpen}> Crear pedido </Button>
       <Tabs variant={"soft-rounded"}>
         <TabList>
           <Tab>Stock</Tab>
