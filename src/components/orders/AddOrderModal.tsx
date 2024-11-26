@@ -143,7 +143,7 @@ const AddOrderModal: React.FC<BasicModalProps> = ({  isOpen, onClose }) => {
                 map((item) => (
                 <Tr key={item.SKU_Parent}> 
                     <Td>{item.SKU_Parent}</Td> 
-                    <Td>{item.Item?.SupplierItems[0].Supplier.Name || ''}</Td>  
+                    <Td>{item.Item?.SupplierItems[0]?.Supplier?.Name ||"No disponible"}</Td>  
                     <Td>{item.Amount}</Td>
                     <Td>{item.PendingAmount}</Td>
                 </Tr>
