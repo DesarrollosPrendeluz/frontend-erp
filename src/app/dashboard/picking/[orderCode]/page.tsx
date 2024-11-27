@@ -148,8 +148,9 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
       });
 
       if (response.status === 200) {
-        const { brand, brandAddress, brandEmail, ean, asin } = response.data.Results.data;
-        setLabelData({ label: { brand, brandAddress, brandEmail, ean, asin }, isOpen: isLabelOpen, onClose: onLabelClose });
+        console.log(response.data.Results.data);
+        const { brand, brand_address, brand_email, ean, asin } = response.data.Results.data;
+        setLabelData({ label: { brand, brandAddress:brand_address, brandEmail:brand_email, ean, asin }, isOpen: isLabelOpen, onClose: onLabelClose });
       }
     } catch (error) {
       console.error("Error loading the label");
@@ -164,7 +165,8 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (response.status === 200) {
-      const { brand, brandAddress, brandEmail, ean, asin } = response.data.Results.data;
+      console.log(response.data.Results.data);
+      const { brand, brand_address, brand_email, ean, asin } = response.data.Results.data;
       let zpl = '';
       const totalCopies = parseInt(numCopies);
       for (let i = 0; i < totalCopies; i++) {
@@ -172,8 +174,8 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
         ^XA
         ^CI28
         ^FO20,12^A0,20,20^FDMarca: ${brand}^FS
-        ^FO20,42^A0,20,20^FDDirección: ${brandAddress}^FS
-        ^FO20,72^A0,20,20^FDE-Mail: ${brandEmail}^FS
+        ^FO20,42^A0,20,20^FDDirección: ${brand_address}^FS
+        ^FO20,72^A0,20,20^FDE-Mail: ${brand_email}^FS
         ^FO20,95^BY2^BCN,90,Y,N,N^FD${ean}^FS
         ^XZ
       `;
