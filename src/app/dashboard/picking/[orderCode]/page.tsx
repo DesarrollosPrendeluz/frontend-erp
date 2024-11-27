@@ -7,7 +7,7 @@ import axios from "axios";
 import Pagination from "@/components/Pagination";
 import useFetchData from "@/hooks/fetchData";
 
-import {FatherOrder} from "@/types/fatherOrders/FatherOrders";
+import { FatherOrder } from "@/types/fatherOrders/FatherOrders";
 import OrderLine from "@/types/orders/Lines";
 import OrderLineLabel, { OrderLineLabelProps } from "@/components/barcode/barcode";
 import {
@@ -60,7 +60,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isLabelOpen, onOpen: onLabelOpen, onClose: onLabelClose } = useDisclosure();
-  const { isOpen:isOrderOpne, onOpen:onOrderOpen, onClose:onOrderClose } = useDisclosure();
+  const { isOpen: isOrderOpne, onOpen: onOrderOpen, onClose: onOrderClose } = useDisclosure();
   // const { isOpen2, onOpen2, onClose2 } = useDisclosure();
   //const { isOpen: isLabelOpen2, onOpen: onLabelOpen2, onClose: onLabelClose2 } = useDisclosure();
 
@@ -76,23 +76,24 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
 
 
     try {
-      
-      const response = await axios.get<{ Results: 
+
+      const response = await axios.get<{
+        Results:
         {
-        recount: number; 
-        data: response 
-        } 
-      }>(`${apiUrl}/fatherOrder/orderLines?page=${currentPage-1}&page_size=10&father_order_code=${params.orderCode}${query}`, 
+          recount: number;
+          data: response
+        }
+      }>(`${apiUrl}/fatherOrder/orderLines?page=${currentPage - 1}&page_size=10&father_order_code=${params.orderCode}${query}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
       let fatherOrderWithLines = response.data.Results.data;
-     
+
       if (fatherOrderWithLines) {
         setOrder(fatherOrderWithLines);
-        let pages = response.data.Results.recount/10
+        let pages = response.data.Results.recount / 10
         pages > 1 ? setTotalPages(Math.ceil(pages)) : setTotalPages(1)
       }
     } catch (error) {
@@ -169,13 +170,14 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
       const totalCopies = parseInt(numCopies);
       for (let i = 0; i < totalCopies; i++) {
         zpl += `
-        ^XA
-        ^CI28
-        ^FO20,12^A0,20,20^FDMarca: ${brand}^FS
-        ^FO20,42^A0,20,20^FDDirección: ${brandAddress}^FS
-        ^FO20,72^A0,20,20^FDE-Mail: ${brandEmail}^FS
-        ^FO20,95^BY2^BCN,90,Y,N,N^FD${ean}^FS
-        ^XZ
+              ^XA
+              ^CI28
+              ^FO20,10^A0,25,25^FDMarca: ${brand}^FS
+              ^FO20,40^A0,25,25^FDDirección: ${brandAddress}^FS
+              ^FO20,70^A0,25,25^FDE-Mail: ${brandEmail}^FS
+              ^FO20,110^BY2,2,60
+              ^BCN,60,Y,N,N^FD${ean}^FS
+              ^XZ
       `;
       }
       if (selectedPrinter && typeof selectedPrinter.send === 'function') {
@@ -200,8 +202,8 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
 
       </Stack>
 
-      
-      <Stack spacing={4} mb={4} direction={{ base: "column", md: "row" }}        align="center" justify="space-between">
+
+      <Stack spacing={4} mb={4} direction={{ base: "column", md: "row" }} align="center" justify="space-between">
         <ZebraPrinterManager onPrinterReady={(printer: ZebraPrinter) => setSelectedPrinter(printer)} />
         <Input
           type="number"
@@ -215,12 +217,12 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
         />
       </Stack>
 
-     
+
       {/*Desktop view*/}
       <Box display={{ base: "none", md: "block" }} overflowX="auto">
-      <Stack my={4}     sx={{ position: 'sticky', top: '1px', zIndex: 1000, backgroundColor: 'white' }}>
-        <SearchBar searchParams={["ean", "ref_prov"]} searchValue={query} setSearchValue={setQuery} />
-      </Stack>
+        <Stack my={4} sx={{ position: 'sticky', top: '1px', zIndex: 1000, backgroundColor: 'white' }}>
+          <SearchBar searchParams={["ean", "ref_prov"]} searchValue={query} setSearchValue={setQuery} />
+        </Stack>
         <Table variant="simple" size="sm" mt={4}>
           <Thead bg="gray.100">
             <Tr>
@@ -237,7 +239,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
             </Tr>
           </Thead>
           <Tbody>
-            {order?.Lines.map((line:OrderLine) => (
+            {order?.Lines.map((line: OrderLine) => (
               <Tr key={line.id}>
                 <Td>{line.main_sku}</Td>
                 <Td>{line.ean}</Td>
@@ -266,29 +268,29 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
       </Box>
 
       {/* Mobil view*/}
-      <Box 
-     overflow={"none"} display={{ base: "block", md: "none" }} mt={4}>
-      <Stack my={1}     sx={{ position: 'fixed', bottom:0, zIndex: 1000, backgroundColor: 'white' }}>
-        <SearchBar searchParams={["ean", "ref_prov"]} searchValue={query} setSearchValue={setQuery} />
-      </Stack>
-        {order?.Lines.map(( line) => (
-          <VStack key={line.id+"-"+line.ean} borderWidth="1px" borderRadius="lg" p={4} mb={2}>
-             <Flex width={"100%"} justify="space-between" align="center">
-              <Text width={"40%"} align="left" fontSize="sm"><b>SKU</b><br/> {line.main_sku}</Text>
-              <Text width={"55%"} align="left" fontSize="sm"><b>EAN</b><br/> {line.ean}</Text>
-             </Flex>
-             <Flex width={"100%"} justify="space-between">
-              <Text width={"40%"} align="left" fontSize="sm"><b>Proveedor</b><br/> {line.supplier}</Text>
-              <Text width={"55%"} align="left" fontSize="sm"><b>Codigo</b><br/> {line.supplier_reference}</Text>
-             </Flex>
-             <Flex width={"100%"} justify="space-between">
-             <Text width={"40%"} align="left" fontSize="sm"><b>Usuario</b><br/> {line.AssignedUser.user_name}</Text>
-             <Text width={"55%"} align="left" fontSize="sm"><b>Ubicación</b><br/> {line.locations}</Text>
+      <Box
+        overflow={"none"} display={{ base: "block", md: "none" }} mt={4}>
+        <Stack my={1} sx={{ position: 'fixed', bottom: 0, zIndex: 1000, backgroundColor: 'white' }}>
+          <SearchBar searchParams={["ean", "ref_prov"]} searchValue={query} setSearchValue={setQuery} />
+        </Stack>
+        {order?.Lines.map((line) => (
+          <VStack key={line.id + "-" + line.ean} borderWidth="1px" borderRadius="lg" p={4} mb={2}>
+            <Flex width={"100%"} justify="space-between" align="center">
+              <Text width={"40%"} align="left" fontSize="sm"><b>SKU</b><br /> {line.main_sku}</Text>
+              <Text width={"55%"} align="left" fontSize="sm"><b>EAN</b><br /> {line.ean}</Text>
+            </Flex>
+            <Flex width={"100%"} justify="space-between">
+              <Text width={"40%"} align="left" fontSize="sm"><b>Proveedor</b><br /> {line.supplier}</Text>
+              <Text width={"55%"} align="left" fontSize="sm"><b>Codigo</b><br /> {line.supplier_reference}</Text>
+            </Flex>
+            <Flex width={"100%"} justify="space-between">
+              <Text width={"40%"} align="left" fontSize="sm"><b>Usuario</b><br /> {line.AssignedUser.user_name}</Text>
+              <Text width={"55%"} align="left" fontSize="sm"><b>Ubicación</b><br /> {line.locations}</Text>
 
-             </Flex>
-            
+            </Flex>
 
-            <Flex width={"100%"} fontSize="sm"> <ProgressBar total={line.quantity} completed={line.recived_quantity}/></Flex>
+
+            <Flex width={"100%"} fontSize="sm"> <ProgressBar total={line.quantity} completed={line.recived_quantity} /></Flex>
             <Flex gap={2} justify="center">
               <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.quantity, line.recived_quantity)} size="lg" />
               <IconButton aria-label="Asignar" icon={<LockIcon />} onClick={() => assignUser(line.id)} size="lg" />
@@ -307,13 +309,13 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
         onPageChange={(page) => setCurrentPage(page)}
       />
 
-      <OrderModal         
+      <OrderModal
         isOpen={isOrderOpne}
         onClose={onOrderClose}
         orders={order?.FatherOrder.Childs ?? []}
-        />
+      />
 
-        
+
 
       <Increment
         isOpen={isOpen}
