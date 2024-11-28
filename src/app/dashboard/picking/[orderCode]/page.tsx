@@ -172,13 +172,13 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
       const totalCopies = parseInt(numCopies);
       for (let i = 0; i < totalCopies; i++) {
         zpl += `
-        ^XA
-        ^CI28
-        ^FO20,12^A0,20,20^FDMarca: ${brand}^FS
-        ^FO20,42^A0,20,20^FDDirección: ${brand_address}^FS
-        ^FO20,72^A0,20,20^FDE-Mail: ${brand_email}^FS
-        ^FO20,95^BY2^BCN,90,Y,N,N^FD${ean}^FS
-        ^XZ
+                ^XA
+                ^CI28
+                ^FO20,12^A0,20,20^FDMarca: ${brand}^FS
+                ^FO20,32^A0,20,20^FB200,2,0,L,0^FD${brand_address}^FS  
+                ^FO20,72^A0,20,20^FD${brand_email}^FS
+                ^FO20,95^BY2^BCN,70,Y,N,N^FD${ean}^FS
+                ^XZ
       `;
       }
       if (selectedPrinter && typeof selectedPrinter.send === 'function') {
@@ -240,30 +240,35 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
             </Tr>
           </Thead>
           <Tbody>
-            {order?.Lines.map((line: OrderLine) => (
-              <Tr key={line.id}>
-                <Td>{line.main_sku}</Td>
-                <Td>{line.ean}</Td>
-                <Td>{line.name.substring(0, 25) + ' ...'}</Td>
-                <Td>{line.supplier}</Td>
-                <Td>{line.supplier_reference}</Td>
-                <Td><ProgressBar total={line.quantity} completed={line.recived_quantity} /></Td>
-                <Td>{line.AssignedUser.user_name}</Td>
-                <Td>{line.locations}</Td>
-                <Td>
-                  <Flex gap={2}>
-                    <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.quantity, line.recived_quantity)} size="sm" />
-                    <IconButton aria-label="Asignar" icon={<LockIcon />} onClick={() => assignUser(line.id)} size="sm" />
-                  </Flex>
+            {order?.Lines && order.Lines.length > 0 ?
+              (order?.Lines.map((line: OrderLine) => (
+                <Tr key={line.id}>
+                  <Td>{line.main_sku}</Td>
+                  <Td>{line.ean}</Td>
+                  <Td>{line.name.substring(0, 25) + ' ...'}</Td>
+                  <Td>{line.supplier}</Td>
+                  <Td>{line.supplier_reference}</Td>
+                  <Td><ProgressBar total={line.quantity} completed={line.recived_quantity} /></Td>
+                  <Td>{line.AssignedUser.user_name}</Td>
+                  <Td>{line.locations}</Td>
+                  <Td>
+                    <Flex gap={2}>
+                      <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.quantity, line.recived_quantity)} size="sm" />
+                      <IconButton aria-label="Asignar" icon={<LockIcon />} onClick={() => assignUser(line.id)} size="sm" />
+                    </Flex>
+                  </Td>
+                  <Td>
+                    <Flex gap={2}>
+                      <IconButton aria-label="Imprimir" icon={<SlPrinter />} onClick={() => handleZebra(line.id)} size="sm" />
+                      <IconButton aria-label="Información" icon={<InfoIcon />} onClick={() => handleLabelModal(line.id)} size="sm" />
+                    </Flex>
+                  </Td>
+                </Tr>
+              ))) : (<Tr>
+                <Td colSpan={10} textAlign="center">
+                  No hay resultados.
                 </Td>
-                <Td>
-                  <Flex gap={2}>
-                    <IconButton aria-label="Imprimir" icon={<SlPrinter />} onClick={() => handleZebra(line.id)} size="sm" />
-                    <IconButton aria-label="Información" icon={<InfoIcon />} onClick={() => handleLabelModal(line.id)} size="sm" />
-                  </Flex>
-                </Td>
-              </Tr>
-            ))}
+              </Tr>)}
           </Tbody>
         </Table>
       </Box>
@@ -274,35 +279,40 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
         <Stack my={1} sx={{ position: 'fixed', bottom: 0, zIndex: 1000, backgroundColor: 'white' }}>
           <SearchBar searchParams={["ean", "ref_prov"]} searchValue={query} setSearchValue={setQuery} />
         </Stack>
-        {order?.Lines.map((line) => (
-          <VStack key={line.id + "-" + line.ean} borderWidth="1px" borderRadius="lg" p={4} mb={2}>
-            <Flex width={"100%"} justify="space-between" align="center">
-              <Text width={"40%"} align="left" fontSize="sm"><b>SKU</b><br /> {line.main_sku}</Text>
-              <Text width={"55%"} align="left" fontSize="sm"><b>EAN</b><br /> {line.ean}</Text>
-            </Flex>
-            <Flex width={"100%"} justify="space-between">
-              <Text width={"40%"} align="left" fontSize="sm"><b>Proveedor</b><br /> {line.supplier}</Text>
-              <Text width={"55%"} align="left" fontSize="sm"><b>Codigo</b><br /> {line.supplier_reference}</Text>
-            </Flex>
-            <Flex width={"100%"} justify="space-between">
-              <Text width={"40%"} align="left" fontSize="sm"><b>Usuario</b><br /> {line.AssignedUser.user_name}</Text>
-              <Text width={"55%"} align="left" fontSize="sm"><b>Ubicación</b><br /> {line.locations}</Text>
 
-            </Flex>
+        {order?.Lines && order.Lines.length > 0 ?
+          (order?.Lines.map((line) => (
+            <VStack key={line.id + "-" + line.ean} borderWidth="1px" borderRadius="lg" p={4} mb={2}>
+              <Flex width={"100%"} justify="space-between" align="center">
+                <Text width={"40%"} align="left" fontSize="sm"><b>SKU</b><br /> {line.main_sku}</Text>
+                <Text width={"55%"} align="left" fontSize="sm"><b>EAN</b><br /> {line.ean}</Text>
+              </Flex>
+              <Flex width={"100%"} justify="space-between">
+                <Text width={"40%"} align="left" fontSize="sm"><b>Proveedor</b><br /> {line.supplier}</Text>
+                <Text width={"55%"} align="left" fontSize="sm"><b>Codigo</b><br /> {line.supplier_reference}</Text>
+              </Flex>
+              <Flex width={"100%"} justify="space-between">
+                <Text width={"40%"} align="left" fontSize="sm"><b>Usuario</b><br /> {line.AssignedUser.user_name}</Text>
+                <Text width={"55%"} align="left" fontSize="sm"><b>Ubicación</b><br /> {line.locations}</Text>
+
+              </Flex>
 
 
-            <Flex width={"100%"} fontSize="sm"> <ProgressBar total={line.quantity} completed={line.recived_quantity} /></Flex>
-            <Flex gap={2} justify="center">
-              <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.quantity, line.recived_quantity)} size="lg" />
-              <IconButton aria-label="Asignar" icon={<LockIcon />} onClick={() => assignUser(line.id)} size="lg" />
-            </Flex>
-            <Flex gap={2} >
-              <IconButton aria-label="Imprimir" icon={<SlPrinter />} onClick={() => handleZebra(line.id)} size="lg" />
-              <IconButton aria-label="Información" icon={<InfoIcon />} onClick={() => handleLabelModal(line.id)} size="lg" />
+              <Flex width={"100%"} fontSize="sm"> <ProgressBar total={line.quantity} completed={line.recived_quantity} /></Flex>
+              <Flex gap={2} justify="center">
+                <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.quantity, line.recived_quantity)} size="lg" />
+                <IconButton aria-label="Asignar" icon={<LockIcon />} onClick={() => assignUser(line.id)} size="lg" />
+              </Flex>
+              <Flex gap={2} >
+                <IconButton aria-label="Imprimir" icon={<SlPrinter />} onClick={() => handleZebra(line.id)} size="lg" />
+                <IconButton aria-label="Información" icon={<InfoIcon />} onClick={() => handleLabelModal(line.id)} size="lg" />
 
-            </Flex>
-          </VStack>
-        ))}
+              </Flex>
+            </VStack>
+          ))) : (
+            <Text textAlign="center" fontSize="lg" mt={4}>
+              No hay resultados.
+            </Text>)}
       </Box>
       <Pagination
         currentPage={currentPage}

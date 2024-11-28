@@ -11,25 +11,26 @@ interface SearchBarProps {
 
 const SearchBar: React.FC<SearchBarProps> = ({ searchValue, setSearchValue, searchParams }) => {
   const [inputValue, setInputValue] = useState("");
-  const handleSearch = (value:string) => {
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      let query = ""
+      searchParams.forEach(element => {
+        query = query + "&" + element + "=" + inputValue
 
-    let query = ""
-    searchParams.forEach(element => {
-        query = query +"&"+element+"="+value
-        
-    });
-    setInputValue("")
-    value.trim() == "" ? setSearchValue("") : setSearchValue(query)
-    
-    // Aquí puedes añadir lógica adicional si es necesario
+      });
+      query.trim() == "" ? setSearchValue("") : setSearchValue(query)
+      setInputValue("")
+
+    }
   };
 
   return (
-    <InputGroup   margin="auto" mt="2px">
+    <InputGroup margin="auto" mt="2px">
       <Input
         placeholder={`Buscar por ${searchParams.join(", ")}`} // Muestra los parámetros en el placeholder
         value={inputValue}
-        onChange={(e) => handleSearch(e.target.value)} // Actualiza el string en el padre
+        onChange={(e) => setInputValue(e.target.value)}
+        onKeyDown={handleSearch} // Actualiza el string en el padre
         focusBorderColor="teal.400"
         borderColor="gray.300"
       />
@@ -37,7 +38,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ searchValue, setSearchValue, sear
         <IconButton
           aria-label="Search"
           icon={<SearchIcon />}
-          //onClick={(e) => setSearchValue(e.target.value)} // Ejecuta la función handleSearch
+        //onClick={(e) => setSearchValue(e.target.value)} // Ejecuta la función handleSearch
         />
       </InputRightElement>
     </InputGroup>
