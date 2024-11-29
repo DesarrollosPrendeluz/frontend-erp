@@ -176,7 +176,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
               ^CI28 
               ^FO20,12^A0,20,20^FDPrendeluz S.L.^FS
               ^FO200,12^A0,20,20^FD ${brand}^FS
-              ^FO20,42^A0,20,20^FB350,2,0,L,0^FD$ Pasaxe do Pedrido nº 24 bajo 15165 Bergondo (A Coruña, España)^FS  
+              ^FO20,42^A0,20,20^FB350,2,0,L,0^FD${brand_address}^FS  
               ^FO20,85^A0,20,20^FD${brand_email}^FS  
               ^FO20,110^BY2^BCN,60,Y,N,N^FD${ean}^FS
               ^XZ
