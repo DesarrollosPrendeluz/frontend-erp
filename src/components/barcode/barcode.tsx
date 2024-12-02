@@ -11,6 +11,7 @@ export interface OrderLineLabelProps {
     brandEmail: string;
     ean: string;
     asin: string;
+    company:string;
   };
   isOpen: boolean;
   onClose: () => void;
@@ -52,7 +53,7 @@ const OrderLineLabel: React.FC<OrderLineLabelProps> = ({ label, isOpen, onClose 
       const zpl = `
                   ^XA
                   ^CI28
-
+                  ${label.company}
                   ^FO20,5^A0,25,25^FDMarca: ${label.brand}^FS
                   ^FO20,25^A0,25,25^FDDirección: ${label.brandAddress}^FS
                   ^FO20,45^A0,25,25^FDE-Mail: ${label.brandEmail}^FS
@@ -76,7 +77,8 @@ const OrderLineLabel: React.FC<OrderLineLabelProps> = ({ label, isOpen, onClose 
         <ModalBody>
           <ZebraPrinterManager onPrinterReady={(printer: ZebraPrinter) => setSelectedPrinter(printer)} />
           <Box p={4} bg="white">
-            <Text fontWeight="bold" mb={2}>{label.brand}</Text>
+          <Text fontWeight="bold" mb={2}>{label.company}</Text>
+            <Text  mb={2}>{label.brand}</Text>
             <Text fontSize="sm">Dirección: {label.brandAddress}</Text>
             <Text fontSize="sm">E-Mail: {label.brandEmail}</Text>
             <Center mt={4}>

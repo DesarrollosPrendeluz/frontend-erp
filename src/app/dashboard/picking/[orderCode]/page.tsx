@@ -150,8 +150,8 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
 
       if (response.status === 200) {
         console.log(response.data.Results.data);
-        const { brand, brand_address, brand_email, ean, asin } = response.data.Results.data;
-        setLabelData({ label: { brand, brandAddress: brand_address, brandEmail: brand_email, ean, asin }, isOpen: isLabelOpen, onClose: onLabelClose });
+        const { brand, brand_address, brand_email, ean, asin, company } = response.data.Results.data;
+        setLabelData({ label: { brand, brandAddress: brand_address, brandEmail: brand_email, ean, asin, company }, isOpen: isLabelOpen, onClose: onLabelClose });
       }
     } catch (error) {
       console.error("Error loading the label");
@@ -167,14 +167,14 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
     });
     if (response.status === 200) {
       console.log(response.data.Results.data);
-      const { brand, brand_address, brand_email, ean, asin } = response.data.Results.data;
+      const { brand, brand_address, brand_email, ean, asin, company } = response.data.Results.data;
       let zpl = '';
       const totalCopies = parseInt(numCopies);
       for (let i = 0; i < totalCopies; i++) {
         zpl += `
            ^XA
               ^CI28 
-              ^FO20,12^A0,20,20^FDPrendeluz S.L.^FS
+              ^FO20,12^A0,20,20^FD${company}^FS
               ^FO200,12^A0,20,20^FD ${brand}^FS
               ^FO20,42^A0,20,20^FB350,2,0,L,0^FD${brand_address}^FS  
               ^FO20,85^A0,20,20^FD${brand_email}^FS  
