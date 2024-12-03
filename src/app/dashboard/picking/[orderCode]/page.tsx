@@ -172,14 +172,15 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
       const totalCopies = parseInt(numCopies);
       for (let i = 0; i < totalCopies; i++) {
         zpl += `
-           ^XA
-              ^CI28 
-              ^FO20,12^A0,20,20^FD${company}^FS
-              ^FO200,12^A0,20,20^FD ${brand}^FS
-              ^FO20,42^A0,20,20^FB350,2,0,L,0^FD${brand_address}^FS  
-              ^FO20,85^A0,20,20^FD${brand_email}^FS  
-              ^FO20,110^BY2^BCN,60,Y,N,N^FD${ean}^FS
-              ^XZ
+         ^XA
+          ^CI28
+          ^FO5,5^A0,20,20^FDEmpresa: ${company}^FS
+          ^FO5,35^A0,20,20^FDMarca: ${brand}^FS
+          ^FO5,65^A0,20,15^FDDirección: ${brand_address}^FS
+          ^FO5,95^A0,20,20^FDE-Mail: ${brand_email}^FS
+          ^FO5,125^BY2,2,30
+          ^BCN,40,Y,N,N^FD${ean}^FS
+          ^XZ
       `;
       }
       if (selectedPrinter && typeof selectedPrinter.send === 'function') {

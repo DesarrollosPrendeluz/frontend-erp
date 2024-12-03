@@ -50,16 +50,17 @@ const OrderLineLabel: React.FC<OrderLineLabelProps> = ({ label, isOpen, onClose 
 
   const handleZebra = () => {
     if (selectedPrinter && typeof selectedPrinter.send === 'function') {
+      console.log("Entra aqui");
       const zpl = `
-                  ^XA
-                  ^CI28
-                  ${label.company}
-                  ^FO20,5^A0,25,25^FDMarca: ${label.brand}^FS
-                  ^FO20,25^A0,25,25^FDDirección: ${label.brandAddress}^FS
-                  ^FO20,45^A0,25,25^FDE-Mail: ${label.brandEmail}^FS
-                  ^FO20,70^BY2,2,60
-                  ^BCN,50,Y,N,N^FD${label.ean}^FS
-                  ^XZ
+         ^XA
+          ^CI28
+          ^FO5,5^A0,20,20^FDEmpresa: ${label.company}^FS
+          ^FO5,35^A0,20,20^FDMarca: ${label.brand}^FS
+          ^FO5,65^A0,20,15^FDDirección: ${label.brandAddress}^FS
+          ^FO5,95^A0,20,20^FDE-Mail: ${label.brandEmail}^FS
+          ^FO5,125^BY2,2,30
+          ^BCN,40,Y,N,N^FD${label.ean}^FS
+          ^XZ
       `;
       selectedPrinter.send(zpl,
         () => console.log("Impresión exitosa"),
