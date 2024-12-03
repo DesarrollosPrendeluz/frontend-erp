@@ -34,7 +34,7 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders })
     <Stack spacing={4} mt={4} px={4}>
       {fatherOrders.map((fatherOrder) => (
         <Box key={fatherOrder.code} p={4} borderWidth="1px" borderRadius="lg" shadow="sm">
-          <Text textAlign={"center"}> <b>Orden:</b><br /> {fatherOrder.code}</Text>
+          <Text textAlign={"center"}> <b>Orden de entrada:</b><br /> {fatherOrder.code}</Text>
           <Text textAlign={"center"} ><b>Estado:</b><br /> {fatherOrder.status}</Text>
           <Text textAlign={"center"}><b>Tipo:</b><br /> {fatherOrder.type}</Text>
           <Flex width={"100%"} justify="center" marginTop={3}>
@@ -42,7 +42,7 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders })
           </Flex>
           <Flex justify="center" marginTop={3}>
             <Button size="sm" onClick={() => goToPickingPage(fatherOrder.code)}>
-              Picking
+            Detalles
             </Button>
           </Flex>
 
@@ -56,27 +56,35 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders })
     <Table variant={"simple"}>
       <Thead>
         <Tr>
-          <Th>Picking</Th>
-          <Th>Orden de compra</Th>
+
+          <Th>Orden de entrada</Th>
           <Th>Estado</Th>
           <Th>Tipo</Th>
           <Th>Progreso</Th>
+          <Th>Detalles</Th>
+          <Th>Dar entrada</Th>
         </Tr>
       </Thead>
       <Tbody>
         {Array.isArray(fatherOrders) && fatherOrders.length > 0 ? (
           fatherOrders.map((fatherOrder) => (
             <Tr key={fatherOrder.code}>
-              <Td>
-                <Button onClick={() => goToPickingPage(fatherOrder.code)}>
-                  Picking
-                </Button>
-              </Td>
+
               <Td>{fatherOrder.code}</Td>
               <Td>{fatherOrder.status}</Td>
               <Td>{fatherOrder.type}</Td>
               <Td>
                 <ProgressBar total={fatherOrder.total_stock} completed={fatherOrder.pending_stock} />
+              </Td>
+              <Td>
+                <Button onClick={() => goToPickingPage(fatherOrder.code)}>
+                Detalles
+                </Button>
+              </Td>
+              <Td>
+                <Button onClick={() => goToPickingPage(fatherOrder.code)}>
+                Dar entrada
+                </Button>
               </Td>
             </Tr>
           ))

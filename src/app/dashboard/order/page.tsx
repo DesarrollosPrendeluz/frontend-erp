@@ -13,8 +13,9 @@ import Pagination from "@/components/Pagination";
 import useFetchData from "@/hooks/fetchData";
 import React from "react";
 import { useState } from "react";
-import EntryOrder from "@/components/orders/EntryOrder";
 import { useRouter } from "next/navigation";
+import EntryOrder from "@/components/orders/EntryOrder";
+import ExitOrder from "@/components/orders/ExitOrder";
 import {FatherOrder} from "@/types/fatherOrders/FatherOrders";
 interface AssignedUser {
   assignation_id: number;
@@ -86,7 +87,7 @@ const Orders = () => {
               <EntryOrder fatherOrders={fatherOrders} />
             </TabPanel>
             <TabPanel>
-              <EntryOrder fatherOrders={fatherOrders} />
+              <ExitOrder fatherOrders={fatherOrders} />
             </TabPanel>
           </TabPanels>
         )}

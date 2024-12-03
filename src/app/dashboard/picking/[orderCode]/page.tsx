@@ -206,7 +206,14 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
       </Stack>
 
 
-      <Stack spacing={4} mb={4} direction={{ base: "column", md: "row" }} align="center" justify="space-between">
+      <Stack 
+        display={order?.FatherOrder.type_id == 1 ? "none" :""} 
+        spacing={4} mb={4} 
+        direction={{ base: "column", md: "row" }} 
+        align="center" 
+        justify="space-between"
+      >
+
         <ZebraPrinterManager onPrinterReady={(printer: ZebraPrinter) => setSelectedPrinter(printer)} />
         <Input
           type="number"
@@ -238,7 +245,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
               <Th>Responsable</Th>
               <Th>Ubicaciones</Th>
               <Th>Acciones</Th>
-              <Th>Etiqueta</Th>
+              <Th display={order?.FatherOrder.type_id == 1 ? "none" :""} >Etiqueta</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -259,7 +266,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
                       <IconButton aria-label="Asignar" icon={<LockIcon />} onClick={() => assignUser(line.id)} size="sm" />
                     </Flex>
                   </Td>
-                  <Td>
+                  <Td display={order?.FatherOrder.type_id == 1 ? "none" :""} >
                     <Flex gap={2}>
                       <IconButton aria-label="Imprimir" icon={<SlPrinter />} onClick={() => handleZebra(line.id)} size="sm" />
                       <IconButton aria-label="Información" icon={<InfoIcon />} onClick={() => handleLabelModal(line.id)} size="sm" />
