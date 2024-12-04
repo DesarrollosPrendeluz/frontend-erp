@@ -2,7 +2,7 @@
 
 
 import { Order, OrderItem } from "@/app/dashboard/order/page";
-import { useRouter } from "next/navigation";
+import { useRouter,  } from "next/navigation";
 import {
   Box,
   Text,
@@ -16,23 +16,56 @@ import {
   Button,
   Stack,
 } from "@chakra-ui/react";
+import { useState } from "react";
+
+import Cookies from 'js-cookie'
 import React from "react";
+import axios from "axios";
+
 import ProgressBar from "@/components/progressbar/ProgressBar";
 import ResponsiveView from "../ResponsiveLayout";
 import { FatherOrder } from "@/types/fatherOrders/FatherOrders";
+import Stock from "../store/Stock";
 
 
 
-const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders }) => {
+const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: initialOrders }) => {
+  const [orders, setOrders] = useState<FatherOrder[]>(initialOrders);
   const router = useRouter();
 
   const goToPickingPage = (orderCode: string) => {
     router.push(`/dashboard/picking/${orderCode}`)
   }
 
+  const closeOrder = (fatherOrderId: number) =>{
+    const token = Cookies.get("erp_token");
+    const userId = Cookies.get("user");
+    const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
+
+    const response =  axios.patch(`${apiUrl}/order/closeOrders`, {
+      "fatherOrderId": fatherOrderId,
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+    }).then((response)=>{
+      console.log("sdsd");
+      if(response.status == 202 || response.status == 204){
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order.id === fatherOrderId
+              ? { ...order, pending_stock: order.total_stock } // Simular el cierre del pedido
+              : order
+          )
+        );
+      }
+    });
+
+  }
+
   const mobileView = (
     <Stack spacing={4} mt={4} px={4}>
-      {fatherOrders.map((fatherOrder) => (
+      {orders.map((fatherOrder) => (
         <Box key={fatherOrder.code} p={4} borderWidth="1px" borderRadius="lg" shadow="sm">
           <Text textAlign={"center"}> <b>Orden de entrada:</b><br /> {fatherOrder.code}</Text>
           <Text textAlign={"center"} ><b>Estado:</b><br /> {fatherOrder.status}</Text>
@@ -66,8 +99,8 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders })
         </Tr>
       </Thead>
       <Tbody>
-        {Array.isArray(fatherOrders) && fatherOrders.length > 0 ? (
-          fatherOrders.map((fatherOrder) => (
+        {Array.isArray(orders) && orders.length > 0 ? (
+          orders.map((fatherOrder) => (
             <Tr key={fatherOrder.code}>
 
               <Td>{fatherOrder.code}</Td>
@@ -82,7 +115,7 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders })
                 </Button>
               </Td>
               <Td>
-                <Button onClick={() => goToPickingPage(fatherOrder.code)}>
+                <Button onClick={() => closeOrder(fatherOrder.id)}>
                 Dar entrada
                 </Button>
               </Td>
