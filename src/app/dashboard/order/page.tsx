@@ -4,6 +4,7 @@ import {
   Heading,
   Spinner,
   Tab,
+  Flex,
   TabList,
   TabPanel,
   TabPanels,
@@ -17,6 +18,8 @@ import { useRouter } from "next/navigation";
 import EntryOrder from "@/components/orders/EntryOrder";
 import ExitOrder from "@/components/orders/ExitOrder";
 import {FatherOrder} from "@/types/fatherOrders/FatherOrders";
+import FileUploadModel from "@/components/modals/file_upload_modal/file_upload_modal";
+
 interface AssignedUser {
   assignation_id: number;
   user_id: number;
@@ -72,8 +75,12 @@ const Orders = () => {
   }
 
   return (
-    <Box maxW="1200px" mx="auto" mt={8} p={4}>
+    <Box maxW="1400px" mx="auto" mt={8} p={4}>
+      <Flex justify="space-between">
       <Heading size={"lg"}>Pedidos</Heading>
+      <FileUploadModel buttonName="Modificar ordenes" actionName="Modificar ordenes" />
+      </Flex>
+      
       <Tabs variant={"soft-rounded"}>
         <TabList>
           <Tab onClick={() => changeType(0)}>Entrada</Tab>
