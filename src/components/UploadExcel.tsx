@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Button, Input, Box, Spinner } from '@chakra-ui/react';
+import { Button, Input, Box, Spinner, Flex } from '@chakra-ui/react';
 import { request } from 'http';
 import Cookies from 'js-cookie'
 
-const FileUpload: React.FC = () => {
+const FileUpload: React.FC <{ endpoint: string }> = ({ endpoint }) =>{
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -33,10 +33,10 @@ const FileUpload: React.FC = () => {
     try {
       setIsUploading(true);
       setUploadError(null); // Resetea el error antes de la subida
-
+      console.log("envia");
       // Realiza la solicitud POST a la API
       const token =     Cookies.get("erp_token");
-      const response = await axios.post(`${apiUrl}/order/add`, formData, {
+      const response = await axios.post(`${apiUrl}${endpoint}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`
@@ -63,12 +63,12 @@ const FileUpload: React.FC = () => {
   };
 
   return (
-    <Box maxW="500px" mx="auto" mt={8}>
+    <Flex direction="column" maxW="500px" mx="auto" mt={8} marginBottom={"10px"}>
       <Input
         type="file"
         accept=".xlsx, .xls"
         onChange={handleFileChange}
-        mb={4}
+        mb={6}
       />
 
       <Button onClick={handleUpload} isDisabled={!file} colorScheme="blue">
@@ -77,7 +77,7 @@ const FileUpload: React.FC = () => {
 
       {uploadError && <p style={{ color: 'red', marginTop: '10px' }}>{uploadError}</p>}
       {uploadSuccess && <p style={{ color: 'green', marginTop: '10px' }}>Archivo subido con éxito.</p>}
-    </Box>
+    </Flex >
   );
 };
 
