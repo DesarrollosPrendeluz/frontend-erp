@@ -2,6 +2,7 @@
 
 import useFetchData from "@/hooks/fetchData";
 import SearchBar from "@/components/searchbar/SearchBar";
+import StoreStockModal from "@/components/store/StoreStockModal";
 
 import StoreItems from "@/types/stores/StoreItem";
 import Store from "@/types/stores/Stores";
@@ -31,6 +32,8 @@ import ResponsiveView from "../ResponsiveLayout";
 const Stock = () => {
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
   const [query, setQuery] = useState<string>("");
+  const [sku, setSku] = useState<string>("");
+  const [modalQuery, setModalQuery] = useState<string>("?main_sku=B10&store_id=2");
   const [store, setStore] = useState<string>("Prendeluz");
   const [currentPage, setCurrentPage] = useState(1);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -54,6 +57,15 @@ const Stock = () => {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value;
     setStore(value)
+  };
+  const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const sku = event.currentTarget.value; // Obtén el valor del botón
+    const targetItem = stores.find(storeItem => storeItem.Name === store);
+    console.log("SKU seleccionado:", sku);
+    setModalQuery(`?main_sku=`+sku+`&store_id=${targetItem?.ID || 1}`)
+    setSku(sku)
+    onOpen();
+    // Aquí puedes hacer lo que necesites con el SKU, como actualizar el estado o llamar a una API
   };
   const desktopView = (
 
@@ -106,7 +118,7 @@ const Stock = () => {
               <Td>{item.SKU}</Td>
               <Td>{item.Amount}</Td>
               <Td>{store}</Td>
-              <Td><Button>Ubicaciones</Button></Td>
+              <Td><Button onClick={handleButtonClick} value={item.SKU}>Ubicaciones</Button></Td>
             </Tr>
 
           ))}
@@ -118,7 +130,8 @@ const Stock = () => {
         onPageChange={(page) => setCurrentPage(page)}
       />
 
-      <AddOrderModal isOpen={isOpen} onClose={onClose} />
+      <StoreStockModal isOpen={isOpen} onClose={onClose} query={modalQuery} sku={sku} />
+
     </Box>
   )
   const mobileView = (
