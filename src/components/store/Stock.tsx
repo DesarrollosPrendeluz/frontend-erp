@@ -1,7 +1,10 @@
 "use client"
 
 import useFetchData from "@/hooks/fetchData";
+import SearchBar from "@/components/searchbar/SearchBar";
+
 import StoreItems from "@/types/stores/StoreItem";
+import Store from "@/types/stores/Stores";
 import {
   Box,
   Heading,
@@ -10,6 +13,8 @@ import {
   Td,
   Th,
   Thead,
+  Button,
+  Flex,
   Tr,
   Text,
   useDisclosure,
@@ -25,21 +30,52 @@ import ResponsiveView from "../ResponsiveLayout";
 
 const Stock = () => {
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
-  const apiUrl = `${backendUrl}/store/default`
+  const [query, setQuery] = useState<string>("");
+  const [store, setStore] = useState<string>("Prendeluz");
   const [currentPage, setCurrentPage] = useState(1);
-  const TITLE = "Stock";
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const apiUrl = `${backendUrl}/store`
+  const TITLE = "Stock Almacén";
+
   const { data: items, totalPages, isLoading, error } = useFetchData<StoreItems>({
+    url: apiUrl+"/"+store+"?"+query,
+    page: (currentPage - 1),
+    limit: 20,
+
+  });
+
+  const { data: stores, totalPages: totalPagesStores, isLoading:isLoadingStores, error: errorStores } = useFetchData<Store>({
     url: apiUrl,
     page: (currentPage - 1),
     limit: 20,
 
-  })
+  });
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = event.target.value;
+    setStore(value)
+  };
   const desktopView = (
 
-    <Box maxW="1200px" mx="auto" mt={8} p={4}>
+    <Box maxW="1400px" mx="auto" mt={8} p={4}>
+      <SearchBar searchParams={["search"]} searchValue={query} setSearchValue={setQuery}/>
+      
+      <Flex marginTop={"10px"} justifyContent={"space-between"}> 
+        <Heading >{TITLE} </Heading> 
+        <select name="" id=""        
+        value={store}
+        onChange={handleChange}
+        defaultValue={store}
+      >
+        {stores.map((option) => (
 
-      <Heading>{TITLE} </Heading>
+          <option key={option.Name} value={option.Name}>
+          {option.Name}
+          </option>
+            
+        ))}
+        </select> 
+          </Flex>
 
       <Table>
         <Thead>
@@ -47,11 +83,13 @@ const Stock = () => {
             <Th>Artículo</Th>
             <Th>Sku</Th>
             <Th>Stock</Th>
+            <Th>Almacén</Th>
+            <Th>Ubicaciones</Th>
           </Tr>
         </Thead>
         <Tbody>
           {items?.map((item) => (
-            <Tr key={item.SKU} >
+            <Tr key={item.SKU+item.Amount} >
               <Td>
                 <Tooltip label={item.Itemname} hasArrow>
                   <span style={{
@@ -67,7 +105,8 @@ const Stock = () => {
               </Td>
               <Td>{item.SKU}</Td>
               <Td>{item.Amount}</Td>
-
+              <Td>{store}</Td>
+              <Td><Button>Ubicaciones</Button></Td>
             </Tr>
 
           ))}
