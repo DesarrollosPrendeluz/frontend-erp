@@ -24,9 +24,9 @@ import {
   Tooltip
 } from "@chakra-ui/react";
 import { useState } from "react";
-import Pagination from "../Pagination";
-import AddOrderModal from "../orders/AddOrderModal";
-import ResponsiveView from "../ResponsiveLayout";
+import Pagination from "@/components/Pagination";
+import AddOrderModal from "@/components/orders/AddOrderModal";
+import ResponsiveView from "@/components/ResponsiveLayout";
 
 
 const Stock = () => {
@@ -63,7 +63,7 @@ const Stock = () => {
     const targetItem = stores.find(storeItem => storeItem.Name === store);
     console.log("SKU seleccionado:", sku);
     setModalQuery(`?main_sku=`+sku+`&store_id=${targetItem?.ID || 1}`)
-    setSku(sku)
+    setSku(sku);
     onOpen();
     // Aquí puedes hacer lo que necesites con el SKU, como actualizar el estado o llamar a una API
   };
@@ -167,8 +167,12 @@ const Stock = () => {
             Stock:
           </Text>
           <Text>{item.Amount}</Text>
+          <Divider my={2} />
+          <Button onClick={handleButtonClick} value={item.SKU}>Ubicaciones</Button>
         </Box>
       ))}
+            <StoreStockModal isOpen={isOpen} onClose={onClose} query={modalQuery} sku={sku} />
+
     </Stack>
   );
   return (<ResponsiveView mobileView={mobileView} desktopView={desktopView} />)
