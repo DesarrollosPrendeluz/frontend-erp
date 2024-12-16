@@ -2,7 +2,10 @@
 import { Button,Box, Divider, Input, Modal, Heading, Flex, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, Tbody, Td, Th, Thead, Tr, Text } from '@chakra-ui/react';
 import { useState, useEffect } from "react";
 import useFetchData from "@/hooks/fetchData";
+import Locations from "@/types/stores/locations/Locations"
 import CustomSelect from "@/components/store/LocationSelect";
+import CustomLocationsSelect from "@/components/store/LocationsSelect";
+
 import ItemLocationStockStoreItem from "@/types/stores/itemLocationStocks/ItemLocationStocks";
 import axios from 'axios';
 import Cookies from 'js-cookie';
@@ -26,8 +29,24 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
   const [select1, setSelect1] = useState<string>("No Seleccionado");
   const [select2, setSelect2] = useState<string>("No Seleccionado");
   const [select3, setSelect3] = useState<string>("No Seleccionado");
+  const [select4, setSelect4] = useState<string>("No Seleccionado");
+
   const [input1, setInput1] = useState<string>("0");
   const [input2, setInput2] = useState<string>("0");
+
+  const buttonData = [
+    { label: "Movimientos de stock", action: "stockMovements" },
+    { label: "Entrada y salida de stock", action: "stockFlow" },
+    { label: "Añadir ubicaciones", action: "addLocations" },
+  ];
+
+  let { data: locations, totalPages, isLoading, error } = useFetchData<Locations>(
+    {
+      url: `${apiUrl}/store_location?`,
+      page: 0,
+      limit: 1000,
+    }
+  );
 
 
   const handleButtonClick = (formName: string) => {
@@ -37,9 +56,8 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
   };
 
 
-useEffect( () => {
+  useEffect( () => {
     //Actualiza el endpoint cuando cambian los parámetros dinámicos
-
     console.log(`${endpoint}${query}`);
     axios.get(`${endpoint}${query}`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -48,23 +66,25 @@ useEffect( () => {
             setData(response.data.Results.data);
         }
     });
-
-
   }, [query ]);
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInput1(event.target.value); // Actualiza el estado con el valor del input
   };
+
   const handleInputChange2 = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("cambio de datos "+ event.target.value);
     setInput2(event.target.value); // Actualiza el estado con el valor del input
   };
+
   const updateStock = async (): Promise<void> => {
     try {
       const response = await axios.patch(`${endpoint}/stockMovement`, 
         {data:[{
-            productSku: sku,
-            beforeStoreLocationId:  parseInt(select1|| "0", 10),
-            aftherStoreLocationId:  parseInt(select2|| "0", 10),
-            stock:  parseInt(input1|| "0", 10),
+            "productSku": sku,
+            "beforeStoreLocationId":  parseInt(select1|| "0", 10),
+            "aftherStoreLocationId":  parseInt(select2|| "0", 10),
+            "stock":  parseInt(input1|| "0", 10),
 
         }]}, 
         {headers: { Authorization: `Bearer ${token}` }}
@@ -80,13 +100,43 @@ useEffect( () => {
   const changeStock = async (): Promise<void> => {
     try {
         const targetItem = data.find(line => line.ItemMainSku === sku);
-        let stock =  targetItem?.Stock ||0 + parseInt(input2 || "0", 10);
+        let modifyStock = parseInt(input2 || "0", 10)
+        let baseStock = targetItem?.Stock ||0
+        let stockPostClac =  baseStock + modifyStock;
         let bodyData = {data:[{
-            id: targetItem?.ID,
-            stock: stock,
+            "id": targetItem?.ID,
+            "stock": stockPostClac,
         }]}
+  
+      axios.patch(`${endpoint}/stockChanges`, bodyData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      ).then((response) => {
+        console.log("Entra en el then")
+        if (response.status == 202) {
+          console.log("Pos na aqui estmos");
+          const updatedLocations = data.map((location) =>
+            location.ID == targetItem?.ID ? { ...location, Stock: stockPostClac } : location
+          );
+          setData(updatedLocations);
+        }
+      })
+      
+    } catch (error) {
+      console.error("Error en la solicitud PATCH:", error);
+      throw error;
+    }
+  };
+
+  const createLocation = async (): Promise<void> => {
+    try {
+      console.log("Se intenta crear la ubicación :"+select4+" para el item: "+sku);
+        let bodyData = {data:[        {
+          "itemMainSku":sku,
+          "storeLocationId": parseInt(select4),
+          "stock":0
+      }]}
         console.log(bodyData)
-      const response = await axios.patch(`${endpoint}/stockChanges`, bodyData
+      const response = await axios.post(`${apiUrl}/item_stock_location`, bodyData
         , 
         {headers: { Authorization: `Bearer ${token}` }}
     );
@@ -153,10 +203,6 @@ useEffect( () => {
         ))
       }
     </>
-
-
-
-
   )
 
 
@@ -168,13 +214,12 @@ useEffect( () => {
         <ModalHeader>Ubicaciones Stock</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-      <Button colorScheme="yellow" mr={3} mb={"10px"} onClick={() => handleButtonClick("stockMovements")}>
-        Movimientos de stock
-      </Button>
-      <Button colorScheme="yellow" mb={"10px"} onClick={() => handleButtonClick("stockFlow")}>
-        Entrada y salida de stock
-      </Button>
-          <Flex mt={4}>
+        {buttonData.map((button, index) => (
+        <Button key={index} colorScheme="yellow" mr={3} mb="10px" onClick={() => handleButtonClick(button.action)}>
+          {button.label}
+        </Button>
+        ))}
+      <Flex mt={4}>
         {activeForm === "stockMovements" && (
           <Flex direction="column" width={"100%"} border="1px solid #ccc" p={4} borderRadius="md">
                 <Flex width={"100%"} justify="center"  marginBottom={"10px"}>
@@ -202,6 +247,21 @@ useEffect( () => {
             </Flex>
             <Flex width={"100%"} >            
                 <Button  width={"100%"} colorScheme="blue" onClick={changeStock} >Enviar</Button>
+            </Flex>
+          </Flex>
+        )}
+
+        {activeForm === "addLocations" && (
+          <Flex width={"100%"} direction="column" border="1px solid #ccc" p={4} borderRadius="md">
+            <Flex width={"100%"} justify="center"  marginBottom={"10px"}>
+                <Text textStyle="2xl" fontWeight="bold">Añadir ubicaciones</Text>
+            </Flex>
+            <Flex justify={["space-between", "space-between", "space-around" ]}  align="center" direction={["column","column","row"]} marginBottom={"10px"}>
+                <CustomLocationsSelect data={locations} label={"Ubicación:"} selectValue={select4} setSelectValue={setSelect4} />
+                
+            </Flex>
+            <Flex width={"100%"} >            
+                <Button  width={"100%"} colorScheme="blue" onClick={createLocation} >Enviar</Button>
             </Flex>
           </Flex>
         )}
