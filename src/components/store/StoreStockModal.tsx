@@ -1,11 +1,13 @@
 "use client";
-import { Button, Divider, Input, Modal, Heading, Flex, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, Tbody, Td, Th, Thead, Tr, Text } from '@chakra-ui/react';
+import { Button,Box, Divider, Input, Modal, Heading, Flex, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, Tbody, Td, Th, Thead, Tr, Text } from '@chakra-ui/react';
 import { useState, useEffect } from "react";
 import useFetchData from "@/hooks/fetchData";
 import CustomSelect from "@/components/store/LocationSelect";
 import ItemLocationStockStoreItem from "@/types/stores/itemLocationStocks/ItemLocationStocks";
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import ResponsiveView from "@/components/ResponsiveLayout";
+
 
 interface BasicModalProps {
   isOpen: boolean;
@@ -29,7 +31,9 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
 
 
   const handleButtonClick = (formName: string) => {
-    setActiveForm(formName);
+    let value = formName == activeForm ? null : formName;
+
+    setActiveForm(value);
   };
 
 
@@ -94,6 +98,67 @@ useEffect( () => {
     }
   };
 
+  const desktopView = (
+    <Table>
+      <Thead>
+        <Tr>
+          <Th>Sku</Th>
+          <Th>Ubicación</Th>
+          <Th>Stock</Th>
+        </Tr>
+      </Thead>
+      <Tbody>
+        {
+          data.map((item) => (
+            <Tr key={item.ItemMainSku}>
+              <Td>{item.ItemMainSku}</Td>
+              <Td>{item.StoreLocations.Code}</Td>
+              <Td>{item.Stock}</Td>
+
+            </Tr>
+          ))
+        }
+
+      </Tbody>
+    </Table>
+  )
+
+  const mobileView = (
+    <>
+      {
+        data.map((item, index) => (
+          <Box
+            key={"mv"+item.ID +index+ item.ItemMainSku}
+            borderWidth="1px"
+            borderRadius="lg"
+            p={4}
+            boxShadow="sm"
+            bg="white"
+            my={"10px"}
+          >
+            <Text fontSize="lg" mb={2} >
+              Sku : {item.ItemMainSku}
+            </Text>
+          
+            <Divider my={2} />
+            <Text fontSize="lg" mb={2}>
+              Ubicación: {item.StoreLocations.Code}
+            </Text>
+
+            <Divider my={2} />
+            <Text fontSize="lg" mb={2}>
+              Stock: {item.Stock}
+            </Text>
+          </Box>
+        ))
+      }
+    </>
+
+
+
+
+  )
+
 
 
   return (
@@ -103,10 +168,10 @@ useEffect( () => {
         <ModalHeader>Ubicaciones Stock</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-      <Button colorScheme="yellow" mr={3} onClick={() => handleButtonClick("stockMovements")}>
+      <Button colorScheme="yellow" mr={3} mb={"10px"} onClick={() => handleButtonClick("stockMovements")}>
         Movimientos de stock
       </Button>
-      <Button colorScheme="yellow" onClick={() => handleButtonClick("stockFlow")}>
+      <Button colorScheme="yellow" mb={"10px"} onClick={() => handleButtonClick("stockFlow")}>
         Entrada y salida de stock
       </Button>
           <Flex mt={4}>
@@ -115,10 +180,10 @@ useEffect( () => {
                 <Flex width={"100%"} justify="center"  marginBottom={"10px"}>
                     <Text textStyle="2xl" fontWeight="bold">Formulario de Movimientos de Stock</Text>
                 </Flex>
-                <Flex width={"100%"} justify="space-between" marginBottom={"10px"}>
-                    <CustomSelect data={data} label={"Ubicación inicial"} selectValue={select1} setSelectValue={setSelect1}/>
-                    <CustomSelect data={data} label={"Ubicación final"} selectValue={select2} setSelectValue={setSelect2}/>
-                    <Input width={"33%"} placeholder="Cantidad" mb={3} value={input1} onChange={handleInputChange} />
+                <Flex width={"100%"} justify="space-between" align="center" direction={["column","column","row"]} marginBottom={"10px"}>
+                    <CustomSelect data={data}  label={"Ubicación inicial"} selectValue={select1} setSelectValue={setSelect1}/>
+                    <CustomSelect data={data}  label={"Ubicación final"} selectValue={select2} setSelectValue={setSelect2}/>
+                    <Input width={"33%"}  placeholder="Cantidad" mb={3} value={input1} onChange={handleInputChange} />
                 </Flex>
                 <Flex width={"100%"} >            
                     <Button  width={"100%"} colorScheme="blue" onClick={updateStock}>Enviar</Button>
@@ -131,7 +196,7 @@ useEffect( () => {
             <Flex width={"100%"} justify="center"  marginBottom={"10px"}>
                 <Text textStyle="2xl" fontWeight="bold">Formulario de Entrada y Salida de Stock</Text>
             </Flex>
-            <Flex justify="space-around" marginBottom={"10px"}>
+            <Flex justify={["space-between", "space-between", "space-around" ]}  align="center" direction={["column","column","row"]} marginBottom={"10px"}>
                 <CustomSelect data={data} label={"Ubicación:"} selectValue={select3} setSelectValue={setSelect3}/>
                 <Input width={"50%"} placeholder="Cantidad" mb={3} value={input2} onChange={handleInputChange2} />
             </Flex>
@@ -141,28 +206,7 @@ useEffect( () => {
           </Flex>
         )}
       </Flex>
-          <Table>
-            <Thead>
-              <Tr>
-                <Th>Sku</Th>
-                <Th>Ubicación</Th>
-                <Th>Stock</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-            {
-                data.map((item) => (
-                    <Tr key={item.ItemMainSku}>
-                        <Td>{item.ItemMainSku}</Td>
-                      <Td>{item.StoreLocations.Code}</Td>
-                      <Td>{item.Stock}</Td>
-
-                    </Tr>
-                  ))
-              }
-              
-            </Tbody>
-          </Table>
+      <ResponsiveView mobileView={mobileView} desktopView={desktopView} />
 
         </ModalBody>
         <ModalFooter>
