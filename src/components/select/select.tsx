@@ -86,10 +86,9 @@ interface Options{
             }
           }
         ).then(function (response) {
-            //console.log(response);
           })
           .catch(function (error) {
-            console.log(error);
+            console.error(error);
           })
           .finally(function () {
             // always executed

@@ -4,10 +4,8 @@ import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
   const token = req.cookies.get("erp_token");
-  console.log(token);
-
+  
   if (!token) {
-    console.log("NO token");
     // Redirige al usuario a la página de inicio si no está autenticado
     return NextResponse.redirect(new URL("/login", req.url));
   }

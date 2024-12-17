@@ -46,7 +46,6 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
               Name: supplier.Name,
             }));
             setSuppliersValue(datum);
-            console.log(datum);
           }
         })
         .catch((error) => {
@@ -69,7 +68,6 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
 
   const handleConfirm = () => {
     // Aquí puedes manejar la lógica de confirmación (ej. enviar datos)
-    //console.log("Valor ingresado:", inputValue);
     const datum: object = items
       .filter((item: any) => item.Amount != 0) // Filtra los elementos con Amount distinto de 0
       .map((item: any) => ({

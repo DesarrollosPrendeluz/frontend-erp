@@ -50,7 +50,6 @@ const OrderLineLabel: React.FC<OrderLineLabelProps> = ({ label, isOpen, onClose 
 
   const handleZebra = () => {
     if (selectedPrinter && typeof selectedPrinter.send === 'function') {
-      console.log("Entra aqui");
       const zpl = `
          ^XA
           ^CI28

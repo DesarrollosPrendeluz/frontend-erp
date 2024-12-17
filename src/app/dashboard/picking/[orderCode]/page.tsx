@@ -149,7 +149,6 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
       });
 
       if (response.status === 200) {
-        console.log(response.data.Results.data);
         const { brand, brand_address, brand_email, ean, asin, company } = response.data.Results.data;
         setLabelData({ label: { brand, brandAddress: brand_address, brandEmail: brand_email, ean, asin, company }, isOpen: isLabelOpen, onClose: onLabelClose });
       }
@@ -166,7 +165,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (response.status === 200) {
-      console.log(response.data.Results.data);
+
       const { brand, brand_address, brand_email, ean, asin, company } = response.data.Results.data;
       let zpl = '';
       const totalCopies = parseInt(numCopies);

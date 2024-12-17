@@ -10,7 +10,6 @@ export default function Home() {
   const router = useRouter(); // Usar el hook useRouter
 
   const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
-  console.log(apiUrl)
   // Función para manejar el envío del formulario
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault(); // Previene la recarga de la página

@@ -1,7 +1,11 @@
 "use client"
 
 import useFetchData from "@/hooks/fetchData";
+import SearchBar from "@/components/searchbar/SearchBar";
+import StoreStockModal from "@/components/store/StoreStockModal";
+
 import StoreItems from "@/types/stores/StoreItem";
+import Store from "@/types/stores/Stores";
 import {
   Box,
   Heading,
@@ -10,6 +14,8 @@ import {
   Td,
   Th,
   Thead,
+  Button,
+  Flex,
   Tr,
   Text,
   useDisclosure,
@@ -18,28 +24,69 @@ import {
   Tooltip
 } from "@chakra-ui/react";
 import { useState } from "react";
-import Pagination from "../Pagination";
-import AddOrderModal from "../orders/AddOrderModal";
-import ResponsiveView from "../ResponsiveLayout";
+import Pagination from "@/components/Pagination";
+import AddOrderModal from "@/components/orders/AddOrderModal";
+import ResponsiveView from "@/components/ResponsiveLayout";
 
 
 const Stock = () => {
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
-  const apiUrl = `${backendUrl}/store/default`
+  const [query, setQuery] = useState<string>("");
+  const [sku, setSku] = useState<string>("");
+  const [modalQuery, setModalQuery] = useState<string>("?main_sku=B10&store_id=2");
+  const [store, setStore] = useState<string>("Prendeluz");
   const [currentPage, setCurrentPage] = useState(1);
-  const TITLE = "Stock";
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const apiUrl = `${backendUrl}/store`
+  const TITLE = "Stock Almacén";
+
   const { data: items, totalPages, isLoading, error } = useFetchData<StoreItems>({
+    url: apiUrl+"/"+store+"?"+query,
+    page: (currentPage - 1),
+    limit: 20,
+
+  });
+
+  const { data: stores, totalPages: totalPagesStores, isLoading:isLoadingStores, error: errorStores } = useFetchData<Store>({
     url: apiUrl,
     page: (currentPage - 1),
     limit: 20,
 
-  })
+  });
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = event.target.value;
+    setStore(value)
+  };
+  const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const sku = event.currentTarget.value; // Obtén el valor del botón
+    const targetItem = stores.find(storeItem => storeItem.Name === store);
+    setModalQuery(`?main_sku=`+sku+`&store_id=${targetItem?.ID || 1}`)
+    setSku(sku);
+    onOpen();
+    // Aquí puedes hacer lo que necesites con el SKU, como actualizar el estado o llamar a una API
+  };
   const desktopView = (
 
-    <Box maxW="1200px" mx="auto" mt={8} p={4}>
+    <Box maxW="1400px" mx="auto" mt={8} p={4}>
+      <SearchBar searchParams={["search"]} searchValue={query} setSearchValue={setQuery}/>
+      
+      <Flex marginTop={"10px"} justifyContent={"space-between"}> 
+        <Heading >{TITLE} </Heading> 
+        <select name="" id=""        
+        value={store}
+        onChange={handleChange}
+        defaultValue={store}
+      >
+        {stores.map((option) => (
 
-      <Heading>{TITLE} </Heading>
+          <option key={option.Name} value={option.Name}>
+          {option.Name}
+          </option>
+            
+        ))}
+        </select> 
+          </Flex>
 
       <Table>
         <Thead>
@@ -47,11 +94,13 @@ const Stock = () => {
             <Th>Artículo</Th>
             <Th>Sku</Th>
             <Th>Stock</Th>
+            <Th>Almacén</Th>
+            <Th>Ubicaciones</Th>
           </Tr>
         </Thead>
         <Tbody>
           {items?.map((item) => (
-            <Tr key={item.SKU} >
+            <Tr key={item.SKU+item.Amount} >
               <Td>
                 <Tooltip label={item.Itemname} hasArrow>
                   <span style={{
@@ -67,7 +116,8 @@ const Stock = () => {
               </Td>
               <Td>{item.SKU}</Td>
               <Td>{item.Amount}</Td>
-
+              <Td>{store}</Td>
+              <Td><Button onClick={handleButtonClick} value={item.SKU}>Ubicaciones</Button></Td>
             </Tr>
 
           ))}
@@ -79,7 +129,8 @@ const Stock = () => {
         onPageChange={(page) => setCurrentPage(page)}
       />
 
-      <AddOrderModal isOpen={isOpen} onClose={onClose} />
+      <StoreStockModal isOpen={isOpen} onClose={onClose} query={modalQuery} sku={sku} />
+
     </Box>
   )
   const mobileView = (
@@ -115,8 +166,12 @@ const Stock = () => {
             Stock:
           </Text>
           <Text>{item.Amount}</Text>
+          <Divider my={2} />
+          <Button onClick={handleButtonClick} value={item.SKU}>Ubicaciones</Button>
         </Box>
       ))}
+            <StoreStockModal isOpen={isOpen} onClose={onClose} query={modalQuery} sku={sku} />
+
     </Stack>
   );
   return (<ResponsiveView mobileView={mobileView} desktopView={desktopView} />)
