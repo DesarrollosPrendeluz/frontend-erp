@@ -58,7 +58,6 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
 
   useEffect( () => {
     //Actualiza el endpoint cuando cambian los parámetros dinámicos
-    console.log(`${endpoint}${query}`);
     axios.get(`${endpoint}${query}`, {
         headers: { Authorization: `Bearer ${token}` }
     }).then((response)=>{
@@ -73,7 +72,6 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
   };
 
   const handleInputChange2 = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("cambio de datos "+ event.target.value);
     setInput2(event.target.value); // Actualiza el estado con el valor del input
   };
 
@@ -158,55 +156,53 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
 
   const createLocation = async (): Promise<void> => {
     try {
-      console.log("Se intenta crear la ubicación :"+select4+" para el item: "+sku);
-      var soteLocationIdNumber = parseInt(select4);
+
         let bodyData = {data:[        {
           "itemMainSku":sku,
-          "storeLocationId": soteLocationIdNumber,
+          "storeLocationId": parseInt(select4),
           "stock":0
       }]}
-        console.log(bodyData)
-      axios.post(`${apiUrl}/item_stock_location`, bodyData
-        , 
-        {headers: { Authorization: `Bearer ${token}` }}
-    ).then((response) => {
-      let locId = parseInt(select4);
-      console.log(locId);
-      let newLocData = locations.find((loc)=>loc.ID == locId)
 
-      if (response.status == 202) {
-        const newItem: ItemLocationStockStoreItem = {
-          ID: 0,
-          ItemMainSku: sku,
-          StoreLocationID: locId,
-          Stock: 0,
-          CreatedAt: new Date().toISOString(), 
-          UpdatedAt: new Date().toISOString(), 
-          StoreLocations: {
-            ID: locId,
-            StoreID: 1,
-            Code: newLocData?.Code ?? "err",
-            Name: newLocData?.Name ?? "err",
-            CreatedAt: new Date().toISOString(), 
-            UpdatedAt: new Date().toISOString(), 
-          }
-         
-        };
+      axios.post(
+        `${apiUrl}/item_stock_location`,
+        bodyData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      ).then((response) => {
+        let locId = parseInt(select4);
+        let newLocData = locations.find((loc) => loc.ID == locId)
 
-        
-        setData((prevData) => [...prevData, newItem]);
-      }
-    }).catch((error) => {
-      console.error("Error en la solicitud PATCH de actualización de stocks:", error);
+        if (response.status == 202) {
+          const newItem: ItemLocationStockStoreItem = {
+            ID: response.data.Results.CreatedIds[0],
+            ItemMainSku: sku,
+            StoreLocationID: locId,
+            Stock: 0,
+            CreatedAt: new Date().toISOString(),
+            UpdatedAt: new Date().toISOString(),
+            StoreLocations: {
+              ID: locId,
+              StoreID: 1,
+              Code: newLocData?.Code ?? "err",
+              Name: newLocData?.Name ?? "err",
+              CreatedAt: new Date().toISOString(),
+              UpdatedAt: new Date().toISOString(),
+            }
+
+          };
+
+          setData((prevData) => [...prevData, newItem]);
+        }
+      }).catch((error) => {
+        console.error("Error en la solicitud PATCH de actualización de stocks:", error);
+        throw error;
+      })
+
+
+    } catch (error) {
+      console.error("Error en el metodo de actualización de stocks:", error);
       throw error;
-    })
-
-
-  } catch (error) {
-    console.error("Error en el metodo de actualización de stocks:", error);
-    throw error;
-  }
-};
+    }
+  };
 
   const desktopView = (
     <Table>
