@@ -79,20 +79,44 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
 
   const updateStock = async (): Promise<void> => {
     try {
-      const response = await axios.patch(`${endpoint}/stockMovement`, 
-        {data:[{
-            "productSku": sku,
-            "beforeStoreLocationId":  parseInt(select1|| "0", 10),
-            "aftherStoreLocationId":  parseInt(select2|| "0", 10),
-            "stock":  parseInt(input1|| "0", 10),
+      let bfrLoc = parseInt(select1|| "0", 10)
+      let aftLoc = parseInt(select2|| "0", 10)
+      let stockMov= parseInt(input1|| "0", 10)
+      let body =        {data:[{
+        "productSku": sku,
+        "beforeStoreLocationId":  bfrLoc,
+        "aftherStoreLocationId":  aftLoc,
+        "stock":  stockMov,
 
-        }]}, 
+    }]}
+
+      axios.patch(
+        `${endpoint}/stockMovement`, 
+        body, 
         {headers: { Authorization: `Bearer ${token}` }}
-    );
+      ).then((response) => {
+        if (response.status == 202) {
+          const updatedLocations = data.map((location) => {
+
+            if (location.StoreLocationID === bfrLoc) {
+              return { ...location, Stock: location.Stock - stockMov };
+
+            } else if (location.StoreLocationID === aftLoc) {
+              return { ...location, Stock: location.Stock + stockMov };
+            }
+            return location;
+          });
+          setData(updatedLocations);
+        }
+
+      }).catch((error) => {
+        console.error("Error en la solicitud PATCH de movimiento de stocks:", error);
+        throw error;
+      })
   
-      console.log("Respuesta exitosa:", response.data);
+
     } catch (error) {
-      console.error("Error en la solicitud PATCH:", error);
+      console.error("Error en el metodo de movimiento de stocks:", error);
       throw error;
     }
   };
@@ -108,21 +132,26 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
             "stock": stockPostClac,
         }]}
   
-      axios.patch(`${endpoint}/stockChanges`, bodyData,
+      axios.patch(
+        `${endpoint}/stockChanges`, 
+        bodyData,
         { headers: { Authorization: `Bearer ${token}` } }
       ).then((response) => {
-        console.log("Entra en el then")
+
         if (response.status == 202) {
-          console.log("Pos na aqui estmos");
           const updatedLocations = data.map((location) =>
             location.ID == targetItem?.ID ? { ...location, Stock: stockPostClac } : location
           );
           setData(updatedLocations);
         }
+      }).catch((error) => {
+        console.error("Error en la solicitud PATCH de actualización de stocks:", error);
+        throw error;
       })
-      
+  
+
     } catch (error) {
-      console.error("Error en la solicitud PATCH:", error);
+      console.error("Error en el metodo de actualización de stocks:", error);
       throw error;
     }
   };
@@ -130,23 +159,54 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
   const createLocation = async (): Promise<void> => {
     try {
       console.log("Se intenta crear la ubicación :"+select4+" para el item: "+sku);
+      var soteLocationIdNumber = parseInt(select4);
         let bodyData = {data:[        {
           "itemMainSku":sku,
-          "storeLocationId": parseInt(select4),
+          "storeLocationId": soteLocationIdNumber,
           "stock":0
       }]}
         console.log(bodyData)
-      const response = await axios.post(`${apiUrl}/item_stock_location`, bodyData
+      axios.post(`${apiUrl}/item_stock_location`, bodyData
         , 
         {headers: { Authorization: `Bearer ${token}` }}
-    );
-  
-      console.log("Respuesta exitosa:", response.data);
-    } catch (error) {
-      console.error("Error en la solicitud PATCH:", error);
+    ).then((response) => {
+      let locId = parseInt(select4);
+      console.log(locId);
+      let newLocData = locations.find((loc)=>loc.ID == locId)
+
+      if (response.status == 202) {
+        const newItem: ItemLocationStockStoreItem = {
+          ID: 0,
+          ItemMainSku: sku,
+          StoreLocationID: locId,
+          Stock: 0,
+          CreatedAt: new Date().toISOString(), 
+          UpdatedAt: new Date().toISOString(), 
+          StoreLocations: {
+            ID: locId,
+            StoreID: 1,
+            Code: newLocData?.Code ?? "err",
+            Name: newLocData?.Name ?? "err",
+            CreatedAt: new Date().toISOString(), 
+            UpdatedAt: new Date().toISOString(), 
+          }
+         
+        };
+
+        
+        setData((prevData) => [...prevData, newItem]);
+      }
+    }).catch((error) => {
+      console.error("Error en la solicitud PATCH de actualización de stocks:", error);
       throw error;
-    }
-  };
+    })
+
+
+  } catch (error) {
+    console.error("Error en el metodo de actualización de stocks:", error);
+    throw error;
+  }
+};
 
   const desktopView = (
     <Table>
