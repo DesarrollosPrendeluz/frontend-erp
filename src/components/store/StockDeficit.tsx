@@ -51,8 +51,9 @@ const StockDeficit = () => {
             <Th>Artículo</Th>
             <Th>Sku</Th>
             <Th>Proovedor</Th>
-            <Th>Stock</Th>
+            <Th>Deficit</Th>
             <Th>Pendiente Recepción</Th>
+            <Th>A pedir</Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -75,6 +76,7 @@ const StockDeficit = () => {
               <Td>{item.Item?.SupplierItems[0]?.Supplier?.Name || "No disponible"}</Td>
               <Td>{item.Amount}</Td>
               <Td>{item.PendingAmount}</Td>
+              <Td>{Math.max(0, parseInt(item.Amount) - parseInt(item.PendingAmount))}</Td>
 
             </Tr>
 
@@ -102,47 +104,38 @@ const StockDeficit = () => {
           boxShadow="sm"
           bg="white"
         >
-          <Text fontWeight="bold" fontSize="lg" mb={2}>
-            Artículo:
-          </Text>
-          <Text>
-            {item.Itemname}
+          <Text mb={2}>
+            <Text as="span" fontWeight="bold">Artículo: </Text>
+            {item.Item.Name}
           </Text>
 
           <Divider my={2} />
 
-          <Text fontWeight="bold" fontSize="lg" mb={2}>
-            SKU:
-          </Text>
-          <Text>
-            {item.SKU}
-          </Text>
-
-          <Text fontWeight="bold" fontSize="lg" mb={2}>
-            SKU PADRE:
-          </Text>
-          <Text>
+          <Text mb={2}>
+            <Text as="span" fontWeight="bold">SKU PADRE: </Text>
             {item.SKU_Parent}
           </Text>
           <Divider my={2} />
+          <Text mb={2}>
+            <Text as="span" fontWeight="bold">Proveedor: </Text>
 
-          <Text fontWeight="bold" fontSize="lg" mb={2}>
-            Stock:
-          </Text>
-          <Text>{item.Amount}</Text>
-
-          <Divider my={2} />
-          <Text fontWeight="bold" fontSize="lg" mb={2}>
-            Proveedor:
-          </Text>
-          <Text>
             {item.Item?.SupplierItems[0]?.Supplier?.Name || "No disponible"}
           </Text>
+
           <Divider my={2} />
-          <Text fontWeight="bold" fontSize="lg" mb={2}>
-            Pendiente de Recepción:
-          </Text>
-          <Text>{item.PendingAmount}</Text>
+          <Text mb={2}>
+            <Text as="span" fontWeight="bold">Stock: </Text> {item.Amount}</Text>
+
+          <Divider my={2} />
+          <Text mb={2}>
+            <Text as="span" fontWeight="bold">Pendiente: </Text>
+
+            {item.PendingAmount}</Text>
+            
+          <Divider my={2} />
+          <Text mb={2}>
+            <Text as="span" fontWeight="bold">A pedir: </Text>
+            {Math.max(0, parseInt(item.Amount) - parseInt(item.PendingAmount))}</Text>
         </Box>
       ))}
     </Stack>
