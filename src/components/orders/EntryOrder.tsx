@@ -49,7 +49,6 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
         Authorization: `Bearer ${token}`
       },
     }).then((response)=>{
-      console.log("sdsd");
       if(response.status == 202 || response.status == 204){
         setOrders((prevOrders) =>
           prevOrders.map((order) =>

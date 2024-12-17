@@ -61,7 +61,6 @@ const Stock = () => {
   const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     const sku = event.currentTarget.value; // Obtén el valor del botón
     const targetItem = stores.find(storeItem => storeItem.Name === store);
-    console.log("SKU seleccionado:", sku);
     setModalQuery(`?main_sku=`+sku+`&store_id=${targetItem?.ID || 1}`)
     setSku(sku);
     onOpen();

@@ -33,7 +33,6 @@ const FileUpload: React.FC <{ endpoint: string }> = ({ endpoint }) =>{
     try {
       setIsUploading(true);
       setUploadError(null); // Resetea el error antes de la subida
-      console.log("envia");
       // Realiza la solicitud POST a la API
       const token =     Cookies.get("erp_token");
       const response = await axios.post(`${apiUrl}${endpoint}`, formData, {
@@ -45,7 +44,6 @@ const FileUpload: React.FC <{ endpoint: string }> = ({ endpoint }) =>{
 
       setIsUploading(false);
       setUploadSuccess(true);
-      console.log('Respuesta de la API:', response.data);
     } catch (error) {
       setIsUploading(false);
       
