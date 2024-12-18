@@ -80,7 +80,7 @@ const Stock = () => {
       >
         {stores.map((option) => (
 
-          <option key={option.Name} value={option.Name}>
+          <option key={option.Name+Math.random()} value={option.Name}>
           {option.Name}
           </option>
             
@@ -100,7 +100,7 @@ const Stock = () => {
         </Thead>
         <Tbody>
           {items?.map((item) => (
-            <Tr key={item.SKU+item.Amount} >
+            <Tr key={item.SKU+item.Amount+Math.random()} >
               <Td>
                 <Tooltip label={item.Itemname} hasArrow>
                   <span style={{
@@ -137,7 +137,7 @@ const Stock = () => {
     <Stack spacing={4} mt={4}>
       {items?.map((item) => (
         <Box
-          key={item.SKU || item.SKU_Parent}
+          key={item.SKU || item.SKU_Parent+Math.random()}
           borderWidth="1px"
           borderRadius="lg"
           p={4}

@@ -80,37 +80,43 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
       let bfrLoc = parseInt(select1|| "0", 10)
       let aftLoc = parseInt(select2|| "0", 10)
       let stockMov= parseInt(input1|| "0", 10)
-      let body =        {data:[{
-        "productSku": sku,
-        "beforeStoreLocationId":  bfrLoc,
-        "aftherStoreLocationId":  aftLoc,
-        "stock":  stockMov,
+      if(!isNaN(bfrLoc) && !isNaN(aftLoc) && !isNaN(stockMov)){
+        let body =        {data:[{
+          "productSku": sku,
+          "beforeStoreLocationId":  bfrLoc,
+          "aftherStoreLocationId":  aftLoc,
+          "stock":  stockMov,
+  
+      }]}
+  
+        axios.patch(
+          `${endpoint}/stockMovement`, 
+          body, 
+          {headers: { Authorization: `Bearer ${token}` }}
+        ).then((response) => {
+          if (response.status == 202) {
+            const updatedLocations = data.map((location) => {
+  
+              if (location.StoreLocationID === bfrLoc) {
+                return { ...location, Stock: location.Stock - stockMov };
+  
+              } else if (location.StoreLocationID === aftLoc) {
+                return { ...location, Stock: location.Stock + stockMov };
+              }
+              return location;
+            });
+            setData(updatedLocations);
+          }
+  
+        }).catch((error) => {
+          console.error("Error en la solicitud PATCH de movimiento de stocks:", error);
+          throw error;
+        })
 
-    }]}
+      }else{
+        console.error("se ha intentado enviar una petición a Nan")
+      }
 
-      axios.patch(
-        `${endpoint}/stockMovement`, 
-        body, 
-        {headers: { Authorization: `Bearer ${token}` }}
-      ).then((response) => {
-        if (response.status == 202) {
-          const updatedLocations = data.map((location) => {
-
-            if (location.StoreLocationID === bfrLoc) {
-              return { ...location, Stock: location.Stock - stockMov };
-
-            } else if (location.StoreLocationID === aftLoc) {
-              return { ...location, Stock: location.Stock + stockMov };
-            }
-            return location;
-          });
-          setData(updatedLocations);
-        }
-
-      }).catch((error) => {
-        console.error("Error en la solicitud PATCH de movimiento de stocks:", error);
-        throw error;
-      })
   
 
     } catch (error) {
@@ -121,7 +127,7 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
 
   const changeStock = async (): Promise<void> => {
     try {
-        const targetItem = data.find(line => line.ItemMainSku === sku);
+        let targetItem = data.find(line => (line.ItemMainSku === sku && line.StoreLocationID == parseInt(select3)));
         let modifyStock = parseInt(input2 || "0", 10)
         let baseStock = targetItem?.Stock ||0
         let stockPostClac =  baseStock + modifyStock;
