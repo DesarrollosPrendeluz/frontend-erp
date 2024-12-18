@@ -68,15 +68,17 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
 
   const handleConfirm = () => {
     // Aquí puedes manejar la lógica de confirmación (ej. enviar datos)
+    console.log("entra");
     const datum: object = items
-      .filter((item: any) => item.Amount != 0) // Filtra los elementos con Amount distinto de 0
+      .filter((item: any) => item.Amount != 0  && (parseInt(item.Amount) - parseInt(item.PendingAmount)) > 0 ) // Filtra los elementos con Amount distinto de 0
       .map((item: any) => ({
         item_id: item.Item.ID,
-        quantity: item.Amount,
+        quantity: parseInt(item.Amount) - parseInt(item.PendingAmount),
         recived_quantity: 0,
         client_id: 1,
         store_id: 1
       }));
+      console.log("llega");
 
     let body = {
       data: [
@@ -90,14 +92,18 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
       ]
     };
 
-    let responseReq = axios.post(`${apiUrl}/order/addByRequest`, body,
+
+    axios.post(`${apiUrl}/order/addByRequest`, body,
       {
         headers: {
           Authorization: `Bearer ${token}`
         },
+      }).then((response)=>{
+        console.log("se ha enviado");
+        onClose()
       });
 
-    onClose(); // Cierra el modal después de confirmar
+    ; // Cierra el modal después de confirmar
   };
 
   return (
@@ -138,19 +144,22 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
                 <Th>Sku</Th>
                 <Th>Proveedor</Th>
                 <Th>Stock</Th>
-                <Th>Stock pendiente</Th>
+                <Th>Pendiente de recepción</Th>
+                <Th>A pedir</Th>
+
               </Tr>
             </Thead>
             <Tbody>
               {
                 items.
-                  filter((item) => item.Amount != "0").
+                  filter((item) => item.Amount != "0" && Math.max(0, parseInt(item.Amount) - parseInt(item.PendingAmount)) != 0).
                   map((item) => (
                     <Tr key={item.SKU_Parent}>
                       <Td>{item.SKU_Parent}</Td>
                       <Td>{item.Item?.SupplierItems[0]?.Supplier?.Name || "No disponible"}</Td>
                       <Td>{item.Amount}</Td>
                       <Td>{item.PendingAmount}</Td>
+                      <Td>{Math.max(0, parseInt(item.Amount) - parseInt(item.PendingAmount))}</Td>
                     </Tr>
                   ))
               }
