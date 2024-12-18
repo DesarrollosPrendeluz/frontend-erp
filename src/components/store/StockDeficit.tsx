@@ -2,6 +2,8 @@
 
 import useFetchData from "@/hooks/fetchData";
 import StoreItems from "@/types/stores/StoreItem";
+import SearchBar from "@/components/searchbar/SearchBar";
+
 import {
   Box,
   Heading,
@@ -27,11 +29,13 @@ import ResponsiveView from "../ResponsiveLayout";
 const StockDeficit = () => {
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
   const apiUrl = `${backendUrl}/stock_deficit?store_id=1`
+  const [query, setQuery] = useState<string>("");
+
   const [currentPage, setCurrentPage] = useState(1);
   const TITLE = "Stock Déficit";
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { data: items, totalPages, isLoading, error } = useFetchData<StoreItems>({
-    url: apiUrl,
+    url: apiUrl+query,
     page: (currentPage - 1),
     limit: 20,
 
@@ -43,6 +47,7 @@ const StockDeficit = () => {
 
       <Heading>{TITLE} </Heading>
       <Button backgroundColor={'#F2C12E'} onClick={onOpen}> Crear pedido </Button>
+      <SearchBar searchParams={["filter"]} searchValue={query} setSearchValue={setQuery}/>
 
 
       <Table>
