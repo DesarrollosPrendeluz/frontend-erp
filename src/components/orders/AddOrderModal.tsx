@@ -19,7 +19,7 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
   const [filterItems, setFilterItemsValue] = useState<StoreItems>();
   const token = Cookies.get("erp_token");
   const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
-  const [endpoint, setEndpointValue] = useState<string>(`${apiUrl}/stock_deficit?store_id=1`);
+  const [endpoint, setEndpointValue] = useState<string>(`${apiUrl}/stock_deficit?store_id=2`);
   const [selectedValue, setSelectedValue] = useState<number>(0)// Estado de error
 
   let { data: items, totalPages, isLoading, error } = useFetchData<StoreItems>(
@@ -58,7 +58,7 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = parseInt(event.target.value, 10);
-    setEndpointValue(`${apiUrl}/stock_deficit?store_id=1&supplier=${value}`)
+    setEndpointValue(`${apiUrl}/stock_deficit?store_id=2&supplier=${value}`)
     setSelectedValue(value);
   };
 
@@ -76,7 +76,7 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
         quantity: parseInt(item.Amount) - parseInt(item.PendingAmount),
         recived_quantity: 0,
         client_id: 1,
-        store_id: 1
+        store_id: 2
       }));
       console.log("llega");
 

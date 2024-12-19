@@ -28,7 +28,7 @@ import ResponsiveView from "../ResponsiveLayout";
 
 const StockDeficit = () => {
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
-  const apiUrl = `${backendUrl}/stock_deficit?store_id=1`
+  const apiUrl = `${backendUrl}/stock_deficit?store_id=2`
   const [query, setQuery] = useState<string>("");
 
   const [currentPage, setCurrentPage] = useState(1);
