@@ -30,10 +30,10 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import OrderModal from "@/components/picking/OrderModal";
-import Increment from "@/components/picking/increment";
+import OrderModalStockMovement from "@/components/picking/OrderModalStockMovement";
+
 import Select from "@/components/select/select";
 import Cookies from 'js-cookie'
-import ZebraPrinterManager, { ZebraPrinter } from '@/components/printer/ZebraPrinter';
 import SearchBar from "@/components/searchbar/SearchBar";
 
 import ProgressBar from "@/components/progressbar/ProgressBar";
@@ -47,13 +47,12 @@ interface response {
 const Picking = ({ params }: { params: { orderCode: string } }) => {
   const [order, setOrder] = useState<response | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedFathersku, setSelectedFathersku] = useState<string | null>(null);
   const [receivedAmount, setReceivedAmount] = useState<number>(0);
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [labelData, setLabelData] = useState<OrderLineLabelProps | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [numCopies, setNumCopies] = useState<string>("");
-  const [selectedPrinter, setSelectedPrinter] = useState<ZebraPrinter | null>(null);
-  const [isPrinting, setIsPrinting] = useState<boolean>(false);
+
   const [query, setQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -83,7 +82,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
           recount: number;
           data: response
         }
-      }>(`${apiUrl}/fatherOrder/orderLines?page=${currentPage - 1}&page_size=10&father_order_code=${params.orderCode}${query}`,
+      }>(`${apiUrl}/fatherOrder/orderLines?page=${currentPage - 1}&page_size=10&store_id=1&father_order_code=${params.orderCode}${query}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -107,8 +106,9 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
     fetchOrder();
   }, [params.orderCode, query, currentPage]);
 
-  const handleIncrementModal = (id: number, total: number, received: number) => {
+  const handleIncrementModal = (id: number, fatherSku: string,  total: number, received: number) => {
     setReceivedAmount(received);
+    setSelectedFathersku(fatherSku);
     setTotalAmount(total);
     setSelectedId(id);
     onOpen();
@@ -159,39 +159,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
     }
   };
 
-  const handleZebra = async (id: number) => {
-    const token = Cookies.get("erp_token");
-    const response = await axios.get(`${apiUrl}/order/orderLines/labels?line_id=${id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (response.status === 200) {
 
-      const { brand, brand_address, brand_email, ean, asin, company } = response.data.Results.data;
-      let zpl = '';
-      const totalCopies = parseInt(numCopies);
-      for (let i = 0; i < totalCopies; i++) {
-        zpl += `
-         ^XA
-          ^CI28
-          ^FO5,5^A0,20,20^FDEmpresa: ${company}^FS
-          ^FO5,35^A0,20,20^FDMarca: ${brand}^FS
-          ^FO5,65^A0,20,15^FDDirección: ${brand_address}^FS
-          ^FO5,95^A0,20,20^FDE-Mail: ${brand_email}^FS
-          ^FO5,125^BY2,2,30
-          ^BCN,40,Y,N,N^FD${ean}^FS
-          ^XZ
-      `;
-      }
-      if (selectedPrinter && typeof selectedPrinter.send === 'function') {
-        selectedPrinter.send(zpl,
-          () => {
-            setIsPrinting(false); // Desbloquea el botón al finalizar la impresión
-            toast({ title: "Impresión exitosa", status: "success", duration: 3000, isClosable: true });
-          },
-          (error: any) => console.error("Error de impresión", error));
-      }
-    }
-  };
 
 
   return (
@@ -205,26 +173,6 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
       </Stack>
 
 
-      <Stack 
-        display={order?.FatherOrder.type_id == 1 ? "none" :""} 
-        spacing={4} mb={4} 
-        direction={{ base: "column", md: "row" }} 
-        align="center" 
-        justify="space-between"
-      >
-
-        <ZebraPrinterManager onPrinterReady={(printer: ZebraPrinter) => setSelectedPrinter(printer)} />
-        <Input
-          type="number"
-          value={numCopies}
-          onChange={(e) => setNumCopies(e.target.value === "" ? "" : Math.max(1, parseInt(e.target.value, 10)).toString())}
-          onBlur={() => { if (numCopies === "") setNumCopies("1"); }}
-          min={1}
-          width={{ base: "70px", md: "100px" }}
-          placeholder="Copias"
-          textAlign="center"
-        />
-      </Stack>
 
 
       {/*Desktop view*/}
@@ -244,7 +192,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
               <Th>Responsable</Th>
               <Th>Ubicaciones</Th>
               <Th>Acciones</Th>
-              <Th display={order?.FatherOrder.type_id == 1 ? "none" :""} >Etiqueta</Th>
+              
             </Tr>
           </Thead>
           <Tbody>
@@ -261,16 +209,11 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
                   <Td>{line.locations}</Td>
                   <Td>
                     <Flex gap={2}>
-                      <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.quantity, line.recived_quantity)} size="sm" />
+                      <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.father_main_sku, line.quantity, line.recived_quantity)} size="sm" />
                       <IconButton aria-label="Asignar" icon={<LockIcon />} onClick={() => assignUser(line.id)} size="sm" />
                     </Flex>
                   </Td>
-                  <Td display={order?.FatherOrder.type_id == 1 ? "none" :""} >
-                    <Flex gap={2}>
-                      <IconButton aria-label="Imprimir" icon={<SlPrinter />} onClick={() => handleZebra(line.id)} size="sm" />
-                      <IconButton aria-label="Información" icon={<InfoIcon />} onClick={() => handleLabelModal(line.id)} size="sm" />
-                    </Flex>
-                  </Td>
+                 
                 </Tr>
               ))) : (<Tr>
                 <Td colSpan={10} textAlign="center">
@@ -308,14 +251,10 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
 
               <Flex width={"100%"} fontSize="sm"> <ProgressBar total={line.quantity} completed={line.recived_quantity} /></Flex>
               <Flex gap={2} justify="center">
-                <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.quantity, line.recived_quantity)} size="lg" />
+                <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.father_main_sku, line.quantity, line.recived_quantity)} size="lg" />
                 <IconButton aria-label="Asignar" icon={<LockIcon />} onClick={() => assignUser(line.id)} size="lg" />
               </Flex>
-              <Flex gap={2} >
-                <IconButton aria-label="Imprimir" icon={<SlPrinter />} onClick={() => handleZebra(line.id)} size="lg" />
-                <IconButton aria-label="Información" icon={<InfoIcon />} onClick={() => handleLabelModal(line.id)} size="lg" />
 
-              </Flex>
             </VStack>
           ))) : (
             <Text textAlign="center" fontSize="lg" mt={4}>
@@ -336,10 +275,12 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
 
 
 
-      <Increment
+      < OrderModalStockMovement
+
         isOpen={isOpen}
         onClose={onClose}
         selectedId={selectedId}
+        fatherSku={selectedFathersku}
         receivedAmount={receivedAmount}
         totalAmount={totalAmount}
         fetchOrder={fetchOrder}
