@@ -4,6 +4,7 @@ export default interface OrderLine {
     quantity: number;       // Cantidad total
     recived_quantity: number; // Cantidad recibida
     main_sku: string;       // SKU principal del producto
+    father_main_sku: string;// SKU principal del producto padre
     ean: string;            // Código EAN del producto
     name: string;           // Nombre completo del producto
     supplier: string;       // Proveedor del producto
