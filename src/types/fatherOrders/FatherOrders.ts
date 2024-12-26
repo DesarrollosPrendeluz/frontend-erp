@@ -21,6 +21,8 @@ export  interface FatherOrder {
     type: string; // Descripción del tipo
     total_stock: number; // Cantidad total de stock
     pending_stock: number; // Cantidad de stock pendiente
+    total_picking_stock: number; // Cantidad total de stock 
+    total_recived_picking_quantity: number; // Cantidad de stock pendiente
     Childs : ChildOrder[]
    
 }

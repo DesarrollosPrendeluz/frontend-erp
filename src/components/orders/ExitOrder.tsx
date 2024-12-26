@@ -37,8 +37,13 @@ const ExitOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders }) 
           <Text textAlign={"center"}> <b>Orden:</b><br /> {fatherOrder.code}</Text>
           <Text textAlign={"center"} ><b>Estado:</b><br /> {fatherOrder.status}</Text>
           <Text textAlign={"center"}><b>Tipo:</b><br /> {fatherOrder.type}</Text>
-          <Flex width={"100%"} justify="center" marginTop={3}>
+          <Flex width={"100%"} direction="column" justify="center" marginTop={3}>
+          <Text textAlign={"center"}><b>Preparación de pedido:</b></Text>
             <ProgressBar total={fatherOrder.total_stock} completed={fatherOrder.pending_stock} />
+          </Flex>
+          <Flex width={"100%"} direction="column" justify="center" marginTop={3}>
+            <Text textAlign={"center"}><b>Progreso picking:</b></Text>
+          <ProgressBar total={fatherOrder.total_picking_stock} completed={fatherOrder.total_recived_picking_quantity} />
           </Flex>
           <Flex justify="center" marginTop={3}>
             <Button size="sm" onClick={() => goToPickingPage(fatherOrder.code)}>
@@ -61,6 +66,8 @@ const ExitOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders }) 
           <Th>Estado</Th>
           <Th>Tipo</Th>
           <Th>Progreso</Th>
+          <Th>Progreso picking</Th>
+
         </Tr>
       </Thead>
       <Tbody>
@@ -77,6 +84,9 @@ const ExitOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders }) 
               <Td>{fatherOrder.type}</Td>
               <Td>
                 <ProgressBar total={fatherOrder.total_stock} completed={fatherOrder.pending_stock} />
+              </Td>
+              <Td>
+                <ProgressBar total={fatherOrder.total_picking_stock} completed={fatherOrder.total_recived_picking_quantity} />
               </Td>
             </Tr>
           ))
