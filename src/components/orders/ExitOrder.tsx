@@ -30,6 +30,9 @@ const ExitOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders }) 
     router.push(`/dashboard/picking/${orderCode}`)
   }
 
+  const goToStaggingPage = (orderCode: string) => {
+    router.push(`/dashboard/stagging/${orderCode}`)
+  }
   const mobileView = (
     <Stack spacing={4} mt={4} px={4}>
       {fatherOrders.map((fatherOrder) => (
@@ -48,6 +51,9 @@ const ExitOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders }) 
           <Flex justify="center" marginTop={3}>
             <Button size="sm" onClick={() => goToPickingPage(fatherOrder.code)}>
               Picking
+            </Button>
+            <Button size="sm" onClick={() => goToStaggingPage(fatherOrder.code)}>
+              Stagging
             </Button>
           </Flex>
 
@@ -75,9 +81,14 @@ const ExitOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders }) 
           fatherOrders.map((fatherOrder) => (
             <Tr key={fatherOrder.code}>
               <Td>
-                <Button onClick={() => goToPickingPage(fatherOrder.code)}>
-                  Picking
-                </Button>
+                <Flex justify="space-evenly" marginTop={3}>
+                  <Button size="sm" onClick={() => goToPickingPage(fatherOrder.code)}>
+                    Picking
+                  </Button>
+                  <Button size="sm" onClick={() => goToStaggingPage(fatherOrder.code)}>
+                    Stagging
+                  </Button>
+                </Flex>
               </Td>
               <Td>{fatherOrder.code}</Td>
               <Td>{fatherOrder.status}</Td>
