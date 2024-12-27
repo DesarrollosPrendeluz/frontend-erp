@@ -36,6 +36,9 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
   const goToPickingPage = (orderCode: string) => {
     router.push(`/dashboard/picking/${orderCode}`)
   }
+  const goToStaggingPage = (orderCode: string) => {
+    router.push(`/dashboard/stagging/${orderCode}`)
+  }
 
   const closeOrder = (fatherOrderId: number) =>{
     const token = Cookies.get("erp_token");
@@ -114,7 +117,7 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
           <Button size="sm" onClick={() => downloadFile(fatherOrder.id)}>
             Descargar orden
             </Button>
-            <Button size="sm" onClick={() => goToPickingPage(fatherOrder.code)}>
+            <Button size="sm" onClick={() => goToStaggingPage(fatherOrder.code)}>
             Detalles
             </Button>
           </Flex>
@@ -151,7 +154,7 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
                 <ProgressBar total={fatherOrder.total_stock} completed={fatherOrder.pending_stock} />
               </Td>
               <Td>
-                <Button onClick={() => goToPickingPage(fatherOrder.code)}>
+                <Button onClick={() => goToStaggingPage(fatherOrder.code)}>
                 Detalles
                 </Button>
               </Td>
