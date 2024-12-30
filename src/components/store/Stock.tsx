@@ -27,6 +27,8 @@ import { useState } from "react";
 import Pagination from "@/components/Pagination";
 import AddOrderModal from "@/components/orders/AddOrderModal";
 import ResponsiveView from "@/components/ResponsiveLayout";
+import Cookies from 'js-cookie'
+import axios from "axios";
 
 
 const Stock = () => {
@@ -66,6 +68,42 @@ const Stock = () => {
     onOpen();
     // Aquí puedes hacer lo que necesites con el SKU, como actualizar el estado o llamar a una API
   };
+  const downloadFile =  () => {
+    const token = Cookies.get("erp_token");
+    const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
+    const targetItem = stores.find(storeItem => storeItem.Name === store);
+    axios.get(apiUrl + `/stock/getExcel?store_id=${targetItem?.ID || 1}`,{
+      headers: {
+        Authorization: `Bearer ${token}`
+      }}).then((response2) => {
+
+        const fileName = response2.data.Results.name; // Nombre del archivo
+        const fileContent = response2.data.Results.file; // Contenido del archivo (en base64 o texto)
+
+        // Convertir el contenido si es base64
+        const binaryContent = atob(fileContent); // Decodificar base64 a binario
+        const byteNumbers = new Uint8Array(binaryContent.length);
+        for (let i = 0; i < binaryContent.length; i++) {
+          byteNumbers[i] = binaryContent.charCodeAt(i);
+        }
+
+        const blob = new Blob([byteNumbers], { type: 'application/octet-stream' });
+        const url = window.URL.createObjectURL(blob);
+
+        // Crear y simular clic en el enlace
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName; // Asignar el nombre del archivo
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        // Revocar la URL para liberar memoria
+        window.URL.revokeObjectURL(url);
+      
+        });
+      }
+
   const desktopView = (
 
     <Box maxW="1400px" mx="auto" mt={8} p={4}>
@@ -73,6 +111,7 @@ const Stock = () => {
       
       <Flex marginTop={"10px"} justifyContent={"space-between"}> 
         <Heading >{TITLE} </Heading> 
+        
         <select name="" id=""        
         value={store}
         onChange={handleChange}
@@ -86,6 +125,7 @@ const Stock = () => {
             
         ))}
         </select> 
+        <Button backgroundColor={"#FACC15"} onClick={() => downloadFile()}> Descargar Stock</Button>
           </Flex>
 
       <Table>
