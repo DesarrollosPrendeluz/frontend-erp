@@ -93,6 +93,7 @@ const Stock = () => {
           <Tr>
             <Th>Artículo</Th>
             <Th>Sku</Th>
+            <Th>Ean</Th>
             <Th>Stock</Th>
             <Th>Almacén</Th>
             <Th>Ubicaciones</Th>
@@ -115,6 +116,7 @@ const Stock = () => {
                 </Tooltip>
               </Td>
               <Td>{item.SKU}</Td>
+              <Td>{item.Ean}</Td>
               <Td>{item.Amount}</Td>
               <Td>{store}</Td>
               <Td><Button onClick={handleButtonClick} value={item.SKU}>Ubicaciones</Button></Td>

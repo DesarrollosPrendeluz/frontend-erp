@@ -55,6 +55,7 @@ const StockDeficit = () => {
           <Tr>
             <Th>Artículo</Th>
             <Th>Sku</Th>
+            <Th>Ean</Th>
             <Th>Proovedor</Th>
             <Th>Deficit</Th>
             <Th>Pendiente Recepción</Th>
@@ -78,6 +79,7 @@ const StockDeficit = () => {
                 </Tooltip>
               </Td>
               <Td>{item.SKU_Parent}</Td>
+              <Td>{item.Item.EAN}</Td>
               <Td>{item.Item?.SupplierItems[0]?.Supplier?.Name || "No disponible"}</Td>
               <Td>{item.Amount}</Td>
               <Td>{item.PendingAmount}</Td>
@@ -119,6 +121,10 @@ const StockDeficit = () => {
           <Text mb={2}>
             <Text as="span" fontWeight="bold">SKU PADRE: </Text>
             {item.SKU_Parent}
+          </Text>
+          <Text mb={2}>
+            <Text as="span" fontWeight="bold">Ean: </Text>
+            {item.Item.EAN}
           </Text>
           <Divider my={2} />
           <Text mb={2}>
