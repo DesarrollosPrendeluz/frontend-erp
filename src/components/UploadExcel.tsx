@@ -3,8 +3,9 @@ import axios from 'axios';
 import { Button, Input, Box, Spinner, Flex } from '@chakra-ui/react';
 import { request } from 'http';
 import Cookies from 'js-cookie'
+import  Field from "@/types/forms/fields";
 
-const FileUpload: React.FC <{ endpoint: string }> = ({ endpoint }) =>{
+const FileUpload: React.FC <{ endpoint: string, fields : Field[] }> = ({ endpoint, fields }) =>{
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -29,6 +30,9 @@ const FileUpload: React.FC <{ endpoint: string }> = ({ endpoint }) =>{
 
     const formData = new FormData();
     formData.append('file', file); // Añade el archivo a los datos del formulario
+    fields.map((field) => {
+      formData.append(field.key, field.value);
+    });
 
     try {
       setIsUploading(true);

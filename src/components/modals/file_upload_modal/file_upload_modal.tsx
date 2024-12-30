@@ -2,11 +2,15 @@
 
 import React, { useState } from "react";
 import FileUpload from "@/components/UploadExcel";
+import  Field from "@/types/forms/fields";
+
 
 import BaseModal from "../base_modal";
 interface ModalProps {
   buttonName: string; // Controla si el modal está abierto o cerrado
   actionName: string; // Contenido del modal
+  field: Field[]
+
   
 }
 /**
@@ -19,6 +23,7 @@ interface ModalProps {
 const FileUploadModel: React.FC<ModalProps> = ({
   buttonName,
   actionName,
+  field
 }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -48,7 +53,7 @@ const FileUploadModel: React.FC<ModalProps> = ({
         onClose={closeModal}
         actionName={actionName}
       >
-             <FileUpload endpoint="/order/editOrders"/>
+        <FileUpload endpoint="/order/editOrders" fields={field}/>
 
       </BaseModal>
     </>

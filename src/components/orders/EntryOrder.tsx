@@ -25,7 +25,9 @@ import axios from "axios";
 import ProgressBar from "@/components/progressbar/ProgressBar";
 import ResponsiveView from "../ResponsiveLayout";
 import { FatherOrder } from "@/types/fatherOrders/FatherOrders";
-import Stock from "../store/Stock";
+import FileUploadModel from "@/components/modals/file_upload_modal/file_upload_modal";
+import  Field from "@/types/forms/fields";
+
 
 
 
@@ -44,6 +46,7 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
     const token = Cookies.get("erp_token");
     const userId = Cookies.get("user");
     const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
+    const [field, setfield] = useState<Field[]>([]);
 
     const response =  axios.patch(`${apiUrl}/order/closeOrders`, {
       "fatherOrderId": fatherOrderId,
@@ -72,9 +75,7 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
       headers: {
         Authorization: `Bearer ${token}`
       }}).then((response2) => {
-        console.log(response2);
-        console.log(response2.data.Results.filename);
-        console.log(response2.data.Results.file);
+       
         const fileName = response2.data.Results.filename; // Nombre del archivo
         const fileContent = response2.data.Results.file; // Contenido del archivo (en base64 o texto)
 
@@ -139,6 +140,7 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
           <Th>Progreso</Th>
           <Th>Detalles</Th>
           <Th>Descargar orden</Th>
+          <Th>Editar Orden</Th>
           <Th>Dar entrada</Th>
         </Tr>
       </Thead>
@@ -162,6 +164,9 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
                 <Button size="sm" onClick={() => downloadFile(fatherOrder.id)}>
                   Descargar orden
                 </Button>
+            </Td>
+            <Td>
+                <FileUploadModel buttonName="Modificar" actionName={"Modificar orden : "+fatherOrder.code} field={[{key: "father_order", value: fatherOrder.id.toString()}]} />
             </Td>
               <Td>
                 <Button onClick={() => closeOrder(fatherOrder.id)}>

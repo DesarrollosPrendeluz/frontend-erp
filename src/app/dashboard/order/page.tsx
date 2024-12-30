@@ -19,6 +19,7 @@ import EntryOrder from "@/components/orders/EntryOrder";
 import ExitOrder from "@/components/orders/ExitOrder";
 import {FatherOrder} from "@/types/fatherOrders/FatherOrders";
 import FileUploadModel from "@/components/modals/file_upload_modal/file_upload_modal";
+import  Field from "@/types/forms/fields";
 
 interface AssignedUser {
   assignation_id: number;
@@ -51,6 +52,7 @@ const Orders = () => {
   const router = useRouter();
   const [params, setParamsValue] = useState<Record<string, any>>({ "type_id": 1 });
   const [currentPage, setCurrentPage] = useState(1);
+  const [field, setfield] = useState<Field[]>([]);
   const {
     data: fatherOrders,
     totalPages,
@@ -78,7 +80,7 @@ const Orders = () => {
     <Box maxW="1400px" mx="auto" mt={8} p={4}>
       <Flex justify="space-between">
       <Heading size={"lg"}>Pedidos</Heading>
-      <FileUploadModel buttonName="Modificar ordenes" actionName="Modificar ordenes" />
+      <FileUploadModel buttonName="Modificar ordenes" actionName="Modificar ordenes" field={[]} />
       </Flex>
       
       <Tabs variant={"soft-rounded"}>
