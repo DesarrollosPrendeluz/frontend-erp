@@ -194,7 +194,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
 
   return (
     <Box maxW="1400px" mx="auto" p={4}>
-      <Heading size="lg" mb={4} textAlign="center">[STAGGING]Detalles del pedido padre: {order?.FatherOrder.code}</Heading>
+      <Heading size="lg" mb={4} textAlign="center">[{order?.FatherOrder.type_id == 1 ? "Recepción de proveedor": "Preparación de pedido"}]Detalles del pedido padre: {order?.FatherOrder.code}</Heading>
       <Stack spacing={4} mb={4} direction={{ base: "column", md: "row" }} align="center" justify="space-between">
         <Text fontSize={{ base: "sm", md: "md" }}>Tipo: {order?.FatherOrder.type}</Text>
         <Flex flexDirection={"row"} >Status: <Select orderId={order?.FatherOrder.id} status={order?.FatherOrder.status} statusId={order?.FatherOrder.status_id} father={true} /> </Flex>

@@ -53,7 +53,7 @@ const ExitOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders }) 
               Picking
             </Button>
             <Button size="sm" onClick={() => goToStaggingPage(fatherOrder.code)}>
-              Stagging
+              Preparación
             </Button>
           </Flex>
 
@@ -86,7 +86,7 @@ const ExitOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders }) 
                     Picking
                   </Button>
                   <Button size="sm" onClick={() => goToStaggingPage(fatherOrder.code)}>
-                    Stagging
+                  Preparación
                   </Button>
                 </Flex>
               </Td>
