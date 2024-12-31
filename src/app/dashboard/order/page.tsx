@@ -80,7 +80,7 @@ const Orders = () => {
     <Box maxW="1400px" mx="auto" mt={8} p={4}>
       <Flex justify="space-between">
       <Heading size={"lg"}>Pedidos</Heading>
-      <FileUploadModel buttonName="Modificar ordenes" actionName="Modificar ordenes" field={[]} />
+      
       </Flex>
       
       <Tabs variant={"soft-rounded"}>

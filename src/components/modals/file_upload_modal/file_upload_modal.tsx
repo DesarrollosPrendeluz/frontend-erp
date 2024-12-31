@@ -42,7 +42,7 @@ const FileUploadModel: React.FC<ModalProps> = ({
   return (
     <>
       <button
-        className="my-2 py-1 mx-2 focus:outline-none text-black bg-yellow-400 hover:bg-yellow-400 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-2   me-2 mb-2 dark:bg-yellow-400 dark:hover:bg-yellow-400 dark:focus:ring-yellow-900modal-close"
+        className="my-2 py-1 mx-2 focus:outline-none text-black bg-[#E2E8F0] hover:bg-[#CBD5E1] focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-2   me-2 mb-2 dark:bg-yellow-400 dark:hover:bg-yellow-400 dark:focus:ring-yellow-900modal-close"
         onClick={openModal}
       >
         {buttonName}

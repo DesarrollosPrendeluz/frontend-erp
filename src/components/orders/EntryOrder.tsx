@@ -44,9 +44,9 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
 
   const closeOrder = (fatherOrderId: number) =>{
     const token = Cookies.get("erp_token");
-    const userId = Cookies.get("user");
+    //const userId = Cookies.get("user");
     const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
-    const [field, setfield] = useState<Field[]>([]);
+    //const [field, setfield] = useState<Field[]>([]);
 
     const response =  axios.patch(`${apiUrl}/order/closeOrders`, {
       "fatherOrderId": fatherOrderId,
@@ -166,7 +166,7 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
                 </Button>
             </Td>
             <Td>
-                <FileUploadModel buttonName="Modificar" actionName={"Modificar orden : "+fatherOrder.code} field={[{key: "father_order", value: fatherOrder.id.toString()}]} />
+                <FileUploadModel buttonName="Modificar" actionName={"Modificar orden : "+fatherOrder.code} field={[{key: "father_order", value: fatherOrder.code}]} />
             </Td>
               <Td>
                 <Button onClick={() => closeOrder(fatherOrder.id)}>
