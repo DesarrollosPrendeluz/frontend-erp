@@ -38,7 +38,7 @@ const OrderModalStockMovement: React.FC<IncrementProps> = ({
         url: `${apiUrl}/item_stock_location`,
         page: 0,
         limit: 50,
-        params: { "main_sku": fatherSku, "store_id": 1 }
+        params: { "main_sku": fatherSku }
     });
 
     useEffect(() => {
