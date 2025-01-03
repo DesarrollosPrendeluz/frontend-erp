@@ -201,6 +201,7 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
                 Name: newLocData?.Name ?? "err",
                 CreatedAt: new Date().toISOString(),
                 UpdatedAt: new Date().toISOString(),
+                Store: {Name: "-"}
               }
   
             };
@@ -228,6 +229,7 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
         <Tr>
           <Th>Sku</Th>
           <Th>Ubicación</Th>
+          <Th>Almacén</Th>
           <Th>Stock</Th>
         </Tr>
       </Thead>
@@ -237,6 +239,7 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
             <Tr key={item.ItemMainSku}>
               <Td>{item.ItemMainSku}</Td>
               <Td>{item.StoreLocations.Code}</Td>
+              <Td>{item.StoreLocations.Store.Name}</Td>
               <Td>{item.Stock}</Td>
 
             </Tr>
@@ -267,6 +270,10 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
             <Divider my={2} />
             <Text fontSize="lg" mb={2}>
               Ubicación: {item.StoreLocations.Code}
+            </Text>
+            <Divider my={2} />
+            <Text fontSize="lg" mb={2}>
+              Almacén: {item.StoreLocations.Store.Name}
             </Text>
 
             <Divider my={2} />

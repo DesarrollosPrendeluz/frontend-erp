@@ -15,4 +15,7 @@ export default interface ItemLocationStockStoreItem {
     Name: string;
     CreatedAt: string; // ISO 8601 format
     UpdatedAt: string; // ISO 8601 format
+    Store:{
+      Name: string;
+    }
   }

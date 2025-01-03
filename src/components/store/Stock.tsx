@@ -63,7 +63,7 @@ const Stock = () => {
   const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     const sku = event.currentTarget.value; // Obtén el valor del botón
     const targetItem = stores.find(storeItem => storeItem.Name === store);
-    setModalQuery(`?main_sku=`+sku+`&store_id=${targetItem?.ID || 1}`)
+    setModalQuery(`?main_sku=`+sku)//+`&store_id=${targetItem?.ID || 1}`)
     setSku(sku);
     onOpen();
     // Aquí puedes hacer lo que necesites con el SKU, como actualizar el estado o llamar a una API
