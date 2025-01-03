@@ -102,6 +102,7 @@ const StockDeficit = () => {
   )
   const mobileView = (
     <Stack spacing={4} mt={4}>
+      <SearchBar searchParams={["search"]} searchValue={query} setSearchValue={setQuery}/>
       {items?.map((item) => (
         <Box
           key={item.SKU || item.SKU_Parent}
