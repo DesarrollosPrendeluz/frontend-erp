@@ -43,6 +43,16 @@ interface response {
   Lines: OrderLine[];
   recount: number;        // ID del usuario
 }
+interface CSVItem {
+  ASIN: string,
+  pallet: string,
+  box: string,
+  cantidad: number,
+}
+interface CSVExport {
+  ordenCompra: string;
+  items: CSVItem[]
+}
 
 const Stagging = ({ params }: { params: { orderCode: string } }) => {
   const [order, setOrder] = useState<response | null>(null);
@@ -58,6 +68,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  const [palletsAndBoxes, setPalletsAndBoxes] = useState<Record<number, { pallet: string; box: string }>>({});
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isLabelOpen, onOpen: onLabelOpen, onClose: onLabelClose } = useDisclosure();
   const { isOpen: isOrderOpne, onOpen: onOrderOpen, onClose: onOrderClose } = useDisclosure();
@@ -66,13 +77,67 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
   const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
   const STORE_STAGGING = 2
 
+  const [boxValues, setBoxValues] = useState<{ [key: number]: string }>({});
+  const [palletValues, setPalletValues] = useState<{ [key: number]: string }>({});
+
+  const handlePalletBoxChange = (id: number, field: "pallet" | "box", value: string) => {
+    setPalletsAndBoxes((prev) => {
+      const updated = { ...prev, [id]: { ...prev[id], [field]: value } };
+      localStorage.setItem("palletsAndBoxes", JSON.stringify(updated));
+      return updated;
+    });
+  };
+  const onExportCSV = () => {
+    if (!order || !order.Lines) return;
+
+    const csvData = order.Lines.flatMap((line) => {
+      const linePalletsAndBoxes = palletsAndBoxes[line.id];
+      const orderCode = order.FatherOrder.Childs.find((child) => child.id === line.order_id)?.code
+
+      if (!linePalletsAndBoxes) {
+        return [];
+      }
+
+      const pallets = linePalletsAndBoxes.pallet.split(",").map((p) => p.trim());
+      const boxes = linePalletsAndBoxes.box.split(",").map((b) => b.trim());
+
+      return boxes.map((box) => ({
+        PO: orderCode,
+        EAN: line.ean,
+        Pallet: pallets.join(", "),
+        Box: box,
+        Cantidad: line.recived_quantity
+      }));
+    });
+
+    const csvContent = [
+      ["PO", "EAN", "Pallet", "Box", "Cantidad"],
+      ...csvData.map((row) =>
+        [row.PO, row.EAN, row.Pallet, row.Box, row.Cantidad].join(",")
+      ),
+    ]
+      .join("\n")
+      .replace(/(^\[|\]$)/gm, "");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `order_${order.FatherOrder.code}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+
 
 
   const toast = useToast(); // Inicializa useToast
   const fetchOrder = async () => {
     const token = Cookies.get("erp_token");
 
-
+    const savedData = JSON.parse(localStorage.getItem("palletsAndBoxes") || "{}");
+    setPalletsAndBoxes(savedData);
     try {
 
       const response = await axios.get<{
@@ -194,7 +259,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
 
   return (
     <Box maxW="1400px" mx="auto" p={4}>
-      <Heading size="lg" mb={4} textAlign="center">[{order?.FatherOrder.type_id == 1 ? "Recepción de proveedor": "Preparación de pedido"}]Detalles del pedido padre: {order?.FatherOrder.code}</Heading>
+      <Heading size="lg" mb={4} textAlign="center">[{order?.FatherOrder.type_id == 1 ? "Recepción de proveedor" : "Preparación de pedido"}]Detalles del pedido padre: {order?.FatherOrder.code}</Heading>
       <Stack spacing={4} mb={4} direction={{ base: "column", md: "row" }} align="center" justify="space-between">
         <Text fontSize={{ base: "sm", md: "md" }}>Tipo: {order?.FatherOrder.type}</Text>
         <Flex flexDirection={"row"} >Status: <Select orderId={order?.FatherOrder.id} status={order?.FatherOrder.status} statusId={order?.FatherOrder.status_id} father={true} /> </Flex>
@@ -217,7 +282,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
         />
       </Stack>
 
-
+      <Button onClick={onExportCSV}>Generar CSV</Button>
       {/*Desktop view*/}
       <Box display={{ base: "none", md: "block" }} overflowX="auto">
         <Stack my={4} sx={{ position: 'sticky', top: '1px', zIndex: 1000, backgroundColor: 'white' }}>
@@ -234,6 +299,8 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
               <Th>Cantidad</Th>
               <Th>Responsable</Th>
               <Th>COD. Pedido</Th>
+              <Th>Pallet</Th>
+              <Th>Caja</Th>
               <Th>Acciones</Th>
               <Th>Etiqueta</Th>
             </Tr>
@@ -250,6 +317,20 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
                   <Td><ProgressBar total={line.quantity} completed={line.recived_quantity} /></Td>
                   <Td>{line.AssignedUser.user_name}</Td>
                   <Td>{order.FatherOrder.Childs.find((child) => child.id === line.order_id)?.code}</Td>
+                  <Td>
+                    <Input
+                      value={palletsAndBoxes[line.id]?.pallet || ""}
+                      onChange={(e) => handlePalletBoxChange(line.id, "pallet", e.target.value)}
+                      placeholder="Pallet"
+                    />
+                  </Td>
+                  <Td>
+                    <Input
+                      value={palletsAndBoxes[line.id]?.box || ""}
+                      onChange={(e) => handlePalletBoxChange(line.id, "box", e.target.value)}
+                      placeholder="Caja"
+                    />
+                  </Td>
                   <Td>
                     <Flex gap={2}>
                       <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.quantity, line.recived_quantity)} size="sm" />
