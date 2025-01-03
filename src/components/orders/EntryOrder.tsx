@@ -114,11 +114,11 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
           <Flex width={"100%"} justify="center" marginTop={3}>
             <ProgressBar total={fatherOrder.total_stock} completed={fatherOrder.pending_stock} />
           </Flex>
-          <Flex justify="center" marginTop={3}>
-          <Button size="sm" onClick={() => downloadFile(fatherOrder.id)}>
+          <Flex justify="center" marginTop={3} flexDirection={"column"}>
+          <Button size="sm" onClick={() => downloadFile(fatherOrder.id)} marginY={"5px"}>
             Descargar orden
             </Button>
-            <Button size="sm" onClick={() => goToStaggingPage(fatherOrder.code)}>
+            <Button size="sm" onClick={() => goToStaggingPage(fatherOrder.code)} marginY={"5px"}>
             Detalles
             </Button>
           </Flex>

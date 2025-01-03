@@ -48,11 +48,11 @@ const ExitOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders }) 
             <Text textAlign={"center"}><b>Progreso picking:</b></Text>
           <ProgressBar total={fatherOrder.total_picking_stock} completed={fatherOrder.total_recived_picking_quantity} />
           </Flex>
-          <Flex justify="center" marginTop={3}>
-            <Button size="sm" onClick={() => goToPickingPage(fatherOrder.code)}>
+          <Flex justify="center" marginTop={3} flexDirection={"column"}>
+            <Button size="sm" onClick={() => goToPickingPage(fatherOrder.code)} marginY={"5px"}>
               Picking
             </Button>
-            <Button size="sm" onClick={() => goToStaggingPage(fatherOrder.code)}>
+            <Button size="sm" onClick={() => goToStaggingPage(fatherOrder.code)} marginY={"5px"}>
               Preparación
             </Button>
           </Flex>
