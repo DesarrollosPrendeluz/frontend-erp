@@ -26,7 +26,7 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
     {
       url: endpoint,
       page: 0,
-      limit: 1000,
+      limit: 10000,
     }
   );
 
