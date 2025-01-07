@@ -11,6 +11,7 @@ export default interface OrderLine {
     supplier_reference: string;       // Proveedor del producto
     locations: string[];    // Ubicaciones asociadas al producto
     AssignedUser: AssignedUser; // Detalles del usuario asignado
+    //FIXME:quitar en futuras versiones
     pallet : string ;
     box:string;
 }
