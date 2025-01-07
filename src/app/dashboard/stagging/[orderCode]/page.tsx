@@ -81,10 +81,41 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
   const [palletValues, setPalletValues] = useState<{ [key: number]: string }>({});
 
   const handlePalletBoxChange = (id: number, field: "pallet" | "box", value: string) => {
-    setPalletsAndBoxes((prev) => {
-      const updated = { ...prev, [id]: { ...prev[id], [field]: value } };
-      localStorage.setItem("palletsAndBoxes", JSON.stringify(updated));
-      return updated;
+    // setPalletsAndBoxes((prev) => {
+    //   const updated = { ...prev, [id]: { ...prev[id], [field]: value } };
+    //   localStorage.setItem("palletsAndBoxes", JSON.stringify(updated));
+    //   return updated;
+    // });
+    let modifyLines = order?.Lines || [];
+
+    
+    let lines2 = modifyLines.map((line) =>
+      line.id === id
+        ? { ...line, [field]: value } // Cambiar la propiedad dinámica
+        : line // Mantener los demás sin cambios
+    );
+    
+    // Actualizar el estado con el nuevo objeto
+    if (order) {
+
+      setOrder({ ...order, Lines: lines2 });
+    }
+    const token = Cookies.get("erp_token");
+    let body = {}
+      body = {
+        data: [{
+          id: id,
+          [field]: value,
+        }],
+      }
+
+
+    axios.patch(`${apiUrl}/order/orderLines`, body, {
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((response)=>{
+      if(response.status == 202){
+
+      }
     });
   };
   const onExportCSV = () => {
@@ -138,6 +169,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
 
     const savedData = JSON.parse(localStorage.getItem("palletsAndBoxes") || "{}");
     setPalletsAndBoxes(savedData);
+
     try {
 
       const response = await axios.get<{
@@ -153,7 +185,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
       );
 
       let fatherOrderWithLines = response.data.Results.data;
-
+      console.log(fatherOrderWithLines)
       if (fatherOrderWithLines) {
         setOrder(fatherOrderWithLines);
         let pages = response.data.Results.recount / 10
@@ -308,6 +340,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
           <Tbody>
             {order?.Lines && order.Lines.length > 0 ?
               (order?.Lines.map((line: OrderLine) => (
+                //{console.log(line)}
                 <Tr key={line.id}>
                   <Td>{line.main_sku}</Td>
                   <Td>{line.ean}</Td>
@@ -319,14 +352,16 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
                   <Td>{order.FatherOrder.Childs.find((child) => child.id === line.order_id)?.code}</Td>
                   <Td>
                     <Input
-                      value={palletsAndBoxes[line.id]?.pallet || ""}
+                      //value={palletsAndBoxes[line.id]?.pallet || ""}
+                      value={line.pallet}
                       onChange={(e) => handlePalletBoxChange(line.id, "pallet", e.target.value)}
                       placeholder="Pallet"
                     />
                   </Td>
                   <Td>
                     <Input
-                      value={palletsAndBoxes[line.id]?.box || ""}
+                      //value={palletsAndBoxes[line.id]?.box || ""}
+                      value={line.box}
                       onChange={(e) => handlePalletBoxChange(line.id, "box", e.target.value)}
                       placeholder="Caja"
                     />
