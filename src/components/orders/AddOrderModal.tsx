@@ -78,12 +78,18 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
         client_id: 1,
         store_id: 2
       }));
-      console.log("llega");
+      
+      const supplier = Array.isArray(suppliersItems)
+      ? suppliersItems.find(supplier => supplier.Id === selectedValue)
+      : {Id : 1, Name:"default"};
+  
 
     let body = {
       data: [
         {
           order: {
+            name: "Pedido a proveedor : " + supplier.Name +" "+ new Date().toISOString(),
+            supplier:supplier.Id,
             status: 1,
             type: 1
           },
