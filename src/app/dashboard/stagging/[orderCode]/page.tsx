@@ -346,7 +346,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
         />
       </Stack>
 
-      <Button onClick={onExportCSV}>Generar CSV</Button>
+      <Button onClick={onExportCSV}>Descargar Excel Amazon</Button>
       {/*Desktop view*/}
       <Box display={{ base: "none", md: "block" }} overflowX="auto">
         <Stack my={4} sx={{ position: 'sticky', top: '1px', zIndex: 1000, backgroundColor: 'white' }}>
