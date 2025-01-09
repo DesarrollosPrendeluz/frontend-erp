@@ -107,9 +107,9 @@ const Stock = () => {
   const desktopView = (
 
     <Box maxW="1400px" mx="auto" mt={8} p={4}>
-      <SearchBar searchParams={["search"]} searchValue={query} setSearchValue={setQuery}/>
       
-      <Flex marginTop={"10px"} justifyContent={"space-between"}> 
+      
+      <Flex marginBottom={"10px"} justifyContent={"space-between"}> 
         <Heading >{TITLE} </Heading> 
         
         <select name="" id=""        
@@ -127,6 +127,7 @@ const Stock = () => {
         </select> 
         <Button backgroundColor={"#FACC15"} onClick={() => downloadFile()}> Descargar Stock</Button>
           </Flex>
+          <SearchBar searchParams={["search"]} searchValue={query} setSearchValue={setQuery}/>
 
       <Table>
         <Thead>
