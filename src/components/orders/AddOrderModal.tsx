@@ -25,8 +25,8 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
   let { data: items, totalPages, isLoading, error } = useFetchData<StoreItems>(
     {
       url: endpoint,
-      page: 0,
-      limit: 10000,
+      page: -1,
+      limit: -1,
     }
   );
 
@@ -67,44 +67,81 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
 
 
   const handleConfirm = () => {
-    // Aquí puedes manejar la lógica de confirmación (ej. enviar datos)
-    console.log("entra");
-    const datum: object = items
-      .filter((item: any) => item.Amount != 0  && (parseInt(item.Amount) - parseInt(item.PendingAmount)) > 0 ) // Filtra los elementos con Amount distinto de 0
-      .map((item: any) => ({
-        item_id: item.Item.ID,
-        quantity: parseInt(item.Amount) - parseInt(item.PendingAmount),
-        recived_quantity: 0,
-        client_id: 1,
-        store_id: 2
-      }));
-      
-      const supplier = Array.isArray(suppliersItems)
-      ? suppliersItems.find(supplier => supplier.Id === selectedValue)
-      : {Id : 1, Name:"default"};
-  
 
-    let body = {
-      data: [
-        {
-          order: {
-            name: "Pedido a proveedor : " + supplier.Name +" "+ new Date().toISOString(),
-            supplier:supplier.Id,
-            status: 1,
-            type: 1
-          },
-          lines: datum // Asigna 'datum' directamente a 'lines'
+    const groupedBySupplier: { [key: string]: any[] } = {};
+
+    // Process each record in the data array
+    for (const record of items) {
+      const supplierItems = record.Item?.SupplierItems || [];
+      for (const supplierItem of supplierItems) {
+        let supplierID = String(supplierItem.Supplier.ID);
+        //console.log(supplierID)
+        //let supplierIDString = supplierID.toString(10)
+
+        // Calculate the difference between Amount and PendingAmount
+        const difference = parseInt(record.Amount) - parseInt(record.PendingAmount);
+
+        // Skip if the difference is not greater than 0
+        if (difference <= 0) continue;
+
+        // Initialize the supplier group if it doesn't exist
+        if (!groupedBySupplier[supplierID]) {
+          groupedBySupplier[supplierID] = [];
         }
-      ]
-    };
+
+        // Add the record to the appropriate supplier group
+        groupedBySupplier[supplierID].push({
+          ...record,
+          Difference: difference // Add the calculated difference for clarity
+        });
+      }
+    }
 
 
+    let data: object[] = []
+    Object.entries(groupedBySupplier).forEach(([key, supplier]: [string, any[]]) => {
+      let lines: object[] = []
+      let supName: string = ""
+      supplier.forEach((element, key2) => {
+        let item = {
+          item_id: element.Item.ID,
+          quantity: parseInt(element.Amount) - parseInt(element.PendingAmount),
+          recived_quantity: 0,
+          client_id: 1,
+          store_id: 2,
+        }
+        console.log(element.Item)
+        supName = element.Item.SupplierItems[0].Supplier.Name
+        lines.push(item)
+
+      });
+      const supplierArray = Array.isArray(suppliersItems)
+        ? suppliersItems.find(supplier => supplier.Id === key)
+        : { Id: 1, Name: "default" };
+      let order = {
+        order: {
+          name: "Pedido a proveedor : " + supName + " " + new Date().toISOString(),
+          supplier: parseInt(key) ,
+          status: 1,
+          type: 1
+        },
+        lines: lines // Asigna 'datum' directamente a 'lines'
+      }
+      data.push(order)
+
+    });
+    console.log(groupedBySupplier);
+    console.log("--")
+    console.log(data);
+    let body = { data: data };
+
+    console.log(body)
     axios.post(`${apiUrl}/order/addByRequest`, body,
       {
         headers: {
           Authorization: `Bearer ${token}`
         },
-      }).then((response)=>{
+      }).then((response) => {
         console.log("se ha enviado");
         onClose()
       });

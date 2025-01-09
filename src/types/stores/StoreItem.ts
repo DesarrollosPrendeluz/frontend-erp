@@ -1,4 +1,5 @@
 interface Supplier{
+    ID: Number
     Name:string;
     DeliveryTime:number;
   }
