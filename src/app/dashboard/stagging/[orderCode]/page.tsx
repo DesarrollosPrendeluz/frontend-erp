@@ -385,17 +385,22 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
                   <Td>
                     <Input
                       //value={palletsAndBoxes[line.id]?.pallet || ""}
+                      id={`pallet-${line.id}`}
                       value={line.pallet}
                       onChange={(e) => handlePalletBoxChange(line.id, "pallet", e.target.value)}
                       placeholder="Pallet"
                     />
                   </Td>
                   <Td>
-                    <Input
+                    
+                    <input
+                    className="w-full"
+                    //FIXME:cambiar este indput a uno de los chackra
                       //value={palletsAndBoxes[line.id]?.box || ""}
-                      value={line.box}
+                      id={`box-${line.id}`}
+                      value={line.box || ""}
                       onChange={(e) => handlePalletBoxChange(line.id, "box", e.target.value)}
-                      placeholder="Caja"
+                      placeholder="Cajas"
                     />
                   </Td>
                   <Td>

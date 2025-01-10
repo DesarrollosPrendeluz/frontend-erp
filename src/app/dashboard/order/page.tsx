@@ -51,7 +51,7 @@ const Orders = () => {
   const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
   const router = useRouter();
   const [params, setParamsValue] = useState<Record<string, any>>({ "type_id": 1 });
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
   const [field, setfield] = useState<Field[]>([]);
   const {
     data: fatherOrders,
@@ -61,7 +61,7 @@ const Orders = () => {
   } = useFetchData<FatherOrder>({
     url: `${apiUrl}/fatherOrder`,
     page: (currentPage - 1),
-    limit: 20,
+    limit: -1,
     params: params
   });
 
