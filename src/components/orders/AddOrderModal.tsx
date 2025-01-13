@@ -26,7 +26,7 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
   let { data: items, totalPages, isLoading, error } = useFetchData<StoreItems>(
     {
       url: endpoint,
-      page: -1,
+      page: 0,
       limit: -1,
     }
   );
