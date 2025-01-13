@@ -82,7 +82,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
           recount: number;
           data: response
         }
-      }>(`${apiUrl}/fatherOrder/orderLines?page=${currentPage - 1}&page_size=10&store_id=1&father_order_code=${params.orderCode}${query}`,
+      }>(`${apiUrl}/fatherOrder/orderLines?page=${currentPage - 1}&page_size=10&store_id=1&ean_order=ASC&loc_order=ASC&father_order_code=${params.orderCode}${query}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
