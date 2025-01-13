@@ -6,6 +6,7 @@ import StoreItems from "@/types/stores/StoreItem";
 import Suppliers from "@/types/suppliers/Supplier";
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { count } from "console";
 
 interface BasicModalProps {
   isOpen: boolean;
@@ -73,12 +74,9 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
     // Process each record in the data array
     for (const record of items) {
       const supplierItems = record.Item?.SupplierItems || [];
-      for (const supplierItem of supplierItems) {
-        let supplierID = String(supplierItem.Supplier.ID);
-        //console.log(supplierID)
-        //let supplierIDString = supplierID.toString(10)
-
-        // Calculate the difference between Amount and PendingAmount
+      if(supplierItems.length > 0){
+        let supplierID = String(supplierItems[0].Supplier.ID).trim();
+       
         const difference = parseInt(record.Amount) - parseInt(record.PendingAmount);
 
         // Skip if the difference is not greater than 0
@@ -86,6 +84,7 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
 
         // Initialize the supplier group if it doesn't exist
         if (!groupedBySupplier[supplierID]) {
+          console.log();
           groupedBySupplier[supplierID] = [];
         }
 
@@ -110,7 +109,7 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
           client_id: 1,
           store_id: 2,
         }
-        console.log(element.Item)
+        //console.log(element.Item)
         supName = element.Item.SupplierItems[0].Supplier.Name
         lines.push(item)
 
@@ -130,12 +129,9 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
       data.push(order)
 
     });
-    console.log(groupedBySupplier);
-    console.log("--")
-    console.log(data);
+
     let body = { data: data };
 
-    console.log(body)
     axios.post(`${apiUrl}/order/addByRequest`, body,
       {
         headers: {
