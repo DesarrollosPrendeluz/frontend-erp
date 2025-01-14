@@ -166,7 +166,7 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
                 </Button>
             </Td>
             <Td>
-                <FileUploadModel buttonName="Modificar" actionName={"Modificar orden : "+fatherOrder.code} field={[{key: "father_order", value: fatherOrder.code}]} />
+                <FileUploadModel buttonName="Modificar" endpoint="/order/editOrders" color="" actionName={"Modificar orden : "+fatherOrder.code} field={[{key: "father_order", value: fatherOrder.code}]} />
             </Td>
               <Td>
                 <Button onClick={() => closeOrder(fatherOrder.id)}>

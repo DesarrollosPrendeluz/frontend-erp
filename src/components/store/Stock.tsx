@@ -3,7 +3,7 @@
 import useFetchData from "@/hooks/fetchData";
 import SearchBar from "@/components/searchbar/SearchBar";
 import StoreStockModal from "@/components/store/StoreStockModal";
-
+import FileUpload from "@/components/UploadExcel";
 import StoreItems from "@/types/stores/StoreItem";
 import Store from "@/types/stores/Stores";
 import {
@@ -25,7 +25,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import Pagination from "@/components/Pagination";
-import AddOrderModal from "@/components/orders/AddOrderModal";
+import FileUploadModel from "@/components/modals/file_upload_modal/file_upload_modal";
 import ResponsiveView from "@/components/ResponsiveLayout";
 import Cookies from 'js-cookie'
 import axios from "axios";
@@ -126,6 +126,7 @@ const Stock = () => {
         ))}
         </select> 
         <Button backgroundColor={"#FACC15"} onClick={() => downloadFile()}> Descargar Stock</Button>
+        <FileUploadModel buttonName="Modificar Stock" endpoint="/order/editOrders" color="#FACC15" actionName={"Modificar orden stock ubicaciones : "} field={[]} />
           </Flex>
           <SearchBar searchParams={["search"]} searchValue={query} setSearchValue={setQuery}/>
 
