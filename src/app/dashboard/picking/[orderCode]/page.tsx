@@ -5,7 +5,8 @@ import { AddIcon, InfoIcon, LockIcon } from "@chakra-ui/icons";
 import { SlPrinter } from "react-icons/sl";
 import axios from "axios";
 import Pagination from "@/components/Pagination";
-import useFetchData from "@/hooks/fetchData";
+import downloadFile from "@/hooks/downloadFile";
+
 
 import { FatherOrder } from "@/types/fatherOrders/FatherOrders";
 import OrderLine from "@/types/orders/Lines";
@@ -114,7 +115,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
     onOpen();
   };
 
-  const downloadFile =  () => {
+  const downloadFileFunc =  () => {
     const token = Cookies.get("erp_token");
     const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
     axios.get(apiUrl + `/fatherOrder/orderLines/downloadPicking?father_order_code=${params.orderCode}`,{
@@ -122,29 +123,9 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
         Authorization: `Bearer ${token}`
       }}).then((response2) => {
        
-        const fileName = response2.data.Results.filename; // Nombre del archivo
-        const fileContent = response2.data.Results.file; // Contenido del archivo (en base64 o texto)
 
-        // Convertir el contenido si es base64
-        const binaryContent = atob(fileContent); // Decodificar base64 a binario
-        const byteNumbers = new Uint8Array(binaryContent.length);
-        for (let i = 0; i < binaryContent.length; i++) {
-          byteNumbers[i] = binaryContent.charCodeAt(i);
-        }
 
-        const blob = new Blob([byteNumbers], { type: 'application/octet-stream' });
-        const url = window.URL.createObjectURL(blob);
-
-        // Crear y simular clic en el enlace
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName; // Asignar el nombre del archivo
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        // Revocar la URL para liberar memoria
-        window.URL.revokeObjectURL(url);
+        downloadFile(response2.data.Results.file, response2.data.Results.filename)
       
         });
       }
@@ -204,7 +185,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
         <Text fontSize={{ base: "sm", md: "md" }}>Tipo: {order?.FatherOrder.type}</Text>
         <Flex flexDirection={"row"} >Status: <Select orderId={order?.FatherOrder.id} status={order?.FatherOrder.status} statusId={order?.FatherOrder.status_id} father={true} /> </Flex>
         <Button backgroundColor={"#FACC15"} onClick={onOrderOpen}>Órdenes de compra</Button>
-        <Button backgroundColor={"#FACC15"} onClick={downloadFile}>Descargar excel picking</Button>
+        <Button backgroundColor={"#FACC15"} onClick={downloadFileFunc}>Descargar excel picking</Button>
 
       </Stack>
 
