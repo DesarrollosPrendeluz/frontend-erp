@@ -5,7 +5,7 @@ import { request } from 'http';
 import Cookies from 'js-cookie'
 import  Field from "@/types/forms/fields";
 
-const FileUpload: React.FC <{ endpoint: string, fields : Field[] }> = ({ endpoint, fields }) =>{
+const FileUpload: React.FC <{ endpoint: string, fields : Field[], report: boolean }> = ({ endpoint, fields }) =>{
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -45,6 +45,34 @@ const FileUpload: React.FC <{ endpoint: string, fields : Field[] }> = ({ endpoin
           'Authorization': `Bearer ${token}`
         },
       });
+      if(response.status == 202 || response.status == 201 || response.status == 200){
+        console.log("ha imprimir")
+        console.log(response.data)
+        const fileName = response.data.Results.FileName; // Nombre del archivo
+        const fileContent = response.data.Results.File; // Contenido del archivo (en base64 o texto)
+
+        // Convertir el contenido si es base64
+        const binaryContent = atob(fileContent); // Decodificar base64 a binario
+        const byteNumbers = new Uint8Array(binaryContent.length);
+        for (let i = 0; i < binaryContent.length; i++) {
+          byteNumbers[i] = binaryContent.charCodeAt(i);
+        }
+
+        const blob = new Blob([byteNumbers], { type: 'application/octet-stream' });
+        const url = window.URL.createObjectURL(blob);
+
+        // Crear y simular clic en el enlace
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName; // Asignar el nombre del archivo
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        // Revocar la URL para liberar memoria
+        window.URL.revokeObjectURL(url);
+
+      }
 
       setIsUploading(false);
       setUploadSuccess(true);
