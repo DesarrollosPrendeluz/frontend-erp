@@ -4,6 +4,7 @@ import { Button, Input, Box, Spinner, Flex } from '@chakra-ui/react';
 import { request } from 'http';
 import Cookies from 'js-cookie'
 import downloadFile from "@/hooks/downloadFile";
+import genericGet from "@/hooks/genericGet";
 
 import  Field from "@/types/forms/fields";
 
@@ -22,7 +23,15 @@ const FileUpload: React.FC <{ endpoint: string, fields : Field[], report: boolea
       setUploadError(null);    // Resetea el estado de error
     }
   };
+  const handleDownload = async () => {
+    let result = await genericGet(endpoint+"/frame")
+    if(result.status == 202 || result.status == 201 || result.status == 200){
+      downloadFile(result.body.Results.file, result.body.Results.fileName)
 
+    }
+
+    
+  }
   // Manejador de la subida del archivo
   const handleUpload = async () => {
     if (!file) {
@@ -85,6 +94,10 @@ const FileUpload: React.FC <{ endpoint: string, fields : Field[], report: boolea
 
       {uploadError && <p style={{ color: 'red', marginTop: '10px' }}>{uploadError}</p>}
       {uploadSuccess && <p style={{ color: 'green', marginTop: '10px' }}>Archivo subido con éxito.</p>}
+
+      <Button marginTop={"5px"} backgroundColor={"#FACC15"} onClick={handleDownload}>
+        {isUploading ? <Spinner size="sm" /> : 'Descargar Formato'}
+      </Button>
     </Flex >
   );
 };

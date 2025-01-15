@@ -78,7 +78,7 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
         Authorization: `Bearer ${token}`
       }}).then((response2) => {
        
-        downloadFile(response2.data.Results.file, response2.data.Results.fileName)
+        downloadFile(response2.data.Results.file, response2.data.Results.filename)
       
         });
       }
