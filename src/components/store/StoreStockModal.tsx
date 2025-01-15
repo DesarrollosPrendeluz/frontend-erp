@@ -30,6 +30,7 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
   const [select2, setSelect2] = useState<string>("No Seleccionado");
   const [select3, setSelect3] = useState<string>("No Seleccionado");
   const [select4, setSelect4] = useState<string>("No Seleccionado");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const [input1, setInput1] = useState<string>("0");
   const [input2, setInput2] = useState<string>("0");
@@ -76,6 +77,9 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
   };
 
   const updateStock = async (): Promise<void> => {
+    if (isProcessing) return; // Evitar múltiples clics
+
+    setIsProcessing(true); // Bloquear el botón
     try {
       let bfrLoc = parseInt(select1|| "0", 10)
       let aftLoc = parseInt(select2|| "0", 10)
@@ -111,21 +115,29 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
         }).catch((error) => {
           console.error("Error en la solicitud PATCH de movimiento de stocks:", error);
           throw error;
+        }).finally(()=>{
+          setActiveForm(null);
+
         })
 
       }else{
         console.error("se ha intentado enviar una petición a Nan")
       }
 
-  
-
+      setIsProcessing(false);
+      setActiveForm(null);
     } catch (error) {
       console.error("Error en el metodo de movimiento de stocks:", error);
+      setIsProcessing(false);
+      setActiveForm(null);
       throw error;
     }
   };
 
   const changeStock = async (): Promise<void> => {
+    if (isProcessing) return; // Evitar múltiples clics
+
+    setIsProcessing(true); // Bloquear el botón
     try {
         let targetItem = data.find(line => (line.ItemMainSku === sku && line.StoreLocationID == parseInt(select3)));
         let modifyStock = parseInt(input2 || "0", 10)
@@ -160,16 +172,25 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
       }else{
         console.error("se ha intentado enviar una petición a Nan")
       }
-
-
+      setIsProcessing(false);
+      setActiveForm(null);
     } catch (error) {
+      setIsProcessing(false);
+      setActiveForm(null);
       console.error("Error en el metodo de actualización de stocks:", error);
       throw error;
     }
+   
+   
+
+
   };
 
   const createLocation = async (): Promise<void> => {
     try {
+      if (isProcessing) return; // Evitar múltiples clics
+
+    setIsProcessing(true); // Bloquear el botón
 
         if (!isNaN(parseInt(select4)) && parseInt(select4) !== 0) {
           let bodyData = {data:[        {
@@ -216,10 +237,15 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
       }else{
         console.error("se ha intentado enviar una petición a Nan")
       }
+      setIsProcessing(false);
+      setActiveForm(null);
       } catch (error) {
+        setIsProcessing(false);
+        setActiveForm(null);
         console.error("Error en el metodo de actualización de stocks:", error);
         throw error;
       }
+    
         }
   
 
@@ -296,8 +322,8 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
         <ModalCloseButton />
         <ModalBody>
         {buttonData.map((button, index) => (
-        <Button key={index} colorScheme="yellow" mr={3} mb="10px" onClick={() => handleButtonClick(button.action)}>
-          {button.label}
+        <Button key={index} disabled={isProcessing} colorScheme="yellow" mr={3} mb="10px" onClick={() => handleButtonClick(button.action)}>
+          {isProcessing ? "Procesando..." : button.label}
         </Button>
         ))}
       <Flex mt={4}>
