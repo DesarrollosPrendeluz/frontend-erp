@@ -126,7 +126,7 @@ const Stock = () => {
         ))}
         </select> 
         <Button backgroundColor={"#FACC15"} onClick={() => downloadFile()}> Descargar Stock</Button>
-        <FileUploadModel buttonName="Modificar Stock" endpoint="/order/editOrders" color="#FACC15" actionName={"Modificar orden stock ubicaciones : "} field={[]} />
+        <FileUploadModel buttonName="Modificar Stock" endpoint="/store/excel" color="#FACC15" actionName={"Modificar orden stock ubicaciones : "} field={[]} />
           </Flex>
           <SearchBar searchParams={["search"]} searchValue={query} setSearchValue={setQuery}/>
 
