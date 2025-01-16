@@ -20,6 +20,8 @@ import React from "react";
 import ProgressBar from "@/components/progressbar/ProgressBar";
 import ResponsiveView from "../ResponsiveLayout";
 import { FatherOrder } from "@/types/fatherOrders/FatherOrders";
+import FileUploadModel from "@/components/modals/file_upload_modal/file_upload_modal";
+
 
 
 
@@ -82,12 +84,14 @@ const ExitOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders }) 
             <Tr key={fatherOrder.code}>
               <Td>
                 <Flex justify="space-evenly" marginTop={3}>
-                  <Button size="sm" onClick={() => goToPickingPage(fatherOrder.code)}>
+                  <Button  onClick={() => goToPickingPage(fatherOrder.code)}>
                     Picking
                   </Button>
-                  <Button size="sm" onClick={() => goToStaggingPage(fatherOrder.code)}>
+                  <Button  onClick={() => goToStaggingPage(fatherOrder.code)}>
                   Preparación
                   </Button>
+                <FileUploadModel report={false} buttonName="Modificar" endpoint="/order/editOrders" color="" actionName={"Modificar orden : "+fatherOrder.code} field={[{key: "father_order", value: fatherOrder.code}]} />
+            
                 </Flex>
               </Td>
               <Td>{fatherOrder.code}</Td>
