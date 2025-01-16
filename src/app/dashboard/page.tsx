@@ -5,5 +5,5 @@ import axios from "axios";
 import { headers } from "next/headers";
 
 export default function Page() {
-  return (<FileUpload endpoint="/order/add" fields={[]} /> )
+  return (<FileUpload endpoint="/order/add" fields={[]} report={false} /> )
 }

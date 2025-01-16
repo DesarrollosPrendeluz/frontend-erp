@@ -17,6 +17,7 @@ interface BasicModalProps {
 const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
   const [input, setInputValue] = useState<string>("");
   const [suppliersItems, setSuppliersValue] = useState<Suppliers>();
+  const [isProcessing, setIsProcessing] = useState(false);
   const [filterItems, setFilterItemsValue] = useState<StoreItems>();
   const token = Cookies.get("erp_token");
   const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
@@ -68,6 +69,7 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
 
 
   const handleConfirm = () => {
+    setIsProcessing(true)
 
     const groupedBySupplier: { [key: string]: any[] } = {};
 
@@ -139,7 +141,9 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
         },
       }).then((response) => {
         console.log("se ha enviado");
+        
         onClose()
+        setIsProcessing(false)
       });
 
     ; // Cierra el modal después de confirmar
@@ -152,8 +156,8 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
         <ModalHeader>Generar Pedidos</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Button colorScheme="blue" mr={3} onClick={handleConfirm}>
-            Confirmar
+          <Button colorScheme="blue" mr={3} onClick={handleConfirm} isDisabled={isProcessing}>
+          {isProcessing ? "Procesando..." : "Confirmar"}
           </Button>
           <Button variant="ghost" onClick={onClose}>
             Cancelar

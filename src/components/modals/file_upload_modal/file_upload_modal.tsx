@@ -28,6 +28,7 @@ interface ModalProps {
   actionName: string; // Contenido del modal
   endpoint:string
   color:string
+  report?:boolean
   field: Field[]
 
   
@@ -44,6 +45,7 @@ const FileUploadModel: React.FC<ModalProps> = ({
   actionName,
   endpoint,
   color,
+  report=false,
   field
 }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -75,7 +77,7 @@ const FileUploadModel: React.FC<ModalProps> = ({
         onClose={closeModal}
         actionName={actionName}
       >
-        <FileUpload endpoint={endpoint} fields={field}/>
+        <FileUpload endpoint={endpoint} fields={field} report={report}/>
 
       </BaseModal>
     </>
