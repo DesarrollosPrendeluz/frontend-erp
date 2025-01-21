@@ -70,6 +70,33 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
 
   }
 
+
+  const openOrder = (fatherOrderId: number) =>{
+    const token = Cookies.get("erp_token");
+    //const userId = Cookies.get("user");
+    const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
+    //const [field, setfield] = useState<Field[]>([]);
+
+    const response =  axios.patch(`${apiUrl}/order/openOrders`, {
+      "fatherOrderId": fatherOrderId,
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+    }).then((response)=>{
+      if(response.status == 202 || response.status == 204){
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order.id === fatherOrderId
+              ? { ...order, pending_stock: 0 } // Simular el cierre del pedido
+              : order
+          )
+        );
+      }
+    });
+
+  }
+
   const downloadFileFunc =  (fatherOrderId: number) => {
     const token = Cookies.get("erp_token");
     const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
@@ -151,6 +178,9 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
               <Td>
                 <Button onClick={() => closeOrder(fatherOrder.id)}>
                 Dar entrada
+                </Button>
+                <Button marginTop={"5px"} onClick={() => openOrder(fatherOrder.id)}>
+                Deshacer entrada
                 </Button>
               </Td>
             </Tr>
