@@ -286,7 +286,6 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
           textAlign="center"
         />
       </Stack>
-
       <Button onClick={onExportCSV}>Descargar Excel Amazon</Button>
       {/*Desktop view*/}
       <Box display={{ base: "none", md: "block" }} overflowX="auto">

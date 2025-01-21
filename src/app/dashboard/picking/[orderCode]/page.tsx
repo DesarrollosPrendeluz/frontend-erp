@@ -34,6 +34,7 @@ import OrderModal from "@/components/picking/OrderModal";
 import OrderModalStockMovement from "@/components/picking/OrderModalStockMovement";
 
 import Select from "@/components/select/select";
+import MultiSelect from "@/components/select/multiSelect";
 import Cookies from 'js-cookie'
 import SearchBar from "@/components/searchbar/SearchBar";
 
@@ -53,6 +54,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [labelData, setLabelData] = useState<OrderLineLabelProps | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [locations, setLocations] = useState<string>("");
 
   const [query, setQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -83,7 +85,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
           recount: number;
           data: response
         }
-      }>(`${apiUrl}/fatherOrder/orderLines?page=${currentPage - 1}&page_size=10&store_id=1&ean_order=ASC&loc_order=ASC&father_order_code=${params.orderCode}${query}`,
+      }>(`${apiUrl}/fatherOrder/orderLines?page=${currentPage - 1}&page_size=10&store_id=1&ean_order=ASC&loc_order=ASC&father_order_code=${params.orderCode}${query}&location=${locations}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -105,7 +107,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
 
   useEffect(() => {
     fetchOrder();
-  }, [params.orderCode, query, currentPage]);
+  }, [params.orderCode, query, locations, currentPage]);
 
   const handleIncrementModal = (id: number, fatherSku: string,  total: number, received: number) => {
     setReceivedAmount(received);
@@ -183,9 +185,15 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
       <Heading size="lg" mb={4} textAlign="center">Detalles del pedido padre: {order?.FatherOrder.code}</Heading>
       <Stack spacing={4} mb={4} direction={{ base: "column", md: "row" }} align="center" justify="space-between">
         <Text fontSize={{ base: "sm", md: "md" }}>Tipo: {order?.FatherOrder.type}</Text>
+        
         <Flex flexDirection={"row"} >Status: <Select orderId={order?.FatherOrder.id} status={order?.FatherOrder.status} statusId={order?.FatherOrder.status_id} father={true} /> </Flex>
+        <Button backgroundColor={"#FACC15"} onClick={downloadFileFunc}>Filtros Avanzados</Button> 
         <Button backgroundColor={"#FACC15"} onClick={onOrderOpen}>Órdenes de compra</Button>
         <Button backgroundColor={"#FACC15"} onClick={downloadFileFunc}>Descargar excel picking</Button>
+
+      </Stack>
+      <Stack spacing={4} mb={4} direction={{ base: "column", md: "row" }} align="center" justify="space-between">
+      <MultiSelect setSelected={setLocations}/>
 
       </Stack>
 
