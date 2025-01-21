@@ -171,7 +171,7 @@ const Stock = () => {
             Artículo:
           </Text>
           <Text>
-            {item.Itemname}
+            {item.Itemname.substring(0, 40)}...
           </Text>
 
           <Divider my={2} />
@@ -181,6 +181,13 @@ const Stock = () => {
           </Text>
           <Text>
             {item.SKU}
+          </Text>
+          <Divider my={2} />
+          <Text fontWeight="bold" fontSize="lg" mb={2}>
+            EAN:
+          </Text>
+          <Text>
+            {item.Ean}
           </Text>
 
           <Divider my={2} />
