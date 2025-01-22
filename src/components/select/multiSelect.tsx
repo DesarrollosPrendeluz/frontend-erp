@@ -39,7 +39,7 @@ const MultiSelect: React.FC<BasicModalProps> = ({setSelected}) => {
   const handleOptionClick = (value: string) => {
     const result = selectedOptions.includes(value)? selectedOptions.filter(opt => opt !== value) : [...selectedOptions, value];
     setSelectedOptions(result);
-    console.log(result);
+    //console.log(result);
     if (result.length > 0){  
         setSelected(result.join(','))
         
