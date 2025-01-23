@@ -187,7 +187,6 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
         <Text fontSize={{ base: "sm", md: "md" }}>Tipo: {order?.FatherOrder.type}</Text>
         
         <Flex flexDirection={"row"} >Status: <Select orderId={order?.FatherOrder.id} status={order?.FatherOrder.status} statusId={order?.FatherOrder.status_id} father={true} /> </Flex>
-        <Button backgroundColor={"#FACC15"} onClick={downloadFileFunc}>Filtros Avanzados</Button> 
         <Button backgroundColor={"#FACC15"} onClick={onOrderOpen}>Órdenes de compra</Button>
         <Button backgroundColor={"#FACC15"} onClick={downloadFileFunc}>Descargar excel picking</Button>
 
@@ -260,7 +259,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
           (order?.Lines.map((line) => (
             <VStack key={line.id + "-" + line.ean} borderWidth="1px" borderRadius="lg" p={4} mb={2}>
               <Flex width={"100%"} justify="space-between" align="center">
-                <Text width={"40%"} align="left" fontSize="sm"><b>SKU</b><br /> {line.main_sku}</Text>
+                <Text width={"40%"} align="left" fontSize="sm"><b>Nombre</b><br /> {line.name.substring(0, 25) + ' ...'}</Text>
                 <Text width={"55%"} align="left" fontSize="sm"><b>EAN</b><br /> {line.ean}</Text>
               </Flex>
               <Flex width={"100%"} justify="space-between">
