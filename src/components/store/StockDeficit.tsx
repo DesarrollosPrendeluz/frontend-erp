@@ -155,7 +155,7 @@ const StockDeficit = () => {
         >
           <Text mb={2}>
             <Text as="span" fontWeight="bold">Artículo: </Text>
-            {item.Item.Name.substring(0, 40)}...
+            {item.Item.Name?item.Item.Name.substring(0, 40):""}...
           </Text>
 
           <Divider my={2} />
