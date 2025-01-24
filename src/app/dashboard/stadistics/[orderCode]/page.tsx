@@ -54,10 +54,10 @@ const Stadistics = ({ params }: { params: { orderCode: string } }) => {
   const handleHistoric = async () => {
     let result = await genericGet("/stadistics/olHisotricByFatherOrder?father_code="+params.orderCode)
     if(result.status == 202 || result.status == 201 || result.status == 200){
-      console.log(result.body.Results.data.results)
       let response = result.body.Results.data.results;
       let totalArray = [];
       let labelArray = [];
+
       response.forEach((element: Order) => {
         totalArray.push(element.totalOrder);
         labelArray.push(element.code);
@@ -75,11 +75,10 @@ const Stadistics = ({ params }: { params: { orderCode: string } }) => {
     if(result.status == 202 || result.status == 201 || result.status == 200){
       console.log(result.body.Results.data.results)
       let response = result.body.Results.data;
-      console.log("total")
-      console.log(response)
       let pickingArray = [];
       let staggingArray = [];
       let fatherData = response[0]
+      
       pickingArray.push(fatherData.total_picking_stock);
       pickingArray.push(fatherData.total_recived_picking_quantity);
       staggingArray.push(fatherData.total_stock);
