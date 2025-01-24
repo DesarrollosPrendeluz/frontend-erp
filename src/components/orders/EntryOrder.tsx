@@ -43,6 +43,9 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
   const goToStaggingPage = (orderCode: string) => {
     router.push(`/dashboard/stagging/${orderCode}`)
   }
+  const goToStadisticsPage = (orderCode: string) => {
+    router.push(`/dashboard/stadistics/${orderCode}`)
+  }
 
   const closeOrder = (fatherOrderId: number) =>{
     const token = Cookies.get("erp_token");
@@ -146,6 +149,7 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
           <Th>Tipo</Th>
           <Th>Progreso</Th>
           <Th>Detalles</Th>
+          <Th>Estadísticas</Th>
           <Th>Descargar orden</Th>
           <Th>Editar Orden</Th>
           <Th>Dar entrada</Th>
@@ -165,6 +169,11 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
               <Td>
                 <Button onClick={() => goToStaggingPage(fatherOrder.code)}>
                 Detalles
+                </Button>
+              </Td>
+              <Td>
+                <Button onClick={() => goToStadisticsPage(fatherOrder.code)}>
+                Estadísticas
                 </Button>
               </Td>
               <Td>          
