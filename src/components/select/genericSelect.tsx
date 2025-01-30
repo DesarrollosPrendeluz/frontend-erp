@@ -29,6 +29,7 @@ interface Data {
     setData(value);
     setSelectedValue(parseInt(value, 10)); 
   };
+  useEffect(() => {}, [data]); // Se ejecuta cada vez que `prompt` cambia
 
   return (
     <div>
