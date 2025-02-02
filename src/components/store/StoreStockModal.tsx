@@ -56,6 +56,17 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
     setActiveForm(value);
   };
 
+  const dropLocation = (locationId: number) => {
+    axios.delete(endpoint+"?location_id="+locationId, {
+      headers: { Authorization: `Bearer ${token}` }
+  }).then((response)=>{
+      if (response.status === 202) {
+          let filter = data.filter(item => item.ID != locationId);
+          setData(filter)
+      }
+  });
+  };
+
 
   useEffect( () => {
     //Actualiza el endpoint cuando cambian los parámetros dinámicos
@@ -264,6 +275,7 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
           <Th>Ubicación</Th>
           <Th>Almacén</Th>
           <Th>Stock</Th>
+          <Th>Borrar Ubicación</Th>
         </Tr>
       </Thead>
       <Tbody>
@@ -274,6 +286,7 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
               <Td>{item.StoreLocations.Code}</Td>
               <Td>{item.StoreLocations.Store.Name}</Td>
               <Td>{item.Stock}</Td>
+              <Td><Button onClick={() =>dropLocation(item.ID)} backgroundColor={"#EF6C60"}>Borrar</Button></Td>
 
             </Tr>
           ))
