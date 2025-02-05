@@ -28,6 +28,7 @@ import {
   Stack,
   VStack,
   useToast,
+  Select as ChakraSelect,
 } from "@chakra-ui/react";
 import OrderModal from "@/components/picking/OrderModal";
 import Increment from "@/components/picking/increment";
@@ -57,6 +58,7 @@ interface CSVExport {
 const Stagging = ({ params }: { params: { orderCode: string } }) => {
   const [order, setOrder] = useState<response | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [receivedAmount, setReceivedAmount] = useState<number>(0);
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [labelData, setLabelData] = useState<OrderLineLabelProps | null>(null);
@@ -175,10 +177,11 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
     fetchOrder();
   }, [params.orderCode, query, currentPage]);
 
-  const handleIncrementModal = (id: number, total: number, received: number) => {
+  const handleIncrementModal = (id: number, total: number, received: number, orderId: number) => {
     setReceivedAmount(received);
     setTotalAmount(total);
     setSelectedId(id);
+    setSelectedOrderId(orderId);
     onOpen();
   };
 
@@ -260,8 +263,6 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
       }
     }
   };
-
-
   return (
     <Box maxW="1400px" mx="auto" p={4}>
       <Heading size="lg" mb={4} textAlign="center">[{order?.FatherOrder.type_id == 1 ? "Recepción de proveedor" : "Preparación de pedido"}]Detalles del pedido padre: {order?.FatherOrder.code}</Heading>
@@ -303,8 +304,6 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
               <Th>Cantidad</Th>
               <Th>Responsable</Th>
               <Th>COD. Pedido</Th>
-              <Th>Pallet</Th>
-              <Th>Caja</Th>
               <Th>Acciones</Th>
               <Th>Etiqueta</Th>
             </Tr>
@@ -323,29 +322,8 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
                   <Td>{line.AssignedUser.user_name}</Td>
                   <Td>{order.FatherOrder.Childs.find((child) => child.id === line.order_id)?.code}</Td>
                   <Td>
-                    <Input
-                      //value={palletsAndBoxes[line.id]?.pallet || ""}
-                      id={`pallet-${line.id}`}
-                      value={line.pallet}
-                      onChange={(e) => handlePalletBoxChange(line.id, "pallet", e.target.value)}
-                      placeholder="Pallet"
-                    />
-                  </Td>
-                  <Td>
-                    
-                    <input
-                    className="w-full"
-                    //FIXME:cambiar este indput a uno de los chackra
-                      //value={palletsAndBoxes[line.id]?.box || ""}
-                      id={`box-${line.id}`}
-                      value={line.box || ""}
-                      onChange={(e) => handlePalletBoxChange(line.id, "box", e.target.value)}
-                      placeholder="Cajas"
-                    />
-                  </Td>
-                  <Td>
                     <Flex gap={2}>
-                      <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.quantity, line.recived_quantity)} size="sm" />
+                      <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.quantity, line.recived_quantity, line.order_id)} size="sm" />
                       <IconButton aria-label="Asignar" icon={<LockIcon />} onClick={() => assignUser(line.id)} size="sm" />
                     </Flex>
                   </Td>
@@ -392,7 +370,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
 
               <Flex width={"100%"} fontSize="sm"> <ProgressBar total={line.quantity} completed={line.recived_quantity} /></Flex>
               <Flex gap={2} justify="center">
-                <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.quantity, line.recived_quantity)} size="lg" />
+                <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.quantity, line.recived_quantity, line.order_id)} size="lg" />
                 <IconButton aria-label="Asignar" icon={<LockIcon />} onClick={() => assignUser(line.id)} size="lg" />
               </Flex>
               <Flex gap={2} >
@@ -422,6 +400,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
         isOpen={isOpen}
         onClose={onClose}
         selectedId={selectedId}
+        orderId={selectedOrderId}
         receivedAmount={receivedAmount}
         totalAmount={totalAmount}
         fetchOrder={fetchOrder}
