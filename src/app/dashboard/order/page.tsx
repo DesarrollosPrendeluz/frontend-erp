@@ -77,7 +77,7 @@ const Orders = () => {
   }
 
   return (
-    <Box maxW="1400px" mx="auto" mt={8} p={4}>
+    <Box maxW="1500px" mx="auto" mt={8} p={4}>
       <Flex justify="space-between">
       <Heading size={"lg"}>Pedidos</Heading>
       

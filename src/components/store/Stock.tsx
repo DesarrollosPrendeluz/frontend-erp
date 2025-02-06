@@ -1,10 +1,12 @@
 "use client"
 
 import useFetchData from "@/hooks/fetchData";
+import downloadFile from "@/hooks/downloadFile";
 import SearchBar from "@/components/searchbar/SearchBar";
 import StoreStockModal from "@/components/store/StoreStockModal";
-
+import FileUpload from "@/components/UploadExcel";
 import StoreItems from "@/types/stores/StoreItem";
+import GenerateLocation from "@/components/store/GenerateLocation";
 import Store from "@/types/stores/Stores";
 import {
   Box,
@@ -25,7 +27,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import Pagination from "@/components/Pagination";
-import AddOrderModal from "@/components/orders/AddOrderModal";
+import FileUploadModel from "@/components/modals/file_upload_modal/file_upload_modal";
 import ResponsiveView from "@/components/ResponsiveLayout";
 import Cookies from 'js-cookie'
 import axios from "axios";
@@ -63,12 +65,12 @@ const Stock = () => {
   const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     const sku = event.currentTarget.value; // Obtén el valor del botón
     const targetItem = stores.find(storeItem => storeItem.Name === store);
-    setModalQuery(`?main_sku=`+sku+`&store_id=${targetItem?.ID || 1}`)
+    setModalQuery(`?main_sku=`+sku)//+`&store_id=${targetItem?.ID || 1}`)
     setSku(sku);
     onOpen();
     // Aquí puedes hacer lo que necesites con el SKU, como actualizar el estado o llamar a una API
   };
-  const downloadFile =  () => {
+  const downloadFileFunc =  () => {
     const token = Cookies.get("erp_token");
     const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
     const targetItem = stores.find(storeItem => storeItem.Name === store);
@@ -76,40 +78,17 @@ const Stock = () => {
       headers: {
         Authorization: `Bearer ${token}`
       }}).then((response2) => {
+        downloadFile(response2.data.Results.file, response2.data.Results.name)
 
-        const fileName = response2.data.Results.name; // Nombre del archivo
-        const fileContent = response2.data.Results.file; // Contenido del archivo (en base64 o texto)
-
-        // Convertir el contenido si es base64
-        const binaryContent = atob(fileContent); // Decodificar base64 a binario
-        const byteNumbers = new Uint8Array(binaryContent.length);
-        for (let i = 0; i < binaryContent.length; i++) {
-          byteNumbers[i] = binaryContent.charCodeAt(i);
-        }
-
-        const blob = new Blob([byteNumbers], { type: 'application/octet-stream' });
-        const url = window.URL.createObjectURL(blob);
-
-        // Crear y simular clic en el enlace
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName; // Asignar el nombre del archivo
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        // Revocar la URL para liberar memoria
-        window.URL.revokeObjectURL(url);
-      
         });
       }
 
   const desktopView = (
 
     <Box maxW="1400px" mx="auto" mt={8} p={4}>
-      <SearchBar searchParams={["search"]} searchValue={query} setSearchValue={setQuery}/>
       
-      <Flex marginTop={"10px"} justifyContent={"space-between"}> 
+      
+      <Flex marginBottom={"10px"} justifyContent={"space-between"}> 
         <Heading >{TITLE} </Heading> 
         
         <select name="" id=""        
@@ -125,8 +104,11 @@ const Stock = () => {
             
         ))}
         </select> 
-        <Button backgroundColor={"#FACC15"} onClick={() => downloadFile()}> Descargar Stock</Button>
+        <Button backgroundColor={"#FACC15"} onClick={() => downloadFileFunc()}> Descargar Stock</Button>
+        <FileUploadModel buttonName="Modificar Stock" endpoint="/store/excel" color="#FACC15" actionName={"Modificar orden stock ubicaciones : "} report={true} field={[]} />
+        <GenerateLocation/>
           </Flex>
+          <SearchBar searchParams={["search"]} searchValue={query} setSearchValue={setQuery}/>
 
       <Table>
         <Thead>
@@ -177,6 +159,7 @@ const Stock = () => {
   )
   const mobileView = (
     <Stack spacing={4} mt={4}>
+      <SearchBar searchParams={["search"]} searchValue={query} setSearchValue={setQuery}/>
       {items?.map((item) => (
         <Box
           key={item.SKU || item.SKU_Parent+Math.random()}
@@ -190,7 +173,7 @@ const Stock = () => {
             Artículo:
           </Text>
           <Text>
-            {item.Itemname}
+            {item.Itemname ? item.Itemname.substring(0, 40) : ""}...
           </Text>
 
           <Divider my={2} />
@@ -200,6 +183,13 @@ const Stock = () => {
           </Text>
           <Text>
             {item.SKU}
+          </Text>
+          <Divider my={2} />
+          <Text fontWeight="bold" fontSize="lg" mb={2}>
+            EAN:
+          </Text>
+          <Text>
+            {item.Ean}
           </Text>
 
           <Divider my={2} />

@@ -6,6 +6,7 @@ import StoreItems from "@/types/stores/StoreItem";
 import Suppliers from "@/types/suppliers/Supplier";
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { count } from "console";
 
 interface BasicModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ interface BasicModalProps {
 const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
   const [input, setInputValue] = useState<string>("");
   const [suppliersItems, setSuppliersValue] = useState<Suppliers>();
+  const [isProcessing, setIsProcessing] = useState(false);
   const [filterItems, setFilterItemsValue] = useState<StoreItems>();
   const token = Cookies.get("erp_token");
   const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
@@ -26,7 +28,7 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
     {
       url: endpoint,
       page: 0,
-      limit: 1000,
+      limit: -1,
     }
   );
 
@@ -67,40 +69,81 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
 
 
   const handleConfirm = () => {
-    // Aquí puedes manejar la lógica de confirmación (ej. enviar datos)
-    console.log("entra");
-    const datum: object = items
-      .filter((item: any) => item.Amount != 0  && (parseInt(item.Amount) - parseInt(item.PendingAmount)) > 0 ) // Filtra los elementos con Amount distinto de 0
-      .map((item: any) => ({
-        item_id: item.Item.ID,
-        quantity: parseInt(item.Amount) - parseInt(item.PendingAmount),
-        recived_quantity: 0,
-        client_id: 1,
-        store_id: 2
-      }));
-      console.log("llega");
+    setIsProcessing(true)
 
-    let body = {
-      data: [
-        {
-          order: {
-            status: 1,
-            type: 1
-          },
-          lines: datum // Asigna 'datum' directamente a 'lines'
+    const groupedBySupplier: { [key: string]: any[] } = {};
+
+    // Process each record in the data array
+    for (const record of items) {
+      const supplierItems = record.Item?.SupplierItems || [];
+      if(supplierItems.length > 0){
+        let supplierID = String(supplierItems[0].Supplier.ID).trim();
+       
+        const difference = parseInt(record.Amount) - parseInt(record.PendingAmount);
+
+        // Skip if the difference is not greater than 0
+        if (difference <= 0) continue;
+
+        // Initialize the supplier group if it doesn't exist
+        if (!groupedBySupplier[supplierID]) {
+          console.log();
+          groupedBySupplier[supplierID] = [];
         }
-      ]
-    };
 
+        // Add the record to the appropriate supplier group
+        groupedBySupplier[supplierID].push({
+          ...record,
+          Difference: difference // Add the calculated difference for clarity
+        });
+      }
+    }
+
+
+    let data: object[] = []
+    Object.entries(groupedBySupplier).forEach(([key, supplier]: [string, any[]]) => {
+      let lines: object[] = []
+      let supName: string = ""
+      supplier.forEach((element, key2) => {
+        let item = {
+          item_id: element.Item.ID,
+          quantity: parseInt(element.Amount) - parseInt(element.PendingAmount),
+          recived_quantity: 0,
+          client_id: 1,
+          store_id: 2,
+        }
+        //console.log(element.Item)
+        supName = element.Item.SupplierItems[0].Supplier.Name
+        lines.push(item)
+
+      });
+      const supplierArray = Array.isArray(suppliersItems)
+        ? suppliersItems.find(supplier => supplier.Id === key)
+        : { Id: 1, Name: "default" };
+      let order = {
+        order: {
+          name: "Pedido a proveedor : " + supName + " " + new Date().toISOString(),
+          supplier: parseInt(key) ,
+          status: 1,
+          type: 1
+        },
+        lines: lines // Asigna 'datum' directamente a 'lines'
+      }
+      data.push(order)
+
+    });
+
+    let body = { data: data };
 
     axios.post(`${apiUrl}/order/addByRequest`, body,
       {
         headers: {
           Authorization: `Bearer ${token}`
         },
-      }).then((response)=>{
+      }).then((response) => {
         console.log("se ha enviado");
+        
         onClose()
+        setIsProcessing(false)
       });
 
     ; // Cierra el modal después de confirmar
@@ -113,8 +156,8 @@ const AddOrderModal: React.FC<BasicModalProps> = ({ isOpen, onClose }) => {
         <ModalHeader>Generar Pedidos</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Button colorScheme="blue" mr={3} onClick={handleConfirm}>
-            Confirmar
+          <Button colorScheme="blue" mr={3} onClick={handleConfirm} isDisabled={isProcessing}>
+          {isProcessing ? "Procesando..." : "Confirmar"}
           </Button>
           <Button variant="ghost" onClick={onClose}>
             Cancelar

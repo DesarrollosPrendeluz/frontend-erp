@@ -13,16 +13,20 @@ const SearchBar: React.FC<SearchBarProps> = ({ searchValue, setSearchValue, sear
   const [inputValue, setInputValue] = useState("");
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      let query = ""
-      searchParams.forEach(element => {
-        query = query + "&" + element + "=" + inputValue
-
-      });
-      query.trim() == "" ? setSearchValue("") : setSearchValue(query)
-      setInputValue("")
+      search()
 
     }
   };
+  const search = () => {
+    let query = ""
+    searchParams.forEach(element => {
+      query = query + "&" + element + "=" + inputValue
+
+    });
+    query.trim() == "" ? setSearchValue("") : setSearchValue(query)
+    setInputValue("")
+
+  }
 
   return (
     <InputGroup margin="auto" mt="2px">
@@ -38,7 +42,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ searchValue, setSearchValue, sear
         <IconButton
           aria-label="Search"
           icon={<SearchIcon />}
-        //onClick={(e) => setSearchValue(e.target.value)} // Ejecuta la función handleSearch
+          onClick={search} // Ejecuta la función handleSearch
         />
       </InputRightElement>
     </InputGroup>

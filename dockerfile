@@ -19,7 +19,7 @@ RUN npm audit fix --force
 
 
 # Copia el resto de la aplicación
-ENV NEXT_PUBLIC_BACKEND_API_URL="https://testbackerp.zarivy.com"
+ENV NEXT_PUBLIC_BACKEND_API_URL="https://erp-back.zarivy.com"
 
 
 # Construye la aplicación Next.js

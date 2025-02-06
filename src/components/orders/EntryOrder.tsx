@@ -17,6 +17,8 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import { useState } from "react";
+import downloadFile from "@/hooks/downloadFile";
+
 
 import Cookies from 'js-cookie'
 import React from "react";
@@ -40,6 +42,9 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
   }
   const goToStaggingPage = (orderCode: string) => {
     router.push(`/dashboard/stagging/${orderCode}`)
+  }
+  const goToStadisticsPage = (orderCode: string) => {
+    router.push(`/dashboard/stadistics/${orderCode}`)
   }
 
   const closeOrder = (fatherOrderId: number) =>{
@@ -68,7 +73,34 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
 
   }
 
-  const downloadFile =  (fatherOrderId: number) => {
+
+  const openOrder = (fatherOrderId: number) =>{
+    const token = Cookies.get("erp_token");
+    //const userId = Cookies.get("user");
+    const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
+    //const [field, setfield] = useState<Field[]>([]);
+
+    const response =  axios.patch(`${apiUrl}/order/openOrders`, {
+      "fatherOrderId": fatherOrderId,
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+    }).then((response)=>{
+      if(response.status == 202 || response.status == 204){
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order.id === fatherOrderId
+              ? { ...order, pending_stock: 0 } // Simular el cierre del pedido
+              : order
+          )
+        );
+      }
+    });
+
+  }
+
+  const downloadFileFunc =  (fatherOrderId: number) => {
     const token = Cookies.get("erp_token");
     const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
     axios.get(apiUrl + "/order/supplierOrders/download?father_order_id="+fatherOrderId,{
@@ -76,29 +108,7 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
         Authorization: `Bearer ${token}`
       }}).then((response2) => {
        
-        const fileName = response2.data.Results.filename; // Nombre del archivo
-        const fileContent = response2.data.Results.file; // Contenido del archivo (en base64 o texto)
-
-        // Convertir el contenido si es base64
-        const binaryContent = atob(fileContent); // Decodificar base64 a binario
-        const byteNumbers = new Uint8Array(binaryContent.length);
-        for (let i = 0; i < binaryContent.length; i++) {
-          byteNumbers[i] = binaryContent.charCodeAt(i);
-        }
-
-        const blob = new Blob([byteNumbers], { type: 'application/octet-stream' });
-        const url = window.URL.createObjectURL(blob);
-
-        // Crear y simular clic en el enlace
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName; // Asignar el nombre del archivo
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        // Revocar la URL para liberar memoria
-        window.URL.revokeObjectURL(url);
+        downloadFile(response2.data.Results.file, response2.data.Results.filename)
       
         });
       }
@@ -114,11 +124,11 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
           <Flex width={"100%"} justify="center" marginTop={3}>
             <ProgressBar total={fatherOrder.total_stock} completed={fatherOrder.pending_stock} />
           </Flex>
-          <Flex justify="center" marginTop={3}>
-          <Button size="sm" onClick={() => downloadFile(fatherOrder.id)}>
+          <Flex justify="center" marginTop={3} flexDirection={"column"}>
+          <Button size="sm" onClick={() => downloadFileFunc(fatherOrder.id)} marginY={"5px"}>
             Descargar orden
             </Button>
-            <Button size="sm" onClick={() => goToStaggingPage(fatherOrder.code)}>
+            <Button size="sm" onClick={() => goToStaggingPage(fatherOrder.code)} marginY={"5px"}>
             Detalles
             </Button>
           </Flex>
@@ -139,6 +149,7 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
           <Th>Tipo</Th>
           <Th>Progreso</Th>
           <Th>Detalles</Th>
+          <Th>Estadísticas</Th>
           <Th>Descargar orden</Th>
           <Th>Editar Orden</Th>
           <Th>Dar entrada</Th>
@@ -160,17 +171,25 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
                 Detalles
                 </Button>
               </Td>
+              <Td>
+                <Button onClick={() => goToStadisticsPage(fatherOrder.code)}>
+                Estadísticas
+                </Button>
+              </Td>
               <Td>          
-                <Button size="sm" onClick={() => downloadFile(fatherOrder.id)}>
+                <Button size="sm" onClick={() => downloadFileFunc(fatherOrder.id)}>
                   Descargar orden
                 </Button>
             </Td>
             <Td>
-                <FileUploadModel buttonName="Modificar" actionName={"Modificar orden : "+fatherOrder.code} field={[{key: "father_order", value: fatherOrder.code}]} />
+                <FileUploadModel report={false} buttonName="Modificar" endpoint="/order/editOrders" color="" actionName={"Modificar orden : "+fatherOrder.code} field={[{key: "father_order", value: fatherOrder.code}]} />
             </Td>
               <Td>
                 <Button onClick={() => closeOrder(fatherOrder.id)}>
                 Dar entrada
+                </Button>
+                <Button marginTop={"5px"} onClick={() => openOrder(fatherOrder.id)}>
+                Deshacer entrada
                 </Button>
               </Td>
             </Tr>

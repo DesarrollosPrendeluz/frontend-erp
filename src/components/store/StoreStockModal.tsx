@@ -30,6 +30,7 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
   const [select2, setSelect2] = useState<string>("No Seleccionado");
   const [select3, setSelect3] = useState<string>("No Seleccionado");
   const [select4, setSelect4] = useState<string>("No Seleccionado");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const [input1, setInput1] = useState<string>("0");
   const [input2, setInput2] = useState<string>("0");
@@ -55,6 +56,17 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
     setActiveForm(value);
   };
 
+  const dropLocation = (locationId: number) => {
+    axios.delete(endpoint+"?location_id="+locationId, {
+      headers: { Authorization: `Bearer ${token}` }
+  }).then((response)=>{
+      if (response.status === 202) {
+          let filter = data.filter(item => item.ID != locationId);
+          setData(filter)
+      }
+  });
+  };
+
 
   useEffect( () => {
     //Actualiza el endpoint cuando cambian los parámetros dinámicos
@@ -76,6 +88,9 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
   };
 
   const updateStock = async (): Promise<void> => {
+    if (isProcessing) return; // Evitar múltiples clics
+
+    setIsProcessing(true); // Bloquear el botón
     try {
       let bfrLoc = parseInt(select1|| "0", 10)
       let aftLoc = parseInt(select2|| "0", 10)
@@ -111,21 +126,29 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
         }).catch((error) => {
           console.error("Error en la solicitud PATCH de movimiento de stocks:", error);
           throw error;
+        }).finally(()=>{
+          setActiveForm(null);
+
         })
 
       }else{
         console.error("se ha intentado enviar una petición a Nan")
       }
 
-  
-
+      setIsProcessing(false);
+      setActiveForm(null);
     } catch (error) {
       console.error("Error en el metodo de movimiento de stocks:", error);
+      setIsProcessing(false);
+      setActiveForm(null);
       throw error;
     }
   };
 
   const changeStock = async (): Promise<void> => {
+    if (isProcessing) return; // Evitar múltiples clics
+
+    setIsProcessing(true); // Bloquear el botón
     try {
         let targetItem = data.find(line => (line.ItemMainSku === sku && line.StoreLocationID == parseInt(select3)));
         let modifyStock = parseInt(input2 || "0", 10)
@@ -160,16 +183,25 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
       }else{
         console.error("se ha intentado enviar una petición a Nan")
       }
-
-
+      setIsProcessing(false);
+      setActiveForm(null);
     } catch (error) {
+      setIsProcessing(false);
+      setActiveForm(null);
       console.error("Error en el metodo de actualización de stocks:", error);
       throw error;
     }
+   
+   
+
+
   };
 
   const createLocation = async (): Promise<void> => {
     try {
+      if (isProcessing) return; // Evitar múltiples clics
+
+    setIsProcessing(true); // Bloquear el botón
 
         if (!isNaN(parseInt(select4)) && parseInt(select4) !== 0) {
           let bodyData = {data:[        {
@@ -177,48 +209,61 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
             "storeLocationId": parseInt(select4),
             "stock":0
         }]}
-  
-        axios.post(
-          `${apiUrl}/item_stock_location`,
-          bodyData,
-          { headers: { Authorization: `Bearer ${token}` } }
-        ).then((response) => {
-          let locId = parseInt(select4);
-          let newLocData = locations.find((loc) => loc.ID == locId)
-  
-          if (response.status == 202) {
-            const newItem: ItemLocationStockStoreItem = {
-              ID: response.data.Results.CreatedIds[0],
-              ItemMainSku: sku,
-              StoreLocationID: locId,
-              Stock: 0,
-              CreatedAt: new Date().toISOString(),
-              UpdatedAt: new Date().toISOString(),
-              StoreLocations: {
-                ID: locId,
-                StoreID: 1,
-                Code: newLocData?.Code ?? "err",
-                Name: newLocData?.Name ?? "err",
+        let flag = true
+        data.map((item) => {
+          item.StoreLocationID == parseInt(select4) ? flag = false : null
+        });
+        if(flag){
+          axios.post(
+            `${apiUrl}/item_stock_location`,
+            bodyData,
+            { headers: { Authorization: `Bearer ${token}` } }
+          ).then((response) => {
+            let locId = parseInt(select4);
+            let newLocData = locations.find((loc) => loc.ID == locId)
+    
+            if (response.status == 202) {
+              const newItem: ItemLocationStockStoreItem = {
+                ID: response.data.Results.CreatedIds[0],
+                ItemMainSku: sku,
+                StoreLocationID: locId,
+                Stock: 0,
                 CreatedAt: new Date().toISOString(),
                 UpdatedAt: new Date().toISOString(),
-              }
-  
-            };
-  
-            setData((prevData) => [...prevData, newItem]);
-          }
-        }).catch((error) => {
-          console.error("Error en la solicitud PATCH de actualización de stocks:", error);
-          throw error;
-        })
+                StoreLocations: {
+                  ID: locId,
+                  StoreID: 1,
+                  Code: newLocData?.Code ?? "err",
+                  Name: newLocData?.Name ?? "err",
+                  CreatedAt: new Date().toISOString(),
+                  UpdatedAt: new Date().toISOString(),
+                  Store: {Name: "-"}
+                }
+    
+              };
+    
+              setData((prevData) => [...prevData, newItem]);
+            }
+          }).catch((error) => {
+            console.error("Error en la solicitud PATCH de actualización de stocks:", error);
+            throw error;
+          })
+
+        }
+        
   
       }else{
         console.error("se ha intentado enviar una petición a Nan")
       }
+      setIsProcessing(false);
+      setActiveForm(null);
       } catch (error) {
+        setIsProcessing(false);
+        setActiveForm(null);
         console.error("Error en el metodo de actualización de stocks:", error);
         throw error;
       }
+    
         }
   
 
@@ -228,7 +273,9 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
         <Tr>
           <Th>Sku</Th>
           <Th>Ubicación</Th>
+          <Th>Almacén</Th>
           <Th>Stock</Th>
+          <Th>Borrar Ubicación</Th>
         </Tr>
       </Thead>
       <Tbody>
@@ -237,7 +284,9 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
             <Tr key={item.ItemMainSku}>
               <Td>{item.ItemMainSku}</Td>
               <Td>{item.StoreLocations.Code}</Td>
+              <Td>{item.StoreLocations.Store.Name}</Td>
               <Td>{item.Stock}</Td>
+              <Td><Button onClick={() =>dropLocation(item.ID)} backgroundColor={"#EF6C60"}>Borrar</Button></Td>
 
             </Tr>
           ))
@@ -268,6 +317,10 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
             <Text fontSize="lg" mb={2}>
               Ubicación: {item.StoreLocations.Code}
             </Text>
+            <Divider my={2} />
+            <Text fontSize="lg" mb={2}>
+              Almacén: {item.StoreLocations.Store.Name}
+            </Text>
 
             <Divider my={2} />
             <Text fontSize="lg" mb={2}>
@@ -289,8 +342,8 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
         <ModalCloseButton />
         <ModalBody>
         {buttonData.map((button, index) => (
-        <Button key={index} colorScheme="yellow" mr={3} mb="10px" onClick={() => handleButtonClick(button.action)}>
-          {button.label}
+        <Button key={index} disabled={isProcessing} colorScheme="yellow" mr={3} mb="10px" onClick={() => handleButtonClick(button.action)}>
+          {isProcessing ? "Procesando..." : button.label}
         </Button>
         ))}
       <Flex mt={4}>
