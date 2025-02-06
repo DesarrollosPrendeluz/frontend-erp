@@ -38,6 +38,7 @@ import ZebraPrinterManager, { ZebraPrinter } from '@/components/printer/ZebraPri
 import SearchBar from "@/components/searchbar/SearchBar";
 
 import ProgressBar from "@/components/progressbar/ProgressBar";
+import PalletAndBoxes from "@/components/PalletsAndBoxes";
 
 interface response {
   FatherOrder: FatherOrder; // ID de asignación
@@ -81,6 +82,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
 
   const [boxValues, setBoxValues] = useState<{ [key: number]: string }>({});
   const [palletValues, setPalletValues] = useState<{ [key: number]: string }>({});
+  const { isOpen: isPalletAndBoxesOpen, onOpen: onClosePalletOpen, onClose: onClosePalletAndBoxes } = useDisclosure();
 
   const handlePalletBoxChange = (id: number, field: "pallet" | "box", value: string) => {
     // setPalletsAndBoxes((prev) => {
@@ -405,7 +407,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
         totalAmount={totalAmount}
         fetchOrder={fetchOrder}
       />
-
+      <PalletAndBoxes isOpen={isPalletAndBoxOpen} onClose={onClosePalletAndBox} orderId={order?.FatherOrder.id} />
 
       {labelData && <OrderLineLabel label={labelData.label} isOpen={isLabelOpen} onClose={onLabelClose} />}
     </Box>

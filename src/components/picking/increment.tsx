@@ -16,13 +16,16 @@ interface Pallet {
   number: number;
   label: string;
   Boxes: Box[];
+  IsClose: number;
 }
 
 interface Box {
   id: number;
   pallet: number;
   quantity: number;
+  label: string;
   number: number;
+  IsClose: number;
 }
 import { Button, Select, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalOverlay, Spinner } from "@chakra-ui/react";
 import axios from "axios";
@@ -39,6 +42,7 @@ const Increment: React.FC<IncrementProps> = ({
 }) => {
   const OPEN = 0;
   const CLOSE = 1;
+  const NO_PALLET: number = 0;
   const [inputValue, setInputValue] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
@@ -50,17 +54,16 @@ const Increment: React.FC<IncrementProps> = ({
   const [selectedBox, setSelectedBox] = useState<string>("");
 
   const filterBoxes = (palletId: number) => {
-    const results = pallets.find((pallet) => pallet.id == palletId)
-    console.log(results)
+    const results = pallets.find((pallet) => pallet.number == palletId)
     const boxList = results?.Boxes ?? []
+    console.log("Lista", boxList)
     setBoxes(boxList)
   }
-  useEffect(() => { if (selectedPallet) { filterBoxes } }, [selectedPallet])
+  useEffect(() => { if (selectedPallet) { filterBoxes(Number(selectedPallet)) } }, [selectedPallet])
   const fetchPallets = async () => {
     setLoading(true);
     try {
       const token = Cookies.get("erp_token");
-      console.log("Hola ?")
       const response = await axios.get(
 
         `${apiUrl}/pallet/crossDataByOrderId?page=0&page_size=200&order_id=${orderId}`,
@@ -71,7 +74,7 @@ const Increment: React.FC<IncrementProps> = ({
         }
       );
       const data: Pallet[] = response.data.Results.data;
-
+      console.log("por aqui -> ", data)
       const parsedPallets = data.map((pallet) => ({
         ...pallet,
         Boxes: pallet.Boxes.map((box) => ({
@@ -97,8 +100,8 @@ const Increment: React.FC<IncrementProps> = ({
 
   const incrementReceived = async () => {
     if (selectedId === null || inputValue === "") return;
-    var pallet = 0;
-    var box = 0;
+    var pallet = 1;
+    var box = 1;
     const token = Cookies.get("erp_token");
     const inputValueNumber = Number(inputValue)
     let newReceivedAmount = 0;
@@ -112,12 +115,14 @@ const Increment: React.FC<IncrementProps> = ({
     }
     if (selectedPallet?.match("new")) {
       var size = pallets.length
-      pallet = size > 0 ? pallets[size - 1].number : 1
+      pallet = size > 0 ? pallets[size - 1].number + 1 : 1
       size = boxes.length
-      box = size > 0 ? boxes[size - 1].number : 1
+      box = size > 0 ? boxes[size - 1].number + 1 : 1
+    } else if (selectedPallet?.match("no_pallet")) {
+      pallet = NO_PALLET
     } else if (selectedBox?.match("new")) {
       var size = boxes.length
-      box = size > 0 ? boxes[size - 1].number : 1
+      box = size > 0 ? boxes[size - 1].number + 1 : 1
     } else {
       box = parseInt(selectedBox);
       pallet = parseInt(selectedPallet);
@@ -183,17 +188,20 @@ const Increment: React.FC<IncrementProps> = ({
           />
 
           <Select
-            placeholder="Selecciona pallet "
+            placeholder="Selecciona pallet"
+            value={selectedPallet}
             onChange={(e) => handleChange("pallets", e.target.value)}
           >
 
-            <option value="new">+</option> {/* Opción fija */}
+            <option value="new">Nuevo pallet</option> {/* Opción fija */}
+            <option value="no_pallet">Sin pallet</option> {/* Opción fija */}
             {pallets.length > 0 &&
-              pallets.map((pallet) => (
-                <option key={pallet.id} value={pallet.number}>
-                  {pallet.number}
-                </option>
-              ))}
+              pallets.filter((pallet) => pallet.Boxes.some((box) => box.IsClose !== CLOSE))
+                .map((pallet) => (
+                  <option key={pallet.id} value={pallet.number}>
+                    {pallet.number}
+                  </option>
+                ))}
 
 
           </Select>
@@ -204,7 +212,7 @@ const Increment: React.FC<IncrementProps> = ({
           >
             <option value="new">Nueva caja</option>
             {boxes.length > 0 &&
-              boxes.map((box) => (
+              boxes.filter((box) => box.IsClose !== CLOSE).map((box) => (
                 <option key={box.id} value={box.number}>
                   {box.number}
                 </option>
