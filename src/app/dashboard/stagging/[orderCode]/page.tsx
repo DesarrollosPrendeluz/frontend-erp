@@ -316,7 +316,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
                 <Tr key={line.id}>
                   <Td>{line.main_sku}</Td>
                   <Td>{line.ean}</Td>
-                  <Td>{line.name.substring(0, 25) + ' ...'}</Td>
+                  <Td>{line.name? line.name.substring(0, 25):""}...</Td>
                   <Td>{line.supplier}</Td>
                   <Td>{line.supplier_reference}</Td>
                   <Td><ProgressBar total={line.quantity} completed={line.recived_quantity} /></Td>

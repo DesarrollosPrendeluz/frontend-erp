@@ -6,6 +6,7 @@ import SearchBar from "@/components/searchbar/SearchBar";
 import StoreStockModal from "@/components/store/StoreStockModal";
 import FileUpload from "@/components/UploadExcel";
 import StoreItems from "@/types/stores/StoreItem";
+import GenerateLocation from "@/components/store/GenerateLocation";
 import Store from "@/types/stores/Stores";
 import {
   Box,
@@ -105,6 +106,7 @@ const Stock = () => {
         </select> 
         <Button backgroundColor={"#FACC15"} onClick={() => downloadFileFunc()}> Descargar Stock</Button>
         <FileUploadModel buttonName="Modificar Stock" endpoint="/store/excel" color="#FACC15" actionName={"Modificar orden stock ubicaciones : "} report={true} field={[]} />
+        <GenerateLocation/>
           </Flex>
           <SearchBar searchParams={["search"]} searchValue={query} setSearchValue={setQuery}/>
 
@@ -171,7 +173,7 @@ const Stock = () => {
             Artículo:
           </Text>
           <Text>
-            {item.Itemname.substring(0, 40)}...
+            {item.Itemname ? item.Itemname.substring(0, 40) : ""}...
           </Text>
 
           <Divider my={2} />

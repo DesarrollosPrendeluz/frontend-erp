@@ -35,6 +35,9 @@ const ExitOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders }) 
   const goToStaggingPage = (orderCode: string) => {
     router.push(`/dashboard/stagging/${orderCode}`)
   }
+  const goToStadisticsPage = (orderCode: string) => {
+    router.push(`/dashboard/stadistics/${orderCode}`)
+  }
   const mobileView = (
     <Stack spacing={4} mt={4} px={4}>
       {fatherOrders.map((fatherOrder) => (
@@ -90,7 +93,11 @@ const ExitOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders }) 
                   <Button  onClick={() => goToStaggingPage(fatherOrder.code)}>
                   Preparación
                   </Button>
+
                 <FileUploadModel report={false} buttonName="Modificar" endpoint="/order/editOrders" color="" actionName={"Modificar orden : "+fatherOrder.code} field={[{key: "father_order", value: fatherOrder.code}]} />
+                <Button  onClick={() => goToStadisticsPage(fatherOrder.code)}>
+                  Estadísticas
+                  </Button>
             
                 </Flex>
               </Td>
