@@ -1,11 +1,9 @@
-"use client";
-import  FileUploadModel  from '../../components/modals/file_upload_modal/file_upload_modal';
+"use client"
+import FileUploadModel from "@/components/modals/file_upload_modal/file_upload_modal";
+import FileUpload from "@/components/UploadExcel";
+import axios from "axios";
+import { headers } from "next/headers";
+
 export default function Page() {
-    let fun = ()=>{
-        console.log('Se ha subido un archivo');
-    }
-  return <>
-  <h1>Hello, Next.js!</h1>
-  <FileUploadModel actionName={"Menu entrada de material"} buttonName={"Entrada de manterial"} onFileUpload={fun} ></FileUploadModel>
-  </>
+  return (<FileUpload endpoint="/order/add" fields={[]} report={false} /> )
 }
