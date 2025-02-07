@@ -82,7 +82,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
 
   const [boxValues, setBoxValues] = useState<{ [key: number]: string }>({});
   const [palletValues, setPalletValues] = useState<{ [key: number]: string }>({});
-  const { isOpen: isPalletAndBoxesOpen, onOpen: onClosePalletOpen, onClose: onClosePalletAndBoxes } = useDisclosure();
+  const { isOpen: isPalletAndBoxOpen, onOpen: onClosePalletOpen, onClose: onClosePalletAndBox } = useDisclosure();
 
   const handlePalletBoxChange = (id: number, field: "pallet" | "box", value: string) => {
     // setPalletsAndBoxes((prev) => {
@@ -92,13 +92,13 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
     // });
     let modifyLines = order?.Lines || [];
 
-    
+
     let lines2 = modifyLines.map((line) =>
       line.id === id
         ? { ...line, [field]: value } // Cambiar la propiedad dinámica
         : line // Mantener los demás sin cambios
     );
-    
+
     // Actualizar el estado con el nuevo objeto
     if (order) {
 
@@ -106,18 +106,18 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
     }
     const token = Cookies.get("erp_token");
     let body = {}
-      body = {
-        data: [{
-          id: id,
-          [field]: value,
-        }],
-      }
+    body = {
+      data: [{
+        id: id,
+        [field]: value,
+      }],
+    }
 
 
     axios.patch(`${apiUrl}/order/orderLines`, body, {
       headers: { Authorization: `Bearer ${token}` },
-    }).then((response)=>{
-      if(response.status == 202){
+    }).then((response) => {
+      if (response.status == 202) {
 
       }
     });
@@ -126,16 +126,17 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
 
     const token = Cookies.get("erp_token");
     const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
-    axios.get(apiUrl + "/fatherOrder/amazonExcel?fatherOrderId="+order?.FatherOrder.id,{
+    axios.get(apiUrl + "/fatherOrder/amazonExcel?fatherOrderId=" + order?.FatherOrder.id, {
       headers: {
         Authorization: `Bearer ${token}`
-      }}).then((response2) => {
-       
-        downloadFile(response2.data.Results.file, response2.data.Results.filename)
-
-      
-        });
       }
+    }).then((response2) => {
+
+      downloadFile(response2.data.Results.file, response2.data.Results.filename)
+
+
+    });
+  }
 
 
 
@@ -289,14 +290,10 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
           textAlign="center"
         />
       </Stack>
-<<<<<<< HEAD
       <Button colorScheme="red" onClick={onClosePalletOpen}>
         Cerrar Pallets
       </Button>
-      <Button onClick={onExportCSV}>Generar CSV</Button>
-=======
       <Button onClick={onExportCSV}>Descargar Excel Amazon</Button>
->>>>>>> e8e93f0f085d83e7a6c99fba92e60740a792e9d4
       {/*Desktop view*/}
       <Box display={{ base: "none", md: "block" }} overflowX="auto">
         <Stack my={4} sx={{ position: 'sticky', top: '1px', zIndex: 1000, backgroundColor: 'white' }}>
@@ -324,7 +321,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
                 <Tr key={line.id}>
                   <Td>{line.main_sku}</Td>
                   <Td>{line.ean}</Td>
-                  <Td>{line.name? line.name.substring(0, 25):""}...</Td>
+                  <Td>{line.name ? line.name.substring(0, 25) : ""}...</Td>
                   <Td>{line.supplier}</Td>
                   <Td>{line.supplier_reference}</Td>
                   <Td><ProgressBar total={line.quantity} completed={line.recived_quantity} /></Td>
@@ -414,7 +411,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
         totalAmount={totalAmount}
         fetchOrder={fetchOrder}
       />
-      <PalletAndBoxes isOpen={isPalletAndBoxOpen} onClose={onClosePalletAndBox} orderId={order?.FatherOrder.id} />
+      <PalletAndBoxes isOpen={isPalletAndBoxOpen} onClose={onClosePalletAndBox} ordersId={order?.FatherOrder.Childs} />
 
       {labelData && <OrderLineLabel label={labelData.label} isOpen={isLabelOpen} onClose={onLabelClose} />}
     </Box>
