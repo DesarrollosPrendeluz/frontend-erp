@@ -4,6 +4,7 @@ import {
   Heading,
   Spinner,
   Tab,
+  Flex,
   TabList,
   TabPanel,
   TabPanels,
@@ -13,9 +14,13 @@ import Pagination from "@/components/Pagination";
 import useFetchData from "@/hooks/fetchData";
 import React from "react";
 import { useState } from "react";
-import EntryOrder from "@/components/orders/EntryOrder";
 import { useRouter } from "next/navigation";
+import EntryOrder from "@/components/orders/EntryOrder";
+import ExitOrder from "@/components/orders/ExitOrder";
 import {FatherOrder} from "@/types/fatherOrders/FatherOrders";
+import FileUploadModel from "@/components/modals/file_upload_modal/file_upload_modal";
+import  Field from "@/types/forms/fields";
+
 interface AssignedUser {
   assignation_id: number;
   user_id: number;
@@ -47,6 +52,7 @@ const Orders = () => {
   const router = useRouter();
   const [params, setParamsValue] = useState<Record<string, any>>({ "type_id": 1 });
   const [currentPage, setCurrentPage] = useState(1);
+  const [field, setfield] = useState<Field[]>([]);
   const {
     data: fatherOrders,
     totalPages,
@@ -71,8 +77,12 @@ const Orders = () => {
   }
 
   return (
-    <Box maxW="1200px" mx="auto" mt={8} p={4}>
+    <Box maxW="1500px" mx="auto" mt={8} p={4}>
+      <Flex justify="space-between">
       <Heading size={"lg"}>Pedidos</Heading>
+      
+      </Flex>
+      
       <Tabs variant={"soft-rounded"}>
         <TabList>
           <Tab onClick={() => changeType(0)}>Entrada</Tab>
@@ -86,7 +96,7 @@ const Orders = () => {
               <EntryOrder fatherOrders={fatherOrders} />
             </TabPanel>
             <TabPanel>
-              <EntryOrder fatherOrders={fatherOrders} />
+              <ExitOrder fatherOrders={fatherOrders} />
             </TabPanel>
           </TabPanels>
         )}

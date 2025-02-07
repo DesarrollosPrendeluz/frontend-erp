@@ -7,7 +7,6 @@ import axios from "axios";
 import Pagination from "@/components/Pagination";
 import downloadFile from "@/hooks/downloadFile";
 
-
 import { FatherOrder } from "@/types/fatherOrders/FatherOrders";
 import OrderLine from "@/types/orders/Lines";
 import OrderLineLabel, { OrderLineLabelProps } from "@/components/barcode/barcode";
@@ -29,45 +28,115 @@ import {
   Stack,
   VStack,
   useToast,
+  Select as ChakraSelect,
 } from "@chakra-ui/react";
 import OrderModal from "@/components/picking/OrderModal";
-import OrderModalStockMovement from "@/components/picking/OrderModalStockMovement";
-
+import Increment from "@/components/picking/increment";
 import Select from "@/components/select/select";
-import MultiSelect from "@/components/select/multiSelect";
 import Cookies from 'js-cookie'
+import ZebraPrinterManager, { ZebraPrinter } from '@/components/printer/ZebraPrinter';
 import SearchBar from "@/components/searchbar/SearchBar";
 
 import ProgressBar from "@/components/progressbar/ProgressBar";
+import PalletAndBoxes from "@/components/PalletsAndBoxes";
 
 interface response {
   FatherOrder: FatherOrder; // ID de asignación
   Lines: OrderLine[];
   recount: number;        // ID del usuario
 }
+interface CSVItem {
+  ASIN: string,
+  pallet: string,
+  box: string,
+  cantidad: number,
+}
+interface CSVExport {
+  ordenCompra: string;
+  items: CSVItem[]
+}
 
-const Picking = ({ params }: { params: { orderCode: string } }) => {
+const Stagging = ({ params }: { params: { orderCode: string } }) => {
   const [order, setOrder] = useState<response | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [selectedFathersku, setSelectedFathersku] = useState<string | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [receivedAmount, setReceivedAmount] = useState<number>(0);
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [labelData, setLabelData] = useState<OrderLineLabelProps | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [locations, setLocations] = useState<string>("");
-
+  const [numCopies, setNumCopies] = useState<string>("");
+  const [selectedPrinter, setSelectedPrinter] = useState<ZebraPrinter | null>(null);
+  const [isPrinting, setIsPrinting] = useState<boolean>(false);
   const [query, setQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  const [palletsAndBoxes, setPalletsAndBoxes] = useState<Record<number, { pallet: string; box: string }>>({});
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isLabelOpen, onOpen: onLabelOpen, onClose: onLabelClose } = useDisclosure();
   const { isOpen: isOrderOpne, onOpen: onOrderOpen, onClose: onOrderClose } = useDisclosure();
-  // const { isOpen2, onOpen2, onClose2 } = useDisclosure();
-  //const { isOpen: isLabelOpen2, onOpen: onLabelOpen2, onClose: onLabelClose2 } = useDisclosure();
 
 
   const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
+  const STORE_STAGGING = 2
+
+  const [boxValues, setBoxValues] = useState<{ [key: number]: string }>({});
+  const [palletValues, setPalletValues] = useState<{ [key: number]: string }>({});
+  const { isOpen: isPalletAndBoxOpen, onOpen: onClosePalletOpen, onClose: onClosePalletAndBox } = useDisclosure();
+
+  const handlePalletBoxChange = (id: number, field: "pallet" | "box", value: string) => {
+    // setPalletsAndBoxes((prev) => {
+    //   const updated = { ...prev, [id]: { ...prev[id], [field]: value } };
+    //   localStorage.setItem("palletsAndBoxes", JSON.stringify(updated));
+    //   return updated;
+    // });
+    let modifyLines = order?.Lines || [];
+
+
+    let lines2 = modifyLines.map((line) =>
+      line.id === id
+        ? { ...line, [field]: value } // Cambiar la propiedad dinámica
+        : line // Mantener los demás sin cambios
+    );
+
+    // Actualizar el estado con el nuevo objeto
+    if (order) {
+
+      setOrder({ ...order, Lines: lines2 });
+    }
+    const token = Cookies.get("erp_token");
+    let body = {}
+    body = {
+      data: [{
+        id: id,
+        [field]: value,
+      }],
+    }
+
+
+    axios.patch(`${apiUrl}/order/orderLines`, body, {
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((response) => {
+      if (response.status == 202) {
+
+      }
+    });
+  };
+  const onExportCSV = () => {
+
+    const token = Cookies.get("erp_token");
+    const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
+    axios.get(apiUrl + "/fatherOrder/amazonExcel?fatherOrderId=" + order?.FatherOrder.id, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }).then((response2) => {
+
+      downloadFile(response2.data.Results.file, response2.data.Results.filename)
+
+
+    });
+  }
 
 
 
@@ -76,6 +145,8 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
   const fetchOrder = async () => {
     const token = Cookies.get("erp_token");
 
+    const savedData = JSON.parse(localStorage.getItem("palletsAndBoxes") || "{}");
+    setPalletsAndBoxes(savedData);
 
     try {
 
@@ -85,14 +156,14 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
           recount: number;
           data: response
         }
-      }>(`${apiUrl}/fatherOrder/orderLines?page=${currentPage - 1}&page_size=10&store_id=1&ean_order=ASC&loc_order=ASC&father_order_code=${params.orderCode}${query}&location=${locations}`,
+      }>(`${apiUrl}/fatherOrder/orderLines?page=${currentPage - 1}&page_size=10&father_order_code=${params.orderCode}&store_id=${STORE_STAGGING}${query}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
       let fatherOrderWithLines = response.data.Results.data;
-
+      console.log(fatherOrderWithLines)
       if (fatherOrderWithLines) {
         setOrder(fatherOrderWithLines);
         let pages = response.data.Results.recount / 10
@@ -107,30 +178,15 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
 
   useEffect(() => {
     fetchOrder();
-  }, [params.orderCode, query, locations, currentPage]);
+  }, [params.orderCode, query, currentPage]);
 
-  const handleIncrementModal = (id: number, fatherSku: string,  total: number, received: number) => {
+  const handleIncrementModal = (id: number, total: number, received: number, orderId: number) => {
     setReceivedAmount(received);
-    setSelectedFathersku(fatherSku);
     setTotalAmount(total);
     setSelectedId(id);
+    setSelectedOrderId(orderId);
     onOpen();
   };
-
-  const downloadFileFunc =  () => {
-    const token = Cookies.get("erp_token");
-    const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
-    axios.get(apiUrl + `/fatherOrder/orderLines/downloadPicking?father_order_code=${params.orderCode}`,{
-      headers: {
-        Authorization: `Bearer ${token}`
-      }}).then((response2) => {
-       
-
-
-        downloadFile(response2.data.Results.file, response2.data.Results.filename)
-      
-        });
-      }
 
   const assignUser = async (id: number) => {
     try {
@@ -167,8 +223,9 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
       });
 
       if (response.status === 200) {
+        console.log(response.data.Results.data);
         const { brand, brand_address, brand_email, ean, asin, company } = response.data.Results.data;
-        setLabelData({ label: { brand, brandAddress: brand_address, brandEmail: brand_email, ean, asin, company }, isOpen: isLabelOpen, onClose: onLabelClose });
+        setLabelData({ label: { brand, brandAddress: brand_address, company: company, brandEmail: brand_email, ean, asin }, isOpen: isLabelOpen, onClose: onLabelClose });
       }
     } catch (error) {
       console.error("Error loading the label");
@@ -177,28 +234,66 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
     }
   };
 
-
-
-
+  const handleZebra = async (id: number) => {
+    const token = Cookies.get("erp_token");
+    const response = await axios.get(`${apiUrl}/order/orderLines/labels?line_id=${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (response.status === 200) {
+      console.log(response.data.Results.data);
+      const { brand, brand_address, brand_email, ean, asin } = response.data.Results.data;
+      let zpl = '';
+      const totalCopies = parseInt(numCopies);
+      for (let i = 0; i < totalCopies; i++) {
+        zpl += `
+           ^XA
+              ^CI28 
+              ^FO20,12^A0,20,20^FDPrendeluz S.L.^FS
+              ^FO200,12^A0,20,20^FD ${brand}^FS
+              ^FO20,42^A0,20,20^FB350,2,0,L,0^FD${brand_address}^FS  
+              ^FO20,85^A0,20,20^FD${brand_email}^FS  
+              ^FO20,110^BY2^BCN,60,Y,N,N^FD${ean}^FS
+              ^XZ
+      `;
+      }
+      if (selectedPrinter && typeof selectedPrinter.send === 'function') {
+        selectedPrinter.send(zpl,
+          () => {
+            setIsPrinting(false); // Desbloquea el botón al finalizar la impresión
+            toast({ title: "Impresión exitosa", status: "success", duration: 3000, isClosable: true });
+          },
+          (error: any) => console.error("Error de impresión", error));
+      }
+    }
+  };
   return (
     <Box maxW="1400px" mx="auto" p={4}>
-      <Heading size="lg" mb={4} textAlign="center">Detalles del pedido padre: {order?.FatherOrder.code}</Heading>
+      <Heading size="lg" mb={4} textAlign="center">[{order?.FatherOrder.type_id == 1 ? "Recepción de proveedor" : "Preparación de pedido"}]Detalles del pedido padre: {order?.FatherOrder.code}</Heading>
       <Stack spacing={4} mb={4} direction={{ base: "column", md: "row" }} align="center" justify="space-between">
         <Text fontSize={{ base: "sm", md: "md" }}>Tipo: {order?.FatherOrder.type}</Text>
-        
         <Flex flexDirection={"row"} >Status: <Select orderId={order?.FatherOrder.id} status={order?.FatherOrder.status} statusId={order?.FatherOrder.status_id} father={true} /> </Flex>
         <Button backgroundColor={"#FACC15"} onClick={onOrderOpen}>Órdenes de compra</Button>
-        <Button backgroundColor={"#FACC15"} onClick={downloadFileFunc}>Descargar excel picking</Button>
 
       </Stack>
+
+
       <Stack spacing={4} mb={4} direction={{ base: "column", md: "row" }} align="center" justify="space-between">
-      <MultiSelect setSelected={setLocations}/>
-
+        <ZebraPrinterManager onPrinterReady={(printer: ZebraPrinter) => setSelectedPrinter(printer)} />
+        <Input
+          type="number"
+          value={numCopies}
+          onChange={(e) => setNumCopies(e.target.value === "" ? "" : Math.max(1, parseInt(e.target.value, 10)).toString())}
+          onBlur={() => { if (numCopies === "") setNumCopies("1"); }}
+          min={1}
+          width={{ base: "70px", md: "100px" }}
+          placeholder="Copias"
+          textAlign="center"
+        />
       </Stack>
-
-
-
-
+      <Button colorScheme="red" onClick={onClosePalletOpen}>
+        Cerrar Pallets
+      </Button>
+      <Button onClick={onExportCSV}>Descargar Excel Amazon</Button>
       {/*Desktop view*/}
       <Box display={{ base: "none", md: "block" }} overflowX="auto">
         <Stack my={4} sx={{ position: 'sticky', top: '1px', zIndex: 1000, backgroundColor: 'white' }}>
@@ -214,30 +309,36 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
               <Th>Ref Prov</Th>
               <Th>Cantidad</Th>
               <Th>Responsable</Th>
-              <Th>Ubicaciones</Th>
+              <Th>COD. Pedido</Th>
               <Th>Acciones</Th>
-              
+              <Th>Etiqueta</Th>
             </Tr>
           </Thead>
           <Tbody>
             {order?.Lines && order.Lines.length > 0 ?
               (order?.Lines.map((line: OrderLine) => (
+                //{console.log(line)}
                 <Tr key={line.id}>
                   <Td>{line.main_sku}</Td>
                   <Td>{line.ean}</Td>
-                  <Td>{line.name.substring(0, 25) + ' ...'}</Td>
+                  <Td>{line.name ? line.name.substring(0, 25) : ""}...</Td>
                   <Td>{line.supplier}</Td>
                   <Td>{line.supplier_reference}</Td>
                   <Td><ProgressBar total={line.quantity} completed={line.recived_quantity} /></Td>
                   <Td>{line.AssignedUser.user_name}</Td>
-                  <Td>{line.locations}</Td>
+                  <Td>{order.FatherOrder.Childs.find((child) => child.id === line.order_id)?.code}</Td>
                   <Td>
                     <Flex gap={2}>
-                      <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.father_main_sku, line.quantity, line.recived_quantity)} size="sm" />
+                      <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.quantity, line.recived_quantity, line.order_id)} size="sm" />
                       <IconButton aria-label="Asignar" icon={<LockIcon />} onClick={() => assignUser(line.id)} size="sm" />
                     </Flex>
                   </Td>
-                 
+                  <Td>
+                    <Flex gap={2}>
+                      <IconButton aria-label="Imprimir" icon={<SlPrinter />} onClick={() => handleZebra(line.id)} size="sm" />
+                      <IconButton aria-label="Información" icon={<InfoIcon />} onClick={() => handleLabelModal(line.id)} size="sm" />
+                    </Flex>
+                  </Td>
                 </Tr>
               ))) : (<Tr>
                 <Td colSpan={10} textAlign="center">
@@ -259,7 +360,7 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
           (order?.Lines.map((line) => (
             <VStack key={line.id + "-" + line.ean} borderWidth="1px" borderRadius="lg" p={4} mb={2}>
               <Flex width={"100%"} justify="space-between" align="center">
-                <Text width={"40%"} align="left" fontSize="sm"><b>Nombre</b><br /> {line.name?line.name.substring(0, 25):''} ...</Text>
+                <Text width={"40%"} align="left" fontSize="sm"><b>SKU</b><br /> {line.main_sku}</Text>
                 <Text width={"55%"} align="left" fontSize="sm"><b>EAN</b><br /> {line.ean}</Text>
               </Flex>
               <Flex width={"100%"} justify="space-between">
@@ -275,10 +376,14 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
 
               <Flex width={"100%"} fontSize="sm"> <ProgressBar total={line.quantity} completed={line.recived_quantity} /></Flex>
               <Flex gap={2} justify="center">
-                <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.father_main_sku, line.quantity, line.recived_quantity)} size="lg" />
+                <IconButton aria-label="Incrementar" icon={<AddIcon />} onClick={() => handleIncrementModal(line.id, line.quantity, line.recived_quantity, line.order_id)} size="lg" />
                 <IconButton aria-label="Asignar" icon={<LockIcon />} onClick={() => assignUser(line.id)} size="lg" />
               </Flex>
+              <Flex gap={2} >
+                <IconButton aria-label="Imprimir" icon={<SlPrinter />} onClick={() => handleZebra(line.id)} size="lg" />
+                <IconButton aria-label="Información" icon={<InfoIcon />} onClick={() => handleLabelModal(line.id)} size="lg" />
 
+              </Flex>
             </VStack>
           ))) : (
             <Text textAlign="center" fontSize="lg" mt={4}>
@@ -297,22 +402,21 @@ const Picking = ({ params }: { params: { orderCode: string } }) => {
         orders={order?.FatherOrder.Childs ?? []}
       />
 
-
-
-      < OrderModalStockMovement
-
+      <Increment
         isOpen={isOpen}
         onClose={onClose}
         selectedId={selectedId}
-        fatherSku={selectedFathersku}
+        orderId={selectedOrderId}
         receivedAmount={receivedAmount}
         totalAmount={totalAmount}
         fetchOrder={fetchOrder}
       />
+      <PalletAndBoxes isOpen={isPalletAndBoxOpen} onClose={onClosePalletAndBox} ordersId={order?.FatherOrder.Childs} />
+
       {labelData && <OrderLineLabel label={labelData.label} isOpen={isLabelOpen} onClose={onLabelClose} />}
     </Box>
   );
 };
 
-export default Picking;
+export default Stagging;
 

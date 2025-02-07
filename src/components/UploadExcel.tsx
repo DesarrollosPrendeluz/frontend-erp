@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Button, Input, Box, Spinner } from '@chakra-ui/react';
+import { Button, Input, Box, Spinner, Flex } from '@chakra-ui/react';
 import { request } from 'http';
 import Cookies from 'js-cookie'
+import downloadFile from "@/hooks/downloadFile";
+import genericGet from "@/hooks/genericGet";
 
-const FileUpload: React.FC = () => {
+import  Field from "@/types/forms/fields";
+
+const FileUpload: React.FC <{ endpoint: string, fields : Field[], report: boolean }> = ({ endpoint, fields }) =>{
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -19,7 +23,15 @@ const FileUpload: React.FC = () => {
       setUploadError(null);    // Resetea el estado de error
     }
   };
+  const handleDownload = async () => {
+    let result = await genericGet(endpoint+"/frame")
+    if(result.status == 202 || result.status == 201 || result.status == 200){
+      downloadFile(result.body.Results.file, result.body.Results.fileName)
 
+    }
+
+    
+  }
   // Manejador de la subida del archivo
   const handleUpload = async () => {
     if (!file) {
@@ -29,23 +41,28 @@ const FileUpload: React.FC = () => {
 
     const formData = new FormData();
     formData.append('file', file); // Añade el archivo a los datos del formulario
+    fields.map((field) => {
+      formData.append(field.key, field.value);
+    });
 
     try {
       setIsUploading(true);
       setUploadError(null); // Resetea el error antes de la subida
-
       // Realiza la solicitud POST a la API
       const token =     Cookies.get("erp_token");
-      const response = await axios.post(`${apiUrl}/order/add`, formData, {
+      const response = await axios.post(`${apiUrl}${endpoint}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`
         },
       });
+      if(response.status == 202 || response.status == 201 || response.status == 200){
+        downloadFile(response.data.Results.File, response.data.Results.FileName)
+
+      }
 
       setIsUploading(false);
       setUploadSuccess(true);
-      console.log('Respuesta de la API:', response.data);
     } catch (error) {
       setIsUploading(false);
       
@@ -63,12 +80,12 @@ const FileUpload: React.FC = () => {
   };
 
   return (
-    <Box maxW="500px" mx="auto" mt={8}>
+    <Flex direction="column" maxW="500px" mx="auto" mt={8} marginBottom={"10px"}>
       <Input
         type="file"
         accept=".xlsx, .xls"
         onChange={handleFileChange}
-        mb={4}
+        mb={6}
       />
 
       <Button onClick={handleUpload} isDisabled={!file} colorScheme="blue">
@@ -77,7 +94,11 @@ const FileUpload: React.FC = () => {
 
       {uploadError && <p style={{ color: 'red', marginTop: '10px' }}>{uploadError}</p>}
       {uploadSuccess && <p style={{ color: 'green', marginTop: '10px' }}>Archivo subido con éxito.</p>}
-    </Box>
+
+      <Button marginTop={"5px"} backgroundColor={"#FACC15"} onClick={handleDownload}>
+        {isUploading ? <Spinner size="sm" /> : 'Descargar Formato'}
+      </Button>
+    </Flex >
   );
 };
 

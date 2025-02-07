@@ -21,8 +21,7 @@ const Pagination: React.FC<PaginationProps> = ({
       onPageChange(page);
     }
   };
-  // console.log("Nº de paginas "+totalPages);
-  // console.log("Nº de paginas procesado "+totalPagesByCurrent);
+
   useEffect(() => {
     // Ejecuta la función cuando el componente se monte
     const initializeComponent = () => {
