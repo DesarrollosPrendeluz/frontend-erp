@@ -19,9 +19,11 @@ jobs:
           if [ "${{ github.ref }}" == "refs/heads/main" ]; then
             echo "IMAGE_NAME=frontend_erp" >> $GITHUB_ENV
             echo "HOST=https://erp-back.zarivy.com/" >> $GITHUB_ENV
+            echo "CONTAINER_NAME=test_forntend_erp" >> $GITHUB_ENV
           else
             echo "IMAGE_NAME=test_frontend_erp" >> $GITHUB_ENV
             echo "HOST=https://testbackerp.zarivy.com" >> $GITHUB_ENV
+            echo "CONTAINER_NAME=test_forntend_erp" >> $GITHUB_ENV
           fi
       # 2. Log in to DockerHub
       - name: Log in to DockerHub
