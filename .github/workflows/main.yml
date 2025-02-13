@@ -23,7 +23,7 @@ jobs:
           else
             echo "IMAGE_NAME=test_frontend_erp" >> $GITHUB_ENV
             echo "HOST=https://testbackerp.zarivy.com" >> $GITHUB_ENV
-            echo "CONTAINER_NAME=test_forntend_erp" >> $GITHUB_ENV
+            echo "CONTAINER_NAME=test_frontend_erp_deploy" >> $GITHUB_ENV
           fi
       # 2. Log in to DockerHub
       - name: Log in to DockerHub
@@ -57,7 +57,7 @@ jobs:
             if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
               echo "Deteniendo y reiniciando contenedor en ambiente de desarrollo..."
 
-              docker run -d --name ${{ env.CONTAINER_NAME }} \
+              docker run -d --name ${{ env.CONTAINER_NAME }} \ 
                 ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
 
             else
