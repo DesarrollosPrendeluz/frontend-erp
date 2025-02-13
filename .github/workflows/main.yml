@@ -57,7 +57,7 @@ jobs:
             if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
               echo "Deteniendo y reiniciando contenedor en ambiente de desarrollo..."
 
-              docker run -d --name ${{ env.CONTAINER_NAME }} \ 
+              docker run -d --name ${{ env.CONTAINER_NAME }} \
                 ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
 
             else
