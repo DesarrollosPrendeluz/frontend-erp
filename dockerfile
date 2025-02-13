@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 # Copia el package.json y package-lock.json para instalar dependencias
 COPY . .
 
+ARG BACK_HOST_NAME
 
 # Instala las dependencias
 RUN npm cache clean --force
@@ -19,7 +20,7 @@ RUN npm audit fix --force
 
 
 # Copia el resto de la aplicación
-ENV NEXT_PUBLIC_BACKEND_API_URL="https://erp-back.zarivy.com"
+ENV NEXT_PUBLIC_BACKEND_API_URL=${BACK_HOST_NAME}
 
 
 # Construye la aplicación Next.js
