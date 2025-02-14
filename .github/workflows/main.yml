@@ -56,11 +56,12 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
             if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
               echo "Deteniendo y reiniciando contenedor en ambiente de desarrollo..."
-
-              docker run -d --name ${{ env.CONTAINER_NAME }} \
-                ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
                 docker stop my-container || true
                 docker rm my-container || true
+              docker run -d --name ${{ env.CONTAINER_NAME }} \
+              -p 3335:3000 \
+                ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+
             else
               echo "No se ejecuta el reinicio del contenedor en main."
             fi  
