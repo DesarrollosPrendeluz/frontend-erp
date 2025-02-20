@@ -21,12 +21,28 @@ import ProgressBar from "@/components/progressbar/ProgressBar";
 import ResponsiveView from "../ResponsiveLayout";
 import { FatherOrder } from "@/types/fatherOrders/FatherOrders";
 import FileUploadModel from "@/components/modals/file_upload_modal/file_upload_modal";
+import axios from "axios";
+import Cookies from 'js-cookie'
+import downloadFile from "@/hooks/downloadFile";
 
 
 
 
 const ExitOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders }) => {
   const router = useRouter();
+  const downloadFileFunc =  (fatherOrderId: number) => {
+    const token = Cookies.get("erp_token");
+    const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
+    axios.get(apiUrl + "/order/supplierOrders/download?father_order_id="+fatherOrderId,{
+      headers: {
+        Authorization: `Bearer ${token}`
+      }}).then((response2) => {
+       
+        downloadFile(response2.data.Results.file, response2.data.Results.filename)
+      
+        });
+      }
+
 
   const goToPickingPage = (orderCode: string) => {
     router.push(`/dashboard/picking/${orderCode}`)
@@ -92,6 +108,10 @@ const ExitOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders }) 
                   </Button>
                   <Button  onClick={() => goToStaggingPage(fatherOrder.code)}>
                   Preparación
+                  </Button>
+
+                <Button size="sm" onClick={() => downloadFileFunc(fatherOrder.id)} marginY={"5px"}>
+                  Descargar orden
                   </Button>
 
                 <FileUploadModel report={false} buttonName="Modificar" endpoint="/order/editOrders" color="" actionName={"Modificar orden : "+fatherOrder.code} field={[{key: "father_order", value: fatherOrder.code}]} />
