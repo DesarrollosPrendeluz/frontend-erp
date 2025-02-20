@@ -54,9 +54,7 @@ const Increment: React.FC<IncrementProps> = ({
   const [selectedBox, setSelectedBox] = useState<string>("");
 
   const filterBoxes = (palletId: number) => {
-    const results = pallets.find((pallet) => pallet.number == palletId)
-    const boxList = results?.Boxes ?? []
-    console.log("Lista", boxList)
+    const boxList = pallets.flatMap(pallet => pallet.Boxes)
     setBoxes(boxList)
   }
   useEffect(() => { if (selectedPallet) { filterBoxes(Number(selectedPallet)) } }, [selectedPallet])
@@ -120,7 +118,7 @@ const Increment: React.FC<IncrementProps> = ({
       box = size > 0 ? boxes[size - 1].number + 1 : 1
     } else if (selectedPallet?.match("no_pallet")) {
       pallet = NO_PALLET
-    } else if (selectedBox?.match("new")) {
+    } if (selectedBox?.match("new")) {
       var size = boxes.length
       box = size > 0 ? boxes[size - 1].number + 1 : 1
     } else {
