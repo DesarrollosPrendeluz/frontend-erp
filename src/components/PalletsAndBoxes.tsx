@@ -1,6 +1,6 @@
 "use client";
 import Cookies from 'js-cookie';
-import { Button, Text, Box, Stack, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalOverlay, Spinner, Table, Thead, Tbody, Tr, Th, Td, Badge } from "@chakra-ui/react";
+import { Button, Text, Box, Stack, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalOverlay, Spinner, Table, Thead, Tbody, Tr, Th, Td, Badge, Select } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { ChildOrder } from '@/types/fatherOrders/FatherOrders';
@@ -88,6 +88,25 @@ const PalletAndBoxes: React.FC<ClosePalletModalProps> = ({ isOpen, onClose, orde
     }
   };
 
+  const moveBox = async (boxId: number, palletId: number) => {
+    const confirmMove = window.confirm("¿Estás seguro de que quieres mover esta caja?");
+    if (!confirmMove) return;
+    try {
+      const token = Cookies.get("erp_token");
+      const response = await axios.patch(`${apiUrl}/box`, {
+        data: [{
+          id: boxId,
+          palletId: palletId,
+        }]
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      fetchPallets();
+    } catch (err) {
+      console.log(err)
+    }
+  };
+
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered size="lg">
@@ -141,6 +160,21 @@ const PalletAndBoxes: React.FC<ClosePalletModalProps> = ({ isOpen, onClose, orde
                                   >
                                     {box.IsClose == 1 ? "Abrir" : "Cerrar"}
                                   </Button>
+                                </Td>
+                                <Td>
+                                  <Select
+                                    size={"sm"}
+                                    placeholder='Mover caja'
+                                    onChange={(e) => moveBox(box.id, Number(e.target.value))}
+                                  >
+                                    {palletsByOrder[orderId]
+                                      .filter(p => p.id != pallet.id)
+                                      .map(p => (<option key={p.id} value={p.id}>
+                                        Pallet: {p.number}
+                                      </option>
+                                      ))}
+
+                                  </Select>
                                 </Td>
                               </Tr>
                             ))}
