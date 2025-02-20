@@ -53,11 +53,12 @@ const Increment: React.FC<IncrementProps> = ({
   const [selectedPallet, setSelectedPallet] = useState<string>("");
   const [selectedBox, setSelectedBox] = useState<string>("");
 
-  const filterBoxes = (palletId: number) => {
+  const filterBoxes = () => {
     const boxList = pallets.flatMap(pallet => pallet.Boxes)
+    console.log("LISTA DE CAJAS: ", boxList)
     setBoxes(boxList)
   }
-  useEffect(() => { if (selectedPallet) { filterBoxes(Number(selectedPallet)) } }, [selectedPallet])
+  useEffect(() => { if (selectedPallet) { filterBoxes() } }, [selectedPallet])
   const fetchPallets = async () => {
     setLoading(true);
     try {
@@ -72,8 +73,7 @@ const Increment: React.FC<IncrementProps> = ({
         }
       );
       const data: Pallet[] = response.data.Results.data;
-      console.log("por aqui -> ", data)
-      const parsedPallets = data.map((pallet) => ({
+      const parsedPallets = data.filter(pallet => pallet.number == NO_PALLET).map((pallet) => ({
         ...pallet,
         Boxes: pallet.Boxes.map((box) => ({
           ...box,
@@ -93,6 +93,8 @@ const Increment: React.FC<IncrementProps> = ({
     if (isOpen) {
       fetchPallets()
       setInputValue("")
+      setSelectedPallet("")
+      setSelectedBox("")
     }
   }, [isOpen])
 
@@ -104,6 +106,7 @@ const Increment: React.FC<IncrementProps> = ({
     const inputValueNumber = Number(inputValue)
     let newReceivedAmount = 0;
     let endpoint = ""
+
     if (inputValueNumber > 0) {
       newReceivedAmount = inputValueNumber
       endpoint = "/add"
@@ -111,25 +114,18 @@ const Increment: React.FC<IncrementProps> = ({
       newReceivedAmount = inputValueNumber * -1
       endpoint = "/remove"
     }
-    if (selectedPallet?.match("new")) {
-      var size = pallets.length
-      pallet = size > 0 ? pallets[size - 1].number + 1 : 1
-      size = boxes.length
-      box = size > 0 ? boxes[size - 1].number + 1 : 1
-    } else if (selectedPallet?.match("no_pallet")) {
-      pallet = NO_PALLET
-    } if (selectedBox?.match("new")) {
+    if (selectedBox?.match("new")) {
       var size = boxes.length
       box = size > 0 ? boxes[size - 1].number + 1 : 1
     } else {
       box = parseInt(selectedBox);
-      pallet = parseInt(selectedPallet);
     }
+
     try {
       const response = await axios.post(`${apiUrl}/order_line_boxes/withProcess`, {
         data: [{
           boxNumber: box,
-          palletNumber: pallet,
+          palletNumber: NO_PALLET,
           orderLineId: selectedId,
           quantity: newReceivedAmount,
           isClose: OPEN
@@ -186,33 +182,15 @@ const Increment: React.FC<IncrementProps> = ({
           />
 
           <Select
-            placeholder="Selecciona pallet"
-            value={selectedPallet}
-            onChange={(e) => handleChange("pallets", e.target.value)}
-          >
-
-            <option value="new">Nuevo pallet</option> {/* Opción fija */}
-            <option value="no_pallet">Sin pallet</option> {/* Opción fija */}
-            {pallets.length > 0 &&
-              pallets.filter((pallet) => pallet.Boxes.some((box) => box.IsClose !== CLOSE))
-                .map((pallet) => (
-                  <option key={pallet.id} value={pallet.number}>
-                    {pallet.number}
-                  </option>
-                ))}
-
-
-          </Select>
-          <Select
             placeholder="Selecciona caja"
-            isDisabled={!selectedPallet}
             onChange={(e) => handleChange("boxes", e.target.value)}
+            onClick={filterBoxes}
           >
             <option value="new">Nueva caja</option>
             {boxes.length > 0 &&
-              boxes.filter((box) => box.IsClose !== CLOSE).map((box) => (
+              boxes.sort().filter((box) => box.IsClose !== CLOSE).map((box) => (
                 <option key={box.id} value={box.number}>
-                  {box.number}
+                  Caja # {box.number}
                 </option>
               ))}
           </Select>
