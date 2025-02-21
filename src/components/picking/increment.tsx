@@ -80,7 +80,7 @@ const Increment: React.FC<IncrementProps> = ({
         })),
       }));
 
-      setPallets(parsedPallets);
+      setPallets(data);
     } catch (error) {
       console.error(error);
     } finally {
@@ -196,7 +196,7 @@ const Increment: React.FC<IncrementProps> = ({
           </Select>
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={incrementReceived}>
+          <Button colorScheme="blue" mr={3} onClick={incrementReceived} isDisabled={!selectedBox}>
             Confirmar
           </Button>
           <Button variant="ghost" onClick={onClose}>
