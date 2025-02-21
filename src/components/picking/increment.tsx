@@ -116,7 +116,7 @@ const Increment: React.FC<IncrementProps> = ({
     }
     if (selectedBox?.match("new")) {
       var size = boxes.length
-      box = size > 0 ? boxes[size - 1].number + 1 : 1
+      box = size > 0 ? boxes.length + 1 : 1
     } else {
       box = parseInt(selectedBox);
     }
