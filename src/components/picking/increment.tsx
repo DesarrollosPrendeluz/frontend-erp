@@ -55,12 +55,15 @@ const Increment: React.FC<IncrementProps> = ({
 
   const filterBoxes = () => {
     const boxList = pallets.flatMap(pallet => pallet.Boxes)
-    console.log("LISTA DE CAJAS: ", boxList)
     setBoxes(boxList)
   }
   useEffect(() => { if (selectedPallet) { filterBoxes() } }, [selectedPallet])
   const fetchPallets = async () => {
+    if (!orderId) return;
+
     setLoading(true);
+    setPallets([]);
+    setBoxes([]);
     try {
       const token = Cookies.get("erp_token");
       const response = await axios.get(
