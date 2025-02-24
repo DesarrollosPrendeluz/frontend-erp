@@ -70,6 +70,7 @@ const [data, setData] = useState<ItemLocationStockStoreItem[]>([]);
 
   useEffect( () => {
     //Actualiza el endpoint cuando cambian los parámetros dinámicos
+    setData([]);
     axios.get(`${endpoint}${query}`, {
         headers: { Authorization: `Bearer ${token}` }
     }).then((response)=>{
