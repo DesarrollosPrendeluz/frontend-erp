@@ -33,7 +33,7 @@ const PalletAndBoxes: React.FC<ClosePalletModalProps> = ({ isOpen, onClose, orde
   const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
   const createPallet = async (orderCode: string) => {
     try {
-      const newPallet = palletsByOrder[orderCode].length === 1 ? 1 : palletsByOrder[orderCode].length + 1;
+      const newPallet = palletsByOrder[orderCode].length === 1 ? 1 : palletsByOrder[orderCode].length;
       const orderId = ordersId?.filter(order => order.code === orderCode)[0].id
       const token = Cookies.get("erp_token");
       const response = await axios.post(`${apiUrl}/pallet`, {
