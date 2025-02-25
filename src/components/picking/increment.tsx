@@ -127,7 +127,7 @@ const Increment: React.FC<IncrementProps> = ({
           boxNumber: box,
           palletNumber: NO_PALLET,
           orderLineId: selectedId,
-          quantity: newReceivedAmount,
+          quantity: inputValueNumber,
           isClose: OPEN
         }]
       }, {
