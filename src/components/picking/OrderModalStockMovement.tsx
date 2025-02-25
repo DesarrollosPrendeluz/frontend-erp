@@ -43,11 +43,13 @@ const OrderModalStockMovement: React.FC<IncrementProps> = ({
 
     useEffect(() => {
         setSelect(stockLocations);
+        setStock(stockLocations[0]?.Stock ?? 0)
     }, [stockLocations]);
 
     useEffect(() => {
         if (isOpen) {
             setInputValue("")
+            setStock(0)
         }
     }, [isOpen]);
 
