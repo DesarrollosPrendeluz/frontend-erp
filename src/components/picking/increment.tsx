@@ -119,7 +119,13 @@ const Increment: React.FC<IncrementProps> = ({
     }
     if (selectedBox?.match("new")) {
       var size = boxes.length
-      box = size > 0 ? boxes.length + 1 : 1
+      var lastNumber = Math.max(...boxes.flatMap(box => box.number));
+      box = size > 0 ? lastNumber + 1 : 1
+      if (inputValueNumber <= 0) {
+        alert("Estas introduciendo un numero negativo en una caja nueva")
+        return;
+
+      }
     } else {
       box = parseInt(selectedBox);
     }
@@ -130,7 +136,7 @@ const Increment: React.FC<IncrementProps> = ({
           boxNumber: box,
           palletNumber: NO_PALLET,
           orderLineId: selectedId,
-          quantity: newReceivedAmount,
+          quantity: inputValueNumber,
           isClose: OPEN
         }]
       }, {

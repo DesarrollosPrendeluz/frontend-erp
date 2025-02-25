@@ -1,9 +1,11 @@
+
 "use client";
 import Cookies from 'js-cookie';
-import { Button, Text, Box, Stack, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalOverlay, Spinner, Table, Thead, Tbody, Tr, Th, Td, Badge, Select, AccordionPanel, AccordionItem, Accordion, AccordionButton, AccordionIcon } from "@chakra-ui/react";
+import { Button, Text, Box, Stack, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalOverlay, Spinner, Table, Thead, Tbody, Tr, Th, Td, Badge, Select, AccordionPanel, AccordionItem, Accordion, AccordionButton, AccordionIcon, IconButton } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { ChildOrder } from '@/types/fatherOrders/FatherOrders';
+import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 
 interface ClosePalletModalProps {
   isOpen: boolean;
@@ -31,6 +33,14 @@ const PalletAndBoxes: React.FC<ClosePalletModalProps> = ({ isOpen, onClose, orde
   const [loading, setLoading] = useState<boolean>(false);
   const [palletsByOrder, setPalletsByOrder] = useState<{ [key: string]: Pallet[] }>({});
   const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
+  const [isAllowed, setIsAllowed] = useState<boolean>(false);
+
+  useEffect(() => {
+    const ROLE = Cookies.get("role")
+    if (Number(ROLE) === 4 || Number(ROLE) === 5) {
+      setIsAllowed(true)
+    }
+  })
   const createPallet = async (orderCode: string) => {
     try {
       const newPallet = palletsByOrder[orderCode].length === 1 ? 1 : palletsByOrder[orderCode].length;
@@ -106,6 +116,43 @@ const PalletAndBoxes: React.FC<ClosePalletModalProps> = ({ isOpen, onClose, orde
     }
   };
 
+  const renumberBox = async (boxId: number) => {
+    const newNumber = window.prompt("Ingresa el nuevo número de caja: ");
+    if (!newNumber) return;
+    try {
+      const token = Cookies.get("erp_token");
+      const response = await axios.patch(`${apiUrl}/box`, {
+        data: [{
+          id: boxId,
+          number: parseInt(newNumber, 10)
+        }]
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      fetchPallets();
+    } catch (err) {
+      console.log(err)
+    }
+  }
+  const deleteBox = async (box: Box, orderCode: string) => {
+
+    try {
+      const token = Cookies.get("erp_token");
+      if (box.quantity != 0) {
+        alert("No puedes eliminar una caja que no este vacía");
+        return;
+
+      }
+      const confirm = window.confirm(`Estas seguro de que deseas eliminar la caja ${box.number} del pedido ${orderCode}`)
+      if (confirm) {
+        const response = axios.delete(`${apiUrl}/box`, { headers: { Authorization: `Bearer ${token}` }, data: { data: [{ id: box.id }] } })
+        fetchPallets();
+      }
+    } catch (error) {
+      console.error("Error cerrando la caja:", error);
+    }
+  };
+
   const moveBox = async (boxId: number, palletId: number) => {
     const confirmMove = window.confirm("¿Estás seguro de que quieres mover esta caja?");
     if (!confirmMove) return;
@@ -127,7 +174,7 @@ const PalletAndBoxes: React.FC<ClosePalletModalProps> = ({ isOpen, onClose, orde
 
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} isCentered size="2xl">
       <ModalOverlay />
       <ModalContent p={4} mt={6}>
         <ModalCloseButton />
@@ -146,6 +193,7 @@ const PalletAndBoxes: React.FC<ClosePalletModalProps> = ({ isOpen, onClose, orde
                 <AccordionItem key={orderId}>
                   <h2>
                     <AccordionButton>
+                      <AccordionIcon />
                       <Box flex="1" textAlign="left">
                         <Text fontSize="xl" fontWeight="bold">Pedido {orderId}</Text>
                       </Box>
@@ -159,11 +207,10 @@ const PalletAndBoxes: React.FC<ClosePalletModalProps> = ({ isOpen, onClose, orde
                       >
                         Crear Nuevo Pallet
                       </Button>
-                      <AccordionIcon />
                     </AccordionButton>
                   </h2>
 
-                  <AccordionPanel pb={4}>
+                  <AccordionPanel pb={5}>
                     {palletsByOrder[orderId].map((pallet) => (
                       <Box key={pallet.id} mb={4} border="1px" borderColor="gray.200" p={4} borderRadius="md">
                         <Stack spacing={4}>
@@ -176,47 +223,71 @@ const PalletAndBoxes: React.FC<ClosePalletModalProps> = ({ isOpen, onClose, orde
 
                           {/* Tabla de Cajas */}
                           {pallet.Boxes.length > 0 && (
-                            <Table variant="striped" colorScheme="gray" size="sm">
+                            <Table variant="striped" colorScheme="gray" size="sm" >
                               <Thead>
                                 <Tr>
+                                  {isAllowed && (
+                                    <Th>Eliminar/Modificar</Th>)}
                                   <Th>Caja</Th>
                                   <Th>Cantidad</Th>
                                   <Th>Acciones</Th>
-                                  <Th>Mover</Th>
                                 </Tr>
                               </Thead>
                               <Tbody>
                                 {pallet.Boxes.map((box) => (
                                   <Tr key={box.id} opacity={box.IsClose == 1 ? 0.5 : 1}>
-                                    <Td>Caja {box.number}</Td>
-                                    <Td>{box.quantity}</Td>
+                                    {isAllowed && (
+                                      <Td textAlign={"center"}>
+                                        <Stack direction={"row"}>
+                                          <Button
+                                            size="s"
+                                            onClick={() => deleteBox(box, orderId)}>
+                                            <IconButton
+                                              aria-label='Borrar'
+                                              icon={<DeleteIcon />}
+                                              _hover={{ color: "red.500" }}
+                                            />
+                                          </Button>
+                                          <Button
+                                            size="s"
+                                            onClick={() => renumberBox(box.id)}>
+                                            <IconButton
+                                              aria-label='Editar'
+                                              icon={<EditIcon />}
+                                              _hover={{ color: "yellow.500" }}
+                                            />
+                                          </Button>
+                                        </Stack>
+                                      </Td>)}
+                                    <Td textAlign={"center"}>Caja {box.number}</Td>
+                                    <Td textAlign={"center"} textShadow={"lg"}>{box.quantity}</Td>
                                     <Td>
-                                      <Button
-                                        colorScheme={!!box.IsClose ? "green" : "red"}
-                                        size="sm"
-                                        onClick={() => closeBox(box.id, pallet.id, !!box.IsClose)}
-                                      >
-                                        {box.IsClose == 1 ? "Abrir" : "Cerrar"}
-                                      </Button>
-                                    </Td>
-                                    <Td>
-                                      <Select
-                                        size="sm"
-                                        placeholder="Mover caja"
-                                        onChange={(e) => moveBox(box.id, Number(e.target.value))}
-                                      >
-                                        {palletsByOrder[orderId]
-                                          .filter(p => p.id !== pallet.id)
-                                          .map(p => (
-                                            p.number != 0 ?
-                                              <option key={p.id} value={p.id}>
-                                                Pallet: {p.number}
-                                              </option> :
-                                              <option key={p.id} value={p.id}>
-                                                SIN PALLET ASIGNADO
-                                              </option>
-                                          ))}
-                                      </Select>
+                                      <Stack>
+                                        <Button
+                                          colorScheme={!!box.IsClose ? "green" : "red"}
+                                          size="sm"
+                                          onClick={() => closeBox(box.id, pallet.id, !!box.IsClose)}
+                                        >
+                                          {box.IsClose == 1 ? "Abrir" : "Cerrar"}
+                                        </Button>
+                                        <Select
+                                          size="sm"
+                                          placeholder="Mover caja"
+                                          onChange={(e) => moveBox(box.id, Number(e.target.value))}
+                                        >
+                                          {palletsByOrder[orderId]
+                                            .filter(p => p.id !== pallet.id)
+                                            .map(p => (
+                                              p.number != 0 ?
+                                                <option key={p.id} value={p.id}>
+                                                  Pallet: {p.number}
+                                                </option> :
+                                                <option key={p.id} value={p.id}>
+                                                  SIN PALLET ASIGNADO
+                                                </option>
+                                            ))}
+                                        </Select>
+                                      </Stack>
                                     </Td>
                                   </Tr>
                                 ))}
@@ -245,7 +316,7 @@ const PalletAndBoxes: React.FC<ClosePalletModalProps> = ({ isOpen, onClose, orde
           <Button variant="ghost" onClick={onClose}>Cerrar</Button>
         </ModalFooter>
       </ModalContent>
-    </Modal>
+    </Modal >
   );
 };
 export default PalletAndBoxes;
