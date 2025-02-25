@@ -24,8 +24,10 @@ export default function Home() {
       if (response.status === 200) {
         const token: string = response.data.token;
         const id: string = response.data.id;
+        const role: number = response.data.role;
         document.cookie = `erp_token=${token}`;
         document.cookie = `user=${id}`;
+        document.cookie = `role=${role}`
         setErrorMessage("");
         router.push("/dashboard");
 
