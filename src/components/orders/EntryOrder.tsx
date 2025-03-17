@@ -2,7 +2,7 @@
 
 
 import { Order, OrderItem } from "@/app/dashboard/order/page";
-import { useRouter,  } from "next/navigation";
+import { useRouter, } from "next/navigation";
 import {
   Box,
   Text,
@@ -28,7 +28,7 @@ import ProgressBar from "@/components/progressbar/ProgressBar";
 import ResponsiveView from "../ResponsiveLayout";
 import { FatherOrder } from "@/types/fatherOrders/FatherOrders";
 import FileUploadModel from "@/components/modals/file_upload_modal/file_upload_modal";
-import  Field from "@/types/forms/fields";
+import Field from "@/types/forms/fields";
 
 
 
@@ -47,20 +47,20 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
     router.push(`/dashboard/stadistics/${orderCode}`)
   }
 
-  const closeOrder = (fatherOrderId: number) =>{
+  const closeOrder = (fatherOrderId: number) => {
     const token = Cookies.get("erp_token");
     //const userId = Cookies.get("user");
     const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
     //const [field, setfield] = useState<Field[]>([]);
 
-    const response =  axios.patch(`${apiUrl}/order/closeOrders`, {
+    const response = axios.patch(`${apiUrl}/order/closeOrders`, {
       "fatherOrderId": fatherOrderId,
     }, {
       headers: {
         Authorization: `Bearer ${token}`
       },
-    }).then((response)=>{
-      if(response.status == 202 || response.status == 204){
+    }).then((response) => {
+      if (response.status == 202 || response.status == 204) {
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
             order.id === fatherOrderId
@@ -74,20 +74,20 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
   }
 
 
-  const openOrder = (fatherOrderId: number) =>{
+  const openOrder = (fatherOrderId: number) => {
     const token = Cookies.get("erp_token");
     //const userId = Cookies.get("user");
     const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
     //const [field, setfield] = useState<Field[]>([]);
 
-    const response =  axios.patch(`${apiUrl}/order/openOrders`, {
+    const response = axios.patch(`${apiUrl}/order/openOrders`, {
       "fatherOrderId": fatherOrderId,
     }, {
       headers: {
         Authorization: `Bearer ${token}`
       },
-    }).then((response)=>{
-      if(response.status == 202 || response.status == 204){
+    }).then((response) => {
+      if (response.status == 202 || response.status == 204) {
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
             order.id === fatherOrderId
@@ -100,18 +100,19 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
 
   }
 
-  const downloadFileFunc =  (fatherOrderId: number) => {
+  const downloadFileFunc = (fatherOrderId: number) => {
     const token = Cookies.get("erp_token");
     const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
-    axios.get(apiUrl + "/order/supplierOrders/download?father_order_id="+fatherOrderId,{
+    axios.get(apiUrl + "/order/supplierOrders/download?father_order_id=" + fatherOrderId, {
       headers: {
         Authorization: `Bearer ${token}`
-      }}).then((response2) => {
-       
-        downloadFile(response2.data.Results.file, response2.data.Results.filename)
-      
-        });
       }
+    }).then((response2) => {
+
+      downloadFile(response2.data.Results.file, response2.data.Results.filename)
+
+    });
+  }
 
 
   const mobileView = (
@@ -125,11 +126,11 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
             <ProgressBar total={fatherOrder.total_stock} completed={fatherOrder.pending_stock} />
           </Flex>
           <Flex justify="center" marginTop={3} flexDirection={"column"}>
-          <Button size="sm" onClick={() => downloadFileFunc(fatherOrder.id)} marginY={"5px"}>
-            Descargar orden
+            <Button size="sm" onClick={() => downloadFileFunc(fatherOrder.id)} marginY={"5px"}>
+              Descargar orden
             </Button>
             <Button size="sm" onClick={() => goToStaggingPage(fatherOrder.code)} marginY={"5px"}>
-            Detalles
+              Detalles
             </Button>
           </Flex>
 
@@ -168,28 +169,28 @@ const EntryOrder: React.FC<{ fatherOrders: FatherOrder[] }> = ({ fatherOrders: i
               </Td>
               <Td>
                 <Button onClick={() => goToStaggingPage(fatherOrder.code)}>
-                Detalles
+                  Detalles
                 </Button>
               </Td>
               <Td>
                 <Button onClick={() => goToStadisticsPage(fatherOrder.code)}>
-                Estadísticas
+                  Estadísticas
                 </Button>
               </Td>
-              <Td>          
+              <Td>
                 <Button size="sm" onClick={() => downloadFileFunc(fatherOrder.id)}>
                   Descargar orden
                 </Button>
-            </Td>
-            <Td>
-                <FileUploadModel report={false} buttonName="Modificar" endpoint="/order/editOrders" color="" actionName={"Modificar orden : "+fatherOrder.code} field={[{key: "father_order", value: fatherOrder.code}]} />
-            </Td>
+              </Td>
+              <Td>
+                <FileUploadModel report={false} buttonName="Modificar" endpoint="/order/editSupplierOrders" color="" actionName={"Modificar orden : " + fatherOrder.code} field={[{ key: "father_order", value: fatherOrder.code }]} />
+              </Td>
               <Td>
                 <Button onClick={() => closeOrder(fatherOrder.id)}>
-                Dar entrada
+                  Dar entrada
                 </Button>
                 <Button marginTop={"5px"} onClick={() => openOrder(fatherOrder.id)}>
-                Deshacer entrada
+                  Deshacer entrada
                 </Button>
               </Td>
             </Tr>
