@@ -27,7 +27,7 @@ interface Box {
   number: number;
   IsClose: number;
 }
-import { Button, Select, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalOverlay, Spinner } from "@chakra-ui/react";
+import { Button, Select, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalOverlay, Spinner, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
@@ -101,6 +101,7 @@ const Increment: React.FC<IncrementProps> = ({
     }
   }, [isOpen])
 
+  const toast = useToast();
   const incrementReceived = async () => {
     if (selectedId === null || inputValue === "") return;
     var pallet = 1;
@@ -131,21 +132,6 @@ const Increment: React.FC<IncrementProps> = ({
     }
 
     try {
-      const response = await axios.post(`${apiUrl}/order_line_boxes/withProcess`, {
-        data: [{
-          boxNumber: box,
-          palletNumber: NO_PALLET,
-          orderLineId: selectedId,
-          quantity: inputValueNumber,
-          isClose: OPEN
-        }]
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-    } catch (err) {
-      console.log(err)
-    }
-    try {
       const response = await axios.patch(`${apiUrl}/order/orderLines${endpoint}`, {
         data: [{
           id: selectedId,
@@ -155,11 +141,33 @@ const Increment: React.FC<IncrementProps> = ({
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (response.status === 202) {
+      if (response.status === 202 && !response.data.Results.Errors) {
+        //TODO: en el backend tendra que ser una unica llamada done se realicen las dos acciones
+        const response_boxes = await axios.post(`${apiUrl}/order_line_boxes/withProcess`, {
+          data: [{
+            boxNumber: box,
+            palletNumber: NO_PALLET,
+            orderLineId: selectedId,
+            quantity: inputValueNumber,
+            isClose: OPEN
+          }]
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
         await fetchOrder();
+      } else {
+
+        toast({
+          title: 'Error',
+          description: 'Ha ocurrido un error al agregar el artículo',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+
+        })
       }
-    } catch (err) {
-      console.error("Error incrementando la cantidad recibida:", err);
+    } catch (error) {
+      console.error("Error incrementando la cantidad recibida:", error);
     } finally {
       onClose();
     }
