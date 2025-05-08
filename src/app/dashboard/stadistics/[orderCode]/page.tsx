@@ -2,128 +2,319 @@
 
 import React, { useEffect, useState } from "react";
 import genericGet from "@/hooks/genericGet";
-import Bars from "@/components/chars/Bars"; 
-//import DoughnutChars from "@/components/chars/Doughnut";
 import {
   Box,
-  Flex,
-  Heading
+  Heading,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Text,
+  Divider,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
 } from "@chakra-ui/react";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Line, Bar } from "react-chartjs-2";
+import dayjs from "dayjs";
 
-interface Line {
-  lineId: number;
-  orderId: number;
-  fatherId: number;
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Tooltip,
+  Legend
+);
+
+interface RecordItem {
+  itemName: string;
+  ean: string;
+  worker: string;
+  currentTime: string;
   quantity: number;
-  recivedQuantity: number;
 }
 
-interface Order {
-  totalOrder: number;
-  code: string;
-  lines: Line[];
-}
-interface FatherOrder {
-  id: number;
-  code: string;
-  status_id: number;
-  type_id: number;
-  status: string;
-  type: string;
-  total_stock: number;
-  pending_stock: number;
-  total_picking_stock: number;
-  total_recived_picking_quantity: number;
+interface WorkerDayStats {
+  worker: string;
+  date: string;
+  avgTimeMinutes: number | null;
 }
 
+const CombinedStats = ({ params }: { params: { orderCode: string } }) => {
+  const [stats, setStats] = useState<WorkerDayStats[]>([]);
+  const [quantityData, setQuantityData] = useState<any>(null);
+  const [timeChartData, setTimeChartData] = useState<any>(null);
+  const [quantityTable, setQuantityTable] = useState<{ [worker: string]: { [itemKey: string]: number } }>({});
 
-
-const Stadistics = ({ params }: { params: { orderCode: string } }) => {
-
-  const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
-  const title = "Cantidades totales: "+decodeURIComponent(params.orderCode);
-  const label = 'Cantidades totales del pedido';
-  const progresLabels = ["Total", "Actual"];
-  const backgroundColor = ['rgba(54, 162, 235, 1)'];
-  const backgroundColorPicking = ['rgba(255, 99, 132, 1)'];
-  const backgroundColorStaging = ['rgba(255, 206, 86, 1)'];
-   const [labels, setLabels] = useState<string[]>([""]);
-   const [data, setData] = useState<number[]>([0]);
-   const [dataPicking, setDataPicking] = useState<number[]>([0]);
-   const [dataSatging, setDataSatging] = useState<number[]>([0]);
-  const handleHistoric = async () => {
-    let result = await genericGet("/stadistics/olHisotricByFatherOrder?father_code="+params.orderCode)
-    if(result.status == 202 || result.status == 201 || result.status == 200){
-      let response = result.body.Results.data.results;
-      let totalArray = [];
-      let labelArray = [];
-
-      response.forEach((element: Order) => {
-        totalArray.push(element.totalOrder);
-        labelArray.push(element.code);
-        setData(totalArray);
-        setLabels(labelArray);
-        
-      });
-      
-
+  const fetchData = async () => {
+    const result = await genericGet(
+      "/stadistics/lines?father_code=" + params.orderCode
+    );
+    if (
+      result.status === 200 ||
+      result.status === 201 ||
+      result.status === 202
+    ) {
+      const data: RecordItem[] = result.body.Results.data;
+      processQuantityStats(data);
+      processTimeStats(data);
     }
-  }
+  };
 
-  const handleTotals = async () => {
-    let result = await genericGet("/fatherOrder?father_order_code="+params.orderCode)
-    if(result.status == 202 || result.status == 201 || result.status == 200){
-      console.log(result.body.Results.data.results)
-      let response = result.body.Results.data;
-      let pickingArray = [];
-      let staggingArray = [];
-      let fatherData = response[0]
-      
-      pickingArray.push(fatherData.total_picking_stock);
-      pickingArray.push(fatherData.total_recived_picking_quantity);
-      staggingArray.push(fatherData.total_stock);
-      staggingArray.push(fatherData.pending_stock);
-      setDataPicking(pickingArray);
-      setDataSatging(staggingArray);
-      
+  const processQuantityStats = (data: RecordItem[]) => {
+    const grouped: { [key: string]: number } = {};
+    const table: { [worker: string]: { [itemKey: string]: number } } = {};
 
-    }
-  }
-  useEffect(() => {
-    handleHistoric();
-    handleTotals();
-  }, []); 
+    data.forEach((item) => {
+      const key = `${item.worker}-${item.ean}-${item.itemName || "SinNombre"}`;
+      grouped[key] = (grouped[key] || 0) + item.quantity;
 
-  // const data = [12, 19, 3, 5, 2, 3];
-  // const labels = ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange']
+      if (!table[item.worker]) {
+        table[item.worker] = {};
+      }
+      const itemKey = `${item.ean} ${item.itemName || "SinNombre"}`;
+      table[item.worker][itemKey] = (table[item.worker][itemKey] || 0) + item.quantity;
+    });
 
-    
-    return (
-        <Box maxW="1400px" mx="auto" p={4}>
-           <Heading size="lg" mb={4} textAlign="center">Estadísticas del pedido padre: {decodeURIComponent(params.orderCode)} </Heading>{/*</Box>{order?.FatherOrder.code}</Heading> */}
-    
-          {/*Desktop view*/}
-          <Flex flexDir={"row"} display={{ base: "none", md: "flex" }} overflowX="auto">
-          <Box width={"70%"} display={{ base: "none", md: "block" }} overflowX="auto">
-          <Bars tag={label} labels={labels} statData={data} title={title} backgroundColor={backgroundColor} borderColor={backgroundColor}/>
+    const labels = Object.keys(grouped);
+    const quantities = Object.values(grouped);
 
+    setQuantityData({
+      labels,
+      datasets: [
+        {
+          label: "Cantidad total",
+          data: quantities,
+          backgroundColor: "rgba(75, 192, 192, 0.6)",
+        },
+      ],
+    });
 
-          </Box>
-          <Flex width={"30%"} flexDir={"column"} display={{ base: "none", md: "block" }} overflowX="auto">
-          <Bars tag={"Cantidad"} labels={progresLabels} statData={dataSatging} title={"Preparación"} backgroundColor={backgroundColorStaging} borderColor={backgroundColorStaging}/>
-          <Bars tag={"Cantidad"} labels={progresLabels} statData={dataPicking} title={"Picking"} backgroundColor={backgroundColorPicking} borderColor={backgroundColorPicking}/>
+    setQuantityTable(table);
+  };
 
-          </Flex>
+  const processTimeStats = (data: RecordItem[]) => {
+    const grouped: { [key: string]: RecordItem[] } = {};
 
-          </Flex>
+    data.forEach((item) => {
+      const date = dayjs(item.currentTime).format("YYYY-MM-DD");
+      const key = `${item.worker}_${date}`;
+      if (!grouped[key]) {
+        grouped[key] = [];
+      }
+      grouped[key].push(item);
+    });
 
-    
-          {/* Mobil view*/}
-          <Box overflow={"none"} display={{ base: "block", md: "none" }} mt={4}>
-           
-          </Box>
-        </Box>
+    const statsArray: WorkerDayStats[] = [];
+
+    Object.keys(grouped).forEach((key) => {
+      const records = grouped[key].sort(
+        (a, b) =>
+          dayjs(a.currentTime).valueOf() - dayjs(b.currentTime).valueOf()
       );
-    };
-    
-    export default Stadistics;
+
+      let totalDiff = 0;
+      let count = 0;
+
+      for (let i = 1; i < records.length; i++) {
+        const prev = dayjs(records[i - 1].currentTime);
+        const curr = dayjs(records[i].currentTime);
+        totalDiff += curr.diff(prev, "second");
+        count++;
+      }
+
+      statsArray.push({
+        worker: records[0].worker,
+        date: dayjs(records[0].currentTime).format("YYYY-MM-DD"),
+        avgTimeMinutes: count > 0 ? totalDiff / count / 60 : null,
+      });
+    });
+
+    setStats(statsArray);
+
+    const workers = Array.from(new Set(statsArray.map((s) => s.worker)));
+    const dates = Array.from(new Set(statsArray.map((s) => s.date))).sort();
+
+    const datasets = workers.map((worker) => {
+      const dataPerDate = dates.map((date) => {
+        const stat = statsArray.find(
+          (s) => s.worker === worker && s.date === date
+        );
+        return stat?.avgTimeMinutes || 0;
+      });
+      return {
+        label: worker,
+        data: dataPerDate,
+        fill: false,
+        borderColor:
+          "#" +
+          Math.floor(Math.random() * 16777215).toString(16).padStart(6, "0"),
+      };
+    });
+
+    setTimeChartData({
+      labels: dates,
+      datasets,
+    });
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  return (
+    <Box maxW="1400px" mx="auto" p={4}>
+      <Heading size="lg" mb={4} textAlign="center">
+        Estadísticas combinadas por trabajador
+      </Heading>
+
+      <Divider my={4} />
+      <Heading size="md" mb={2}>
+        Cantidades por trabajador y artículo (desplegable)
+      </Heading>
+
+      <Accordion allowMultiple>
+        {Object.entries(quantityTable).map(([worker, items]) => (
+          <AccordionItem key={worker}>
+            <h2>
+              <AccordionButton>
+                <Box flex="1" textAlign="left">
+                  {worker}
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+            </h2>
+            <AccordionPanel pb={4}>
+              <Table size="sm" mb={2}>
+                <Thead>
+                  <Tr>
+                    <Th>EAN + Nombre</Th>
+                    <Th>Cantidad</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {Object.entries(items).map(([itemKey, qty]) => (
+                    <Tr key={itemKey}>
+                      <Td>{itemKey}</Td>
+                      <Td>{qty}</Td>
+                    </Tr>
+                  ))}
+                </Tbody>
+              </Table>
+            </AccordionPanel>
+          </AccordionItem>
+        ))}
+      </Accordion>
+
+      <Divider my={8} />
+      <Heading size="md" mb={2}>
+        Media de tiempo entre acciones por trabajador (min/día)
+      </Heading>
+      <Table size="sm" mb={4}>
+        <Thead>
+          <Tr>
+            <Th>Trabajador</Th>
+            <Th>Fecha</Th>
+            <Th>Media (minutos)</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          {stats.map((s, idx) => (
+            <Tr key={idx}>
+              <Td>{s.worker}</Td>
+              <Td>{s.date}</Td>
+              <Td>
+                {s.avgTimeMinutes !== null
+                  ? s.avgTimeMinutes.toFixed(2)
+                  : "N/A"}
+              </Td>
+            </Tr>
+          ))}
+        </Tbody>
+      </Table>
+
+      {quantityData && (
+        <>
+          <Divider my={8} />
+          <Heading size="md" mb={2}>
+            Gráfico de cantidades
+          </Heading>
+          <Bar
+            data={quantityData}
+            options={{
+              indexAxis: "y",
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: (ctx) => `${ctx.raw} unidades`,
+                  },
+                },
+              },
+              scales: {
+                x: { title: { display: true, text: "Cantidad" } },
+                y: {
+                  ticks: {
+                    callback: function(val, index) {
+                      const label = quantityData.labels[index];
+                      return label.length > 30
+                        ? label.slice(0, 30) + "..."
+                        : label;
+                    },
+                  },
+                },
+              },
+            }}
+          />
+        </>
+      )}
+
+      {timeChartData && (
+        <>
+          <Divider my={8} />
+          <Heading size="md" mb={2}>
+            Gráfico de tiempo promedio
+          </Heading>
+          <Line
+            data={timeChartData}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { position: "bottom" },
+                tooltip: {
+                  callbacks: {
+                    label: (ctx: any) =>
+                      `${ctx.dataset.label}: ${ctx.raw.toFixed(2)} min`,
+                  },
+                },
+              },
+              scales: {
+                y: { title: { display: true, text: "Minutos" } },
+                x: { title: { display: true, text: "Fecha" } },
+              },
+            }}
+          />
+        </>
+      )}
+    </Box>
+  );
+};
+
+export default CombinedStats;
+
