@@ -16,7 +16,7 @@ RUN npm cache clean --force
 RUN npm install
 #RUN npm update
 #RUN npm install @chakra-ui/react @chakra-ui/pin-input @chakra-ui/popper framer-motion
-RUN npm audit fix --force
+
 
 
 # Copia el resto de la aplicación
