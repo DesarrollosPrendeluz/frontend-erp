@@ -48,6 +48,16 @@ const Navbar: React.FC = () => {
               Pedidos
             </Box>
           </NextLink>
+          <NextLink href="/dashboard/panel" passHref>
+            <Box
+              px={4}
+              color="gray.300"
+              fontWeight="bold"
+              _hover={{ color: "gray.100", textDecoration: "underline" }}
+            >
+              Panel Stats
+            </Box>
+          </NextLink>
         </Flex>
         <Button ml={4} colorScheme="yellow" variant="outline" onClick={handleLogout}>
           Salir
