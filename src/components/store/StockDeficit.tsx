@@ -79,14 +79,34 @@ const StockDeficit = () => {
       
         });
       }
+
+  const cleanStockDeficit = () => {
+    if (window.confirm('¿Estás seguro de que deseas limpiar el stock déficit?')) {
+      const token = Cookies.get("erp_token");
+      axios.patch(`${backendUrl}/stock_deficit/clean`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }).then(() => {
+        alert('Stock déficit limpiado exitosamente');
+        window.location.reload();
+      }).catch((error) => {
+        alert('Error al limpiar el stock déficit');
+        console.error(error);
+      });
+    }
+  }
   const desktopView = (
 
     <Box maxW="1200px" mx="auto" mt={8} p={4}>
       
     <Flex marginBottom={"10px"} justifyContent={"space-between"}> 
       <Heading>{TITLE} </Heading>
-      <Button backgroundColor={'#F2C12E'} onClick={onOpen}> Crear pedido </Button>
-      <Button backgroundColor={"#FACC15"} onClick={() => downloadFile()}> Descargar StockDeficit</Button>
+      <Flex gap={2}>
+        <Button backgroundColor={'#F2C12E'} onClick={onOpen}> Crear pedido </Button>
+        <Button backgroundColor={"#FACC15"} onClick={() => downloadFile()}> Descargar StockDeficit</Button>
+        <Button backgroundColor={"#EF4444"} color="white" onClick={cleanStockDeficit}> Limpiar Stock Deficit</Button>
+      </Flex>
       </Flex>
       <SearchBar searchParams={["filter"]} searchValue={query} setSearchValue={setQuery}/>
 
