@@ -19,11 +19,14 @@ jobs:
           if [ "${{ github.ref }}" == "refs/heads/main" ]; then
             echo "IMAGE_NAME=frontend_erp" >> $GITHUB_ENV
             echo "HOST_NAME=https://erp-back.zarivy.com" >> $GITHUB_ENV
-            echo "CONTAINER_NAME=test_forntend_erp" >> $GITHUB_ENV
+            echo "CONTAINER_NAME=forntend_erp" >> $GITHUB_ENV
+            echo "CONTAINER_NAME_BACKUP=forntend_erp_backup" >> $GITHUB_ENV
+
           else
             echo "IMAGE_NAME=test_frontend_erp" >> $GITHUB_ENV
             echo "HOST_NAME=https://testbackerp.zarivy.com" >> $GITHUB_ENV
-            echo "CONTAINER_NAME=test_frontend_erp_deploy" >> $GITHUB_ENV
+            echo "CONTAINER_NAME=test_develop_forntend_erp" >> $GITHUB_ENV
+            echo "CONTAINER_NAME_BACKUP=test_develop_forntend_erp_backup" >> $GITHUB_ENV
           fi
       # 2. Log in to DockerHub
       - name: Log in to DockerHub
@@ -54,20 +57,31 @@ jobs:
             echo "Conectando al servidor remoto..."
             docker login
             docker pull ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
-            if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-              echo "Deteniendo y reiniciando contenedor en ambiente de desarrollo..."
+            if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+              if docker ps -a --format '{{.Names}}' | grep -q "^${{ env.CONTAINER_NAME_BACKUP }}$"; then
+                echo "Borrando el contenedor de backup antiguo"
+                docker stop ${{ env.CONTAINER_NAME_BACKUP }}
+                docker rm ${{ env.CONTAINER_NAME_BACKUP }}
+              else
+                echo "No existe el contenedor '${{ env.CONTAINER_NAME_BACKUP }}', no se borra."
+              fi
+
+              if docker ps -a --format '{{.Names}}' | grep -q "^${{ env.CONTAINER_NAME }}$"; then
+                echo "Cambiando el nombre del conetendor a backup..."
                 docker stop ${{ env.CONTAINER_NAME }} || true
-                docker rm ${{ env.CONTAINER_NAME }} || true
+                docker rename ${{ env.CONTAINER_NAME }} ${{ env.CONTAINER_NAME_BACKUP }} || true
+              else
+                echo "No existe el contenedor '${{ env.CONTAINER_NAME_BACKUP }}', no se borra."
+              fi
+
+              echo "Generamos el nuevo contenedor..."
               docker run -d --name ${{ env.CONTAINER_NAME }} \
               -p 3005:3000 \
                 ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
 
+              echo "Borramos imagenes no asociadas"
+              docker image prune -a
             else
               echo "No se ejecuta el reinicio del contenedor en main."
             fi  
 
-  # docker run -d --name my-container ${{ secrets.DOCKER_USERNAME }}/my-image:latest
-
-
-              # docker stop ${{ env.CONTAINER_NAME }} || true
-              # docker rm ${{ env.CONTAINER_NAME }} || true
