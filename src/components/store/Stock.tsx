@@ -124,7 +124,7 @@ const Stock = () => {
         <Button backgroundColor={"#FACC15"} onClick={() => downloadFileFunc()}> Descargar Stock</Button>
         <FileUploadModel buttonName="Modificar Stock" endpoint="/store/excel" color="#FACC15" actionName={"Modificar orden stock ubicaciones : "} report={true} field={[]} />
         <GenerateLocation/>
-        <Button backgroundColor={"#EF4444"} color="white" onClick={cleanZeroStock}> Limpiar Stock Cero</Button>
+        <Button backgroundColor={"#EF4444"} color="white" onClick={cleanZeroStock}> Limpiar Ubic. Stock Cero</Button>
           </Flex>
           <SearchBar searchParams={["search"]} searchValue={query} setSearchValue={setQuery}/>
 
