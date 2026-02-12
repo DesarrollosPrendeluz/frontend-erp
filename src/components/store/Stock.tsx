@@ -83,6 +83,23 @@ const Stock = () => {
         });
       }
 
+  const cleanZeroStock = () => {
+    if (window.confirm('¿Estás seguro de que deseas eliminar el stock en cero?')) {
+      const token = Cookies.get("erp_token");
+      axios.delete(`${backendUrl}/item_stock_location/cleanZeroStock`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }).then(() => {
+        alert('Stock en cero eliminado exitosamente');
+        window.location.reload();
+      }).catch((error) => {
+        alert('Error al eliminar el stock en cero');
+        console.error(error);
+      });
+    }
+  }
+
   const desktopView = (
 
     <Box maxW="1400px" mx="auto" mt={8} p={4}>
@@ -107,6 +124,7 @@ const Stock = () => {
         <Button backgroundColor={"#FACC15"} onClick={() => downloadFileFunc()}> Descargar Stock</Button>
         <FileUploadModel buttonName="Modificar Stock" endpoint="/store/excel" color="#FACC15" actionName={"Modificar orden stock ubicaciones : "} report={true} field={[]} />
         <GenerateLocation/>
+        <Button backgroundColor={"#EF4444"} color="white" onClick={cleanZeroStock}> Limpiar Stock Cero</Button>
           </Flex>
           <SearchBar searchParams={["search"]} searchValue={query} setSearchValue={setQuery}/>
 
