@@ -68,6 +68,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
   const [selectedPrinter, setSelectedPrinter] = useState<ZebraPrinter | null>(null);
   const [isPrinting, setIsPrinting] = useState<boolean>(false);
   const [query, setQuery] = useState<string>("");
+  const [ownBrandFilter, setOwnBrandFilter] = useState<boolean | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -150,13 +151,14 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
 
     try {
 
+      const ownBrandParam = ownBrandFilter !== null ? `&own_brand=${ownBrandFilter}` : "";
       const response = await axios.get<{
         Results:
         {
           recount: number;
           data: response
         }
-      }>(`${apiUrl}/fatherOrder/orderLines?page=${currentPage - 1}&page_size=10&father_order_code=${params.orderCode}&store_id=${STORE_STAGGING}${query}`,
+      }>(`${apiUrl}/fatherOrder/orderLines?page=${currentPage - 1}&page_size=10&father_order_code=${params.orderCode}&store_id=${STORE_STAGGING}${query}${ownBrandParam}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -178,7 +180,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
 
   useEffect(() => {
     fetchOrder();
-  }, [params.orderCode, query, currentPage]);
+  }, [params.orderCode, query, currentPage, ownBrandFilter]);
 
   const handleIncrementModal = (id: number, total: number, received: number, orderId: number) => {
     setReceivedAmount(received);
@@ -298,6 +300,22 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
       <Box display={{ base: "none", md: "block" }} overflowX="auto">
         <Stack my={4} sx={{ position: 'sticky', top: '1px', zIndex: 1000, backgroundColor: 'white' }}>
           <SearchBar searchParams={["ean", "ref_prov"]} searchValue={query} setSearchValue={setQuery} />
+          <Flex gap={2} align="center">
+            <Button
+              size="sm"
+              backgroundColor={ownBrandFilter === true ? "#FACC15" : "gray.200"}
+              onClick={() => setOwnBrandFilter(ownBrandFilter === true ? null : true)}
+            >
+              Marca Propia
+            </Button>
+            <Button
+              size="sm"
+              backgroundColor={ownBrandFilter === false ? "#FACC15" : "gray.200"}
+              onClick={() => setOwnBrandFilter(ownBrandFilter === false ? null : false)}
+            >
+              No Marca Propia
+            </Button>
+          </Flex>
         </Stack>
         <Table variant="simple" size="sm" mt={4}>
           <Thead bg="gray.100">
@@ -307,6 +325,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
               <Th>Nombre</Th>
               <Th>Proveedor</Th>
               <Th>Ref Prov</Th>
+              <Th>Marca Propia</Th>
               <Th>Cantidad</Th>
               <Th>Responsable</Th>
               <Th>COD. Pedido</Th>
@@ -324,6 +343,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
                   <Td>{line.name ? line.name.substring(0, 25) : ""}...</Td>
                   <Td>{line.supplier}</Td>
                   <Td>{line.supplier_reference}</Td>
+                  <Td>{line.own_brand ? "Sí" : "No"}</Td>
                   <Td><ProgressBar total={line.quantity} completed={line.recived_quantity} /></Td>
                   <Td>{line.AssignedUser.user_name}</Td>
                   <Td>{order.FatherOrder.Childs.find((child) => child.id === line.order_id)?.code}</Td>
@@ -366,6 +386,9 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
               <Flex width={"100%"} justify="space-between">
                 <Text width={"40%"} align="left" fontSize="sm"><b>Proveedor</b><br /> {line.supplier}</Text>
                 <Text width={"55%"} align="left" fontSize="sm"><b>Codigo</b><br /> {line.supplier_reference}</Text>
+              </Flex>
+              <Flex width={"100%"} justify="space-between">
+                <Text width={"40%"} align="left" fontSize="sm"><b>Marca Propia</b><br /> {line.own_brand ? "Sí" : "No"}</Text>
               </Flex>
               <Flex width={"100%"} justify="space-between">
                 <Text width={"40%"} align="left" fontSize="sm"><b>Usuario</b><br /> {line.AssignedUser.user_name}</Text>
