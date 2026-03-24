@@ -19,6 +19,7 @@ import {
   Th,
   Thead,
   Tr,
+  Badge,
   Button,
   IconButton,
   useDisclosure,
@@ -317,20 +318,19 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
             </Button>
           </Flex>
         </Stack>
-        <Table variant="simple" size="sm" mt={4} style={{ tableLayout: "fixed", width: "100%" }}>
+        <Table variant="simple" size="sm" mt={4}>
           <Thead bg="gray.100">
             <Tr>
-              <Th w="9%">SKU</Th>
-              <Th w="10%">Ean</Th>
-              <Th w="18%">Nombre</Th>
-              <Th w="9%">Proveedor</Th>
-              <Th w="8%">Ref Prov</Th>
-              <Th w="10%">Cantidad</Th>
-              <Th w="10%">Responsable</Th>
-              <Th w="10%">COD. Pedido</Th>
-              <Th w="8%">Acciones</Th>
-              <Th w="5%">Etiqueta</Th>
-              <Th w="3%">MP</Th>
+              <Th>SKU</Th>
+              <Th>Ean</Th>
+              <Th>Nombre</Th>
+              <Th>Proveedor</Th>
+              <Th>Ref Prov</Th>
+              <Th>Cantidad</Th>
+              <Th>Responsable</Th>
+              <Th>COD. Pedido</Th>
+              <Th>Acciones</Th>
+              <Th>Etiqueta</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -353,15 +353,15 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
                     </Flex>
                   </Td>
                   <Td>
-                    <Flex gap={2}>
+                    <Flex gap={2} align="center">
                       <IconButton aria-label="Imprimir" icon={<SlPrinter />} onClick={() => handleZebra(line.id)} size="sm" />
                       <IconButton aria-label="Información" icon={<InfoIcon />} onClick={() => handleLabelModal(line.id)} size="sm" />
+                      <Text fontSize="xs" fontWeight="bold" color={line.own_brand ? "green.500" : "gray.400"}>{line.own_brand ? "Sí" : "No"}</Text>
                     </Flex>
                   </Td>
-                  <Td>{line.own_brand ? "Sí" : "No"}</Td>
                 </Tr>
               ))) : (<Tr>
-                <Td colSpan={11} textAlign="center">
+                <Td colSpan={10} textAlign="center">
                   No hay resultados.
                 </Td>
               </Tr>)}
