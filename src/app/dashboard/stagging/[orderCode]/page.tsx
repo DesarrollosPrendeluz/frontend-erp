@@ -317,20 +317,20 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
             </Button>
           </Flex>
         </Stack>
-        <Table variant="simple" size="sm" mt={4}>
+        <Table variant="simple" size="sm" mt={4} style={{ tableLayout: "fixed", width: "100%" }}>
           <Thead bg="gray.100">
             <Tr>
-              <Th>SKU</Th>
-              <Th>Ean</Th>
-              <Th>Nombre</Th>
-              <Th>Proveedor</Th>
-              <Th>Ref Prov</Th>
-              <Th>Marca Propia</Th>
-              <Th>Cantidad</Th>
-              <Th>Responsable</Th>
-              <Th>COD. Pedido</Th>
-              <Th>Acciones</Th>
-              <Th>Etiqueta</Th>
+              <Th w="9%">SKU</Th>
+              <Th w="10%">Ean</Th>
+              <Th w="18%">Nombre</Th>
+              <Th w="9%">Proveedor</Th>
+              <Th w="8%">Ref Prov</Th>
+              <Th w="10%">Cantidad</Th>
+              <Th w="10%">Responsable</Th>
+              <Th w="10%">COD. Pedido</Th>
+              <Th w="8%">Acciones</Th>
+              <Th w="5%">Etiqueta</Th>
+              <Th w="3%">MP</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -343,7 +343,6 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
                   <Td>{line.name ? line.name.substring(0, 25) : ""}...</Td>
                   <Td>{line.supplier}</Td>
                   <Td>{line.supplier_reference}</Td>
-                  <Td>{line.own_brand ? "Sí" : "No"}</Td>
                   <Td><ProgressBar total={line.quantity} completed={line.recived_quantity} /></Td>
                   <Td>{line.AssignedUser.user_name}</Td>
                   <Td>{order.FatherOrder.Childs.find((child) => child.id === line.order_id)?.code}</Td>
@@ -359,9 +358,10 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
                       <IconButton aria-label="Información" icon={<InfoIcon />} onClick={() => handleLabelModal(line.id)} size="sm" />
                     </Flex>
                   </Td>
+                  <Td>{line.own_brand ? "Sí" : "No"}</Td>
                 </Tr>
               ))) : (<Tr>
-                <Td colSpan={10} textAlign="center">
+                <Td colSpan={11} textAlign="center">
                   No hay resultados.
                 </Td>
               </Tr>)}
