@@ -356,7 +356,18 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
                     <Flex gap={2} align="center">
                       <IconButton aria-label="Imprimir" icon={<SlPrinter />} onClick={() => handleZebra(line.id)} size="sm" />
                       <IconButton aria-label="Información" icon={<InfoIcon />} onClick={() => handleLabelModal(line.id)} size="sm" />
-                      <Text fontSize="xs" fontWeight="bold" color={line.own_brand ? "green.500" : "gray.400"}>{line.own_brand ? "Sí" : "No"}</Text>
+                      <Box
+                        px={2} py={1}
+                        borderRadius="md"
+                        bg={line.own_brand ? "green.500" : "red.500"}
+                        color="white"
+                        fontSize="xs"
+                        fontWeight="bold"
+                        textAlign="center"
+                        minW="28px"
+                      >
+                        {line.own_brand ? "Sí" : "No"}
+                      </Box>
                     </Flex>
                   </Td>
                 </Tr>
@@ -388,7 +399,21 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
                 <Text width={"55%"} align="left" fontSize="sm"><b>Codigo</b><br /> {line.supplier_reference}</Text>
               </Flex>
               <Flex width={"100%"} justify="space-between">
-                <Text width={"40%"} align="left" fontSize="sm"><b>Marca Propia</b><br /> {line.own_brand ? "Sí" : "No"}</Text>
+                <Box width={"40%"} align="left" fontSize="sm">
+                  <Text fontSize="sm"><b>Marca Propia</b></Text>
+                  <Box
+                    display="inline-block"
+                    mt={1}
+                    px={3} py={1}
+                    borderRadius="md"
+                    bg={line.own_brand ? "green.500" : "red.500"}
+                    color="white"
+                    fontSize="sm"
+                    fontWeight="bold"
+                  >
+                    {line.own_brand ? "Sí" : "No"}
+                  </Box>
+                </Box>
               </Flex>
               <Flex width={"100%"} justify="space-between">
                 <Text width={"40%"} align="left" fontSize="sm"><b>Usuario</b><br /> {line.AssignedUser.user_name}</Text>
