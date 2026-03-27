@@ -399,7 +399,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
                 <Text width={"55%"} align="left" fontSize="sm"><b>Codigo</b><br /> {line.supplier_reference}</Text>
               </Flex>
               <Flex width={"100%"} justify="space-between">
-                <Box width={"40%"} align="left" fontSize="sm">
+                <Box width={"40%"} fontSize="sm">
                   <Text fontSize="sm"><b>Marca Propia</b></Text>
                   <Box
                     display="inline-block"
