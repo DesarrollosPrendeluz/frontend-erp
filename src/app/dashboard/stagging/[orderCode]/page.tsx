@@ -140,6 +140,18 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
     });
   }
 
+  const downloadPickingExcel = () => {
+    const token = Cookies.get("erp_token");
+    const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL as string;
+    axios.get(apiUrl + `/fatherOrder/orderLines/downloadPicking?father_order_code=${params.orderCode}&store_id=${STORE_STAGGING}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }).then((response2) => {
+      downloadFile(response2.data.Results.file, response2.data.Results.filename)
+    });
+  }
+
 
 
 
@@ -297,6 +309,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
         Cerrar Pallets
       </Button>
       <Button onClick={onExportCSV}>Descargar Excel Amazon</Button>
+      <Button backgroundColor={"#FACC15"} onClick={downloadPickingExcel}>Descargar excel picking</Button>
       {/*Desktop view*/}
       <Box display={{ base: "none", md: "block" }} overflowX="auto">
         <Stack my={4} sx={{ position: 'sticky', top: '1px', zIndex: 1000, backgroundColor: 'white' }}>
