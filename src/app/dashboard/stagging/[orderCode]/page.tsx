@@ -309,7 +309,7 @@ const Stagging = ({ params }: { params: { orderCode: string } }) => {
         Cerrar Pallets
       </Button>
       <Button onClick={onExportCSV}>Descargar Excel Amazon</Button>
-      <Button backgroundColor={"#FACC15"} onClick={downloadPickingExcel}>Descargar excel picking</Button>
+      <Button backgroundColor={"#FACC15"} onClick={downloadPickingExcel}>Descargar excel preparación</Button>
       {/*Desktop view*/}
       <Box display={{ base: "none", md: "block" }} overflowX="auto">
         <Stack my={4} sx={{ position: 'sticky', top: '1px', zIndex: 1000, backgroundColor: 'white' }}>
